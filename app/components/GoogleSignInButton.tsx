@@ -1,7 +1,7 @@
-import { signInWithIdTokenAction } from "app/actions";
 import { Strings } from "app/common-strings";
 import { sha256 } from "js-sha256";
 import { useEffect, useState } from "react";
+import { signInWithIdToken } from "../actions/signInWithIdToken";
 
 declare global {
     interface Window {
@@ -52,11 +52,7 @@ export default function GoogleSignInButton({
         response: GoogleSignInResponse
     ): Promise<void> => {
         try {
-            await signInWithIdTokenAction(
-                response,
-                nonceObject?.nonce,
-                mode === "signup"
-            );
+            await signInWithIdToken(response, nonceObject?.nonce);
         } catch {
             setError(Strings.ERROR_SIGNING_IN);
         }

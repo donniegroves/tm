@@ -1,10 +1,10 @@
 import { SignupPageContent } from "@/components/SignupPageContent";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { signUpAction } from "app/actions";
 import { Strings } from "app/common-strings";
+import { signUp } from "../actions/signUp";
 
-jest.mock("app/actions", () => ({
-    signUpAction: jest.fn(),
+jest.mock("app/actions/signUp", () => ({
+    signUp: jest.fn(),
 }));
 
 jest.mock("@heroui/input", () => {
@@ -87,21 +87,21 @@ describe("SignupPageContent", () => {
     });
 
     it("shows a loading state when the form is submitted", async () => {
-        (signUpAction as jest.Mock).mockResolvedValueOnce(undefined);
+        (signUp as jest.Mock).mockResolvedValueOnce(undefined);
         setup("test@example.com", "Password123", "Password123");
         await waitFor(() => {
             expect(
                 screen.getByRole("button", { name: submitButtonLabelPending })
             ).toBeInTheDocument();
-            expect(signUpAction).toHaveBeenCalledWith(
+            expect(signUp).toHaveBeenCalledWith(
                 "test@example.com",
                 "Password123"
             );
         });
     });
 
-    it("shows an error if signUpAction throws a user_already_exists error", async () => {
-        (signUpAction as jest.Mock).mockRejectedValueOnce(
+    it("shows an error if signUp throws a user_already_exists error", async () => {
+        (signUp as jest.Mock).mockRejectedValueOnce(
             new Error("user_already_exists")
         );
         setup("test@example.com", "Password123", "Password123");
@@ -110,10 +110,8 @@ describe("SignupPageContent", () => {
         });
     });
 
-    it("shows a generic error if signUpAction throws an unknown error", async () => {
-        (signUpAction as jest.Mock).mockRejectedValueOnce(
-            new Error("unknown_error")
-        );
+    it("shows a generic error if signUp throws an unknown error", async () => {
+        (signUp as jest.Mock).mockRejectedValueOnce(new Error("unknown_error"));
         setup("test@example.com", "Password123", "Password123");
         await waitFor(() => {
             expect(screen.getByText(Strings.GENERIC)).toBeInTheDocument();

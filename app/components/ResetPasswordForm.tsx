@@ -3,8 +3,8 @@
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { resetPasswordAction } from "app/actions";
 import { FormEvent, useState } from "react";
+import { resetPassword } from "../actions/resetPassword";
 
 const validateFormData = (
     formData: FormData
@@ -46,7 +46,7 @@ export default function ResetPasswordForm() {
                 return;
             }
 
-            await resetPasswordAction(validPassword);
+            await resetPassword(validPassword);
         } catch {
             setError("Failed to reset password.");
         } finally {

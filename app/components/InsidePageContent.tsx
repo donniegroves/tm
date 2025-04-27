@@ -10,7 +10,7 @@ export default function InsidePageContent({ user }: { user: User | null }) {
     }
 
     const handleSignOutClick = async () => {
-        await signOutAction();
+        await signOut();
     };
 
     return (

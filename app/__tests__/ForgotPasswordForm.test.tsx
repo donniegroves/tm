@@ -1,8 +1,8 @@
-import { forgotPasswordAction } from "@/app/actions";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { forgotPassword } from "../actions/forgotPassword";
 import ForgotPasswordForm from "../components/ForgotPasswordForm";
 
-jest.mock("@/app/actions");
+jest.mock("@/app/actions/forgotPassword");
 
 test("renders Forgot Password form", () => {
     render(<ForgotPasswordForm />);
@@ -11,7 +11,7 @@ test("renders Forgot Password form", () => {
 });
 
 test("calls forgotPasswordAction on submit with correct email", async () => {
-    const mockFn = forgotPasswordAction as jest.Mock;
+    const mockFn = forgotPassword as jest.Mock;
     mockFn.mockResolvedValueOnce({ success: true });
 
     render(<ForgotPasswordForm />);
@@ -30,8 +30,8 @@ test("calls forgotPasswordAction on submit with correct email", async () => {
     });
 });
 
-test("calls forgotPasswordAction on submit and sets error state when action fails", async () => {
-    const mockFn = forgotPasswordAction as jest.Mock;
+test("calls forgotPassword on submit and sets error state when action fails", async () => {
+    const mockFn = forgotPassword as jest.Mock;
     mockFn.mockRejectedValueOnce(new Error("Network error"));
 
     render(<ForgotPasswordForm />);

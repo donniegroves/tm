@@ -1,8 +1,8 @@
-import { resetPasswordAction } from "@/app/actions";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { resetPassword } from "../actions/resetPassword";
 import ResetPasswordForm from "../components/ResetPasswordForm";
 
-jest.mock("@/app/actions");
+jest.mock("@/app/actions/resetPassword");
 
 describe("ResetPasswordForm", () => {
     beforeEach(() => {
@@ -64,7 +64,7 @@ describe("ResetPasswordForm", () => {
     });
 
     test("calls resetPasswordAction on valid form submission", async () => {
-        const mockResetPasswordAction = resetPasswordAction as jest.Mock;
+        const mockResetPasswordAction = resetPassword as jest.Mock;
         mockResetPasswordAction.mockResolvedValueOnce(undefined);
 
         render(<ResetPasswordForm />);
@@ -87,7 +87,7 @@ describe("ResetPasswordForm", () => {
     });
 
     test("displays error when resetPasswordAction fails", async () => {
-        const mockResetPasswordAction = resetPasswordAction as jest.Mock;
+        const mockResetPasswordAction = resetPassword as jest.Mock;
         mockResetPasswordAction.mockRejectedValueOnce(
             new Error("Network error")
         );

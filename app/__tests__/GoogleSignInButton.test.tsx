@@ -1,8 +1,8 @@
-import { signInWithIdTokenAction } from "@/app/actions";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { render, waitFor } from "@testing-library/react";
+import { signInWithIdToken } from "../actions/signInWithIdToken";
 
-jest.mock("@/app/actions");
+jest.mock("@/app/actions/signInWithIdToken");
 
 describe("GoogleSignInButton", () => {
     beforeEach(() => {
@@ -35,7 +35,7 @@ describe("GoogleSignInButton", () => {
 
     it("running window.handleSignInWithGoogle calls signInWithIdTokenAction", async () => {
         const setErrorMock = jest.fn();
-        const mockFn = signInWithIdTokenAction as jest.Mock;
+        const mockFn = signInWithIdToken as jest.Mock;
         mockFn.mockResolvedValue({});
 
         const { container } = render(
@@ -55,9 +55,9 @@ describe("GoogleSignInButton", () => {
         });
     });
 
-    it("running window.handleSignInWithGoogle sets the error state when signInWithIdTokenAction fails", async () => {
+    it("running window.handleSignInWithGoogle sets the error state when signInWithIdToken fails", async () => {
         const setErrorMock = jest.fn();
-        const mockFn = signInWithIdTokenAction as jest.Mock;
+        const mockFn = signInWithIdToken as jest.Mock;
         mockFn.mockRejectedValue(new Error());
 
         const { container } = render(

@@ -3,10 +3,10 @@
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { signUpAction } from "app/actions";
 import { Strings } from "app/common-strings";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { signUp } from "../actions/signUp";
 import HorizontalRule from "./HorizontalRule";
 
 const validateFormData = (
@@ -70,7 +70,7 @@ export function SignupPageContent() {
         }
 
         try {
-            await signUpAction(validEmail, validPassword);
+            await signUp(validEmail, validPassword);
         } catch (error) {
             if (
                 error instanceof Error &&

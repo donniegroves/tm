@@ -34,6 +34,12 @@ Then, you must login to supabase with `npx supabase login`
 Then link this project with `npx supabase link`
 Finally, to run the migrations, use `npx supabase db push`
 
+Migrations can be added using:
+
+```bash
+npx supabase migration new name_of_table
+```
+
 Database types can be generated from Supabase using:
 
 ```bash

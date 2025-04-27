@@ -1,10 +1,10 @@
 import { LoginPageContent } from "@/components/LoginPageContent";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { signInAction } from "app/actions";
 import { Strings } from "app/common-strings";
+import { signIn } from "../actions/signIn";
 
-jest.mock("app/actions", () => ({
-    signInAction: jest.fn(),
+jest.mock("app/actions/signIn", () => ({
+    signIn: jest.fn(),
 }));
 
 jest.mock("@heroui/input", () => {
@@ -36,7 +36,7 @@ describe("LoginPageContent", () => {
     });
 
     it("calls signInAction with email and password on valid form submission", async () => {
-        (signInAction as jest.Mock).mockResolvedValueOnce(undefined);
+        (signIn as jest.Mock).mockResolvedValueOnce(undefined);
 
         render(<LoginPageContent />);
 
@@ -49,15 +49,15 @@ describe("LoginPageContent", () => {
         fireEvent.click(screen.getByRole("button", { name: /submit/i }));
 
         await waitFor(() => {
-            expect(signInAction).toHaveBeenCalledWith(
+            expect(signIn).toHaveBeenCalledWith(
                 "test@example.com",
                 "password123"
             );
         });
     });
 
-    it("shows an error if signInAction throws an invalid_credentials error", async () => {
-        (signInAction as jest.Mock).mockRejectedValueOnce(
+    it("shows an error if signIn throws an invalid_credentials error", async () => {
+        (signIn as jest.Mock).mockRejectedValueOnce(
             new Error("invalid_credentials")
         );
 
@@ -79,9 +79,7 @@ describe("LoginPageContent", () => {
     });
 
     it("shows a generic error if signInAction throws an unknown error", async () => {
-        (signInAction as jest.Mock).mockRejectedValueOnce(
-            new Error("unknown_error")
-        );
+        (signIn as jest.Mock).mockRejectedValueOnce(new Error("unknown_error"));
 
         render(<LoginPageContent />);
 

@@ -4,10 +4,10 @@ import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { signInAction } from "app/actions";
 import { Strings } from "app/common-strings";
 import Link from "next/link";
 import { FormEvent, ReactNode, useState } from "react";
+import { signIn } from "../actions/signIn";
 import HorizontalRule from "./HorizontalRule";
 
 export function LoginPageContent() {
@@ -22,7 +22,7 @@ export function LoginPageContent() {
         const password = formData.get("password")?.toString() || "";
 
         try {
-            await signInAction(email, password);
+            await signIn(email, password);
         } catch (error) {
             if (
                 error instanceof Error &&

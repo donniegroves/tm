@@ -1,11 +1,11 @@
 "use client";
 
-import { forgotPasswordAction } from "@/app/actions";
 import { Strings } from "@/app/common-strings";
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import { FormEvent, useState } from "react";
+import { forgotPassword } from "../actions/forgotPassword";
 
 export default function ForgotPasswordForm() {
     const [status, setStatus] = useState<{
@@ -23,7 +23,7 @@ export default function ForgotPasswordForm() {
         const email = formData.get("email")?.toString();
         if (email) {
             try {
-                await forgotPasswordAction(email);
+                await forgotPassword(email);
                 setStatus({
                     type: "success",
                     message: Strings.PW_RESET_SENT,
