@@ -1,6 +1,6 @@
+import { Strings } from "@/app/common";
 import { SignupPageContent } from "@/components/SignupPageContent";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Strings } from "app/common-strings";
 import { signUp } from "../actions/signUp";
 
 jest.mock("app/actions/signUp", () => ({

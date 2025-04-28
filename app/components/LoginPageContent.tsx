@@ -1,10 +1,10 @@
 "use client";
 
+import { Strings } from "@/app/common";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { Strings } from "app/common-strings";
 import Link from "next/link";
 import { FormEvent, ReactNode, useState } from "react";
 import { signIn } from "../actions/signIn";

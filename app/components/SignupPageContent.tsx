@@ -1,9 +1,9 @@
 "use client";
 
+import { Strings } from "@/app/common";
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
-import { Strings } from "app/common-strings";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { signUp } from "../actions/signUp";

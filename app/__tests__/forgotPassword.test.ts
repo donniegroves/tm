@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { forgotPassword } from "../actions/forgotPassword";
-import { Strings } from "../common-strings";
+import { Strings } from "../common";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),

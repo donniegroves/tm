@@ -1,4 +1,4 @@
-import { Strings } from "app/common-strings";
+import { Strings } from "@/app/common";
 import { sha256 } from "js-sha256";
 import { useEffect, useState } from "react";
 import { signInWithIdToken } from "../actions/signInWithIdToken";

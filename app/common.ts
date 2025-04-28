@@ -11,3 +11,9 @@ export const Strings = {
     PW_RESET_SENT:
         "If the email address you provided is registered with us, a password reset email has been sent.",
 };
+
+export enum AccessLevel {
+    USER = 0,
+    RESERVED = 1,
+    SUPERADMIN = 2,
+}

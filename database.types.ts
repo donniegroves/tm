@@ -41,6 +41,7 @@ export type Database = {
       games: {
         Row: {
           created_at: string | null
+          host_user_id: string | null
           id: number
           num_static_ai: number | null
           seconds_per_pre: number
@@ -50,6 +51,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          host_user_id?: string | null
           id?: number
           num_static_ai?: number | null
           seconds_per_pre: number
@@ -59,6 +61,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          host_user_id?: string | null
           id?: number
           num_static_ai?: number | null
           seconds_per_pre?: number

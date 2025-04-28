@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
-import { Strings } from "../common-strings";
+import { Strings } from "../common";
 
 export const forgotPassword = async (email: string) => {
     const supabase = await createClient();
