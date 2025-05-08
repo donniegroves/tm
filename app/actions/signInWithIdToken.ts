@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { isUserIdInPublicUserTable } from "../helpers";
 import { insertPublicUser } from "./insertPublicUser";
 
 interface GoogleSignInResponse {
@@ -12,30 +13,28 @@ export const signInWithIdToken = async (
     response: GoogleSignInResponse,
     nonHashedNonce: string
 ) => {
-    const supabase = await createClient();
-    const { data: signInWithIdTokenData, error: signInWithIdTokenError } =
-        await supabase.auth.signInWithIdToken({
-            provider: "google",
-            token: response.credential,
-            nonce: nonHashedNonce,
-        });
+    try {
+        const supabase = await createClient();
+        const { data: signInWithIdTokenData, error: signInWithIdTokenError } =
+            await supabase.auth.signInWithIdToken({
+                provider: "google",
+                token: response.credential,
+                nonce: nonHashedNonce,
+            });
 
-    if (signInWithIdTokenError) {
+        if (signInWithIdTokenError) {
+            throw new Error("Error signing in with Google");
+        }
+
+        const userExistsInPublictable = await isUserIdInPublicUserTable(
+            signInWithIdTokenData.user.id
+        );
+
+        if (!userExistsInPublictable) {
+            await insertPublicUser(signInWithIdTokenData.user.id);
+        }
+    } catch {
         throw new Error("Error signing in with Google");
-    }
-
-    const { data: existingUserData, error: existingUserError } = await supabase
-        .from("users")
-        .select("user_id")
-        .eq("user_id", signInWithIdTokenData.user.id)
-        .maybeSingle();
-
-    if (existingUserError) {
-        throw new Error("Error checking existing user");
-    }
-
-    if (!existingUserData) {
-        await insertPublicUser(signInWithIdTokenData.user.id);
     }
 
     return redirect(`/inside`);

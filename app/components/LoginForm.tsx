@@ -6,13 +6,15 @@ import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, ReactNode, useState } from "react";
 import { signIn } from "../actions/signIn";
 import HorizontalRule from "./HorizontalRule";
 
-export function LoginPageContent() {
+export function LoginForm() {
     const [error, setError] = useState<string | null | ReactNode>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
 
     const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -22,7 +24,10 @@ export function LoginPageContent() {
         const password = formData.get("password")?.toString() || "";
 
         try {
-            await signIn(email, password);
+            const { data, error } = await signIn(email, password);
+            if (data.user && !error) {
+                router.push("/inside");
+            }
         } catch (error) {
             if (
                 error instanceof Error &&
@@ -47,8 +52,6 @@ export function LoginPageContent() {
 
     return (
         <>
-            <h1 className="text-4xl font-bold mb-10">Login</h1>
-            <HorizontalRule text="Login with a third-party account" />
             <div className="flex justify-center">
                 <GoogleSignInButton mode="signin" setError={setError} />
             </div>

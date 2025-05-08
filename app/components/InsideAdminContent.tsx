@@ -1,8 +1,7 @@
 "use client";
 
-import { Button } from "@heroui/button";
 import { Database } from "database.types";
-import { signOut } from "../actions/signOut";
+import SignOutButton from "./SignOutButton";
 
 export default function InsideAdminContent({
     user,
@@ -11,17 +10,13 @@ export default function InsideAdminContent({
     user: Database["public"]["Tables"]["users"]["Row"];
     games: Database["public"]["Tables"]["games"]["Row"][];
 }) {
-    const handleSignOutClick = async () => {
-        await signOut();
-    };
-
     return (
         <div>
             <div className="text-left mb-8">
                 <h3 className="text-xl font-bold">Logged in user</h3>
                 <div>user_id: {user.user_id}</div>
                 <div>access_level: {user.access_level}</div>
-                <Button onPress={handleSignOutClick}>Sign out</Button>
+                <SignOutButton />
             </div>
             <div className="flex flex-row gap-4">
                 <div className="flex-1">

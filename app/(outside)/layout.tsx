@@ -4,8 +4,7 @@ import { ReactNode } from "react";
 import "../globals.css";
 
 export const metadata: Metadata = {
-    title: "Base App",
-    description: "Base App template",
+    title: process.env.NEXT_PUBLIC_APP_NAME,
 };
 
 export default function OutsideLayout({ children }: { children: ReactNode }) {

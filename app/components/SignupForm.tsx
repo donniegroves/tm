@@ -5,6 +5,7 @@ import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { signUp } from "../actions/signUp";
 import HorizontalRule from "./HorizontalRule";
@@ -52,7 +53,8 @@ const validateFormData = (
     };
 };
 
-export function SignupPageContent() {
+export function SignupForm() {
+    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -70,7 +72,14 @@ export function SignupPageContent() {
         }
 
         try {
-            await signUp(validEmail, validPassword);
+            const { data } = await signUp(validEmail, validPassword);
+            if (!data.user) {
+                setError(Strings.GENERIC);
+                setIsLoading(false);
+                return;
+            } else {
+                router.push("/confirm-email?email=" + validEmail);
+            }
         } catch (error) {
             if (
                 error instanceof Error &&

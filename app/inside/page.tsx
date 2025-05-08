@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { AccessLevel } from "../common";
 import InsideAdminContent from "../components/InsideAdminContent";
+import SignOutButton from "../components/SignOutButton";
 
 export default async function InsidePage() {
     try {
@@ -35,9 +36,15 @@ export default async function InsidePage() {
         if (userData.access_level == AccessLevel.SUPERADMIN) {
             return <InsideAdminContent user={userData} games={gamesData} />;
         } else {
-            return <div>user level access</div>;
+            return (
+                <div>
+                    <p>user level access</p>
+                    <SignOutButton />
+                </div>
+            );
         }
-    } catch {
+    } catch (error) {
+        console.error("Error loading data:", error);
         return <div>Error loading data: see console</div>;
     }
 }

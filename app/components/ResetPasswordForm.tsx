@@ -3,6 +3,7 @@
 import { Button } from "@heroui/button";
 import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { resetPassword } from "../actions/resetPassword";
 
@@ -28,6 +29,7 @@ const validateFormData = (
 };
 
 export default function ResetPasswordForm() {
+    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -47,6 +49,7 @@ export default function ResetPasswordForm() {
             }
 
             await resetPassword(validPassword);
+            router.push("/login");
         } catch {
             setError("Failed to reset password.");
         } finally {

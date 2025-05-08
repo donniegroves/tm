@@ -1,5 +1,5 @@
 import { Strings } from "@/app/common";
-import { SignupPageContent } from "@/components/SignupPageContent";
+import { SignupForm } from "@/app/components/SignupForm";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { signUp } from "../actions/signUp";
 
@@ -23,7 +23,7 @@ const submitButtonLabel = "Submit";
 const submitButtonLabelPending = "Signing up...";
 
 const setup = (email = "", password = "", confirmPassword = "") => {
-    render(<SignupPageContent />);
+    render(<SignupForm />);
     if (email) {
         fireEvent.change(screen.getByLabelText(emailLabel), {
             target: { value: email },
@@ -42,7 +42,7 @@ const setup = (email = "", password = "", confirmPassword = "") => {
     fireEvent.click(screen.getByRole("button", { name: submitButtonLabel }));
 };
 
-describe("SignupPageContent", () => {
+describe("SignupForm", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });

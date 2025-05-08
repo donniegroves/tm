@@ -6,18 +6,16 @@ export default async function ConfirmEmail({
 }: {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getUser();
-
-    if (data.user) {
-        redirect("/inside");
-    }
-
     const params = await searchParams;
     const email = typeof params.email === "string" ? params.email : undefined;
-
     if (!email) {
         redirect("/signup");
+    }
+
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    if (data.user) {
+        redirect("/inside");
     }
 
     return (

@@ -1,6 +1,4 @@
-# Baseapp
-
-Baseapp is a template that allows user auth through supabase and redirects user to "inside" pages after logged in. It also has theme support.
+# Tachemaster
 
 # Getting Started
 

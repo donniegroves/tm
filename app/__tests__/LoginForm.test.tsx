@@ -1,7 +1,7 @@
 import { Strings } from "@/app/common";
-import { LoginPageContent } from "@/components/LoginPageContent";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { signIn } from "../actions/signIn";
+import { LoginForm } from "../components/LoginForm";
 
 jest.mock("app/actions/signIn", () => ({
     signIn: jest.fn(),
@@ -16,13 +16,13 @@ jest.mock("@heroui/input", () => {
     };
 });
 
-describe("LoginPageContent", () => {
+describe("LoginForm", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     it("renders the login form", async () => {
-        render(<LoginPageContent />);
+        render(<LoginForm />);
         await waitFor(() => {
             expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
             expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("LoginPageContent", () => {
     it("calls signInAction with email and password on valid form submission", async () => {
         (signIn as jest.Mock).mockResolvedValueOnce(undefined);
 
-        render(<LoginPageContent />);
+        render(<LoginForm />);
 
         fireEvent.change(screen.getByLabelText(/email/i), {
             target: { value: "test@example.com" },
@@ -61,7 +61,7 @@ describe("LoginPageContent", () => {
             new Error("invalid_credentials")
         );
 
-        render(<LoginPageContent />);
+        render(<LoginForm />);
 
         fireEvent.change(screen.getByLabelText(/email/i), {
             target: { value: "test@example.com" },
@@ -81,7 +81,7 @@ describe("LoginPageContent", () => {
     it("shows a generic error if signInAction throws an unknown error", async () => {
         (signIn as jest.Mock).mockRejectedValueOnce(new Error("unknown_error"));
 
-        render(<LoginPageContent />);
+        render(<LoginForm />);
 
         fireEvent.change(screen.getByLabelText(/email/i), {
             target: { value: "test@example.com" },

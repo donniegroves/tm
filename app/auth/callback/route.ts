@@ -1,22 +1,50 @@
+import { insertPublicUser } from "@/app/actions/insertPublicUser";
+import { isUserIdInPublicUserTable } from "@/app/helpers";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
-// exchanges an auth code for the user's session.
 export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
     const origin = requestUrl.origin;
     const redirectTo = requestUrl.searchParams.get("redirect_to")?.toString();
+    const supabase = await createClient();
 
-    if (code) {
-        const supabase = await createClient();
-        await supabase.auth.exchangeCodeForSession(code);
+    if (!code) {
+        return NextResponse.json(
+            { error: "Unprocessable Entity" },
+            { status: 422 }
+        );
     }
 
-    if (redirectTo) {
-        return NextResponse.redirect(`${origin}${redirectTo}`);
-    }
+    try {
+        const { data: exchangeData, error: exchangeError } =
+            await supabase.auth.exchangeCodeForSession(code);
 
-    // URL to redirect to after sign up process completes
-    return NextResponse.redirect(`${origin}/inside`);
+        if (exchangeError) {
+            throw exchangeError;
+        } else if (!exchangeData.user) {
+            console.log("User not found during exchange process");
+            return NextResponse.json(
+                { error: "User not found" },
+                { status: 404 }
+            );
+        }
+
+        if (!isUserIdInPublicUserTable(exchangeData.user.id)) {
+            insertPublicUser(exchangeData.user.id);
+        }
+
+        if (redirectTo) {
+            return NextResponse.redirect(`${origin}${redirectTo}`);
+        }
+
+        return NextResponse.redirect(`${origin}/inside`);
+    } catch (error) {
+        console.log(error);
+        return NextResponse.json(
+            { error: "Error during exchange process" },
+            { status: 500 }
+        );
+    }
 }
