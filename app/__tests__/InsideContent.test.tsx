@@ -3,7 +3,7 @@ import { Database } from "database.types";
 import { createClient } from "../../utils/supabase/server";
 import { signOut } from "../actions/signOut";
 import { AccessLevel } from "../common";
-import InsideAdminContent from "../components/InsideAdminContent";
+import InsideContent from "../components/InsideContent";
 
 jest.mock("../../utils/supabase/server", () => ({
     createClient: jest.fn(),
@@ -20,7 +20,7 @@ const mockUser: Database["public"]["Tables"]["users"]["Row"] | null = {
     updated_at: null,
 };
 
-describe("InsideAdminContent", () => {
+describe("InsideContent", () => {
     it("should fetch and display access_level and games associated with the user", async () => {
         const mockGames = [
             {
@@ -50,7 +50,7 @@ describe("InsideAdminContent", () => {
             from: mockFrom,
         });
 
-        render(<InsideAdminContent user={mockUser} games={mockGames} />);
+        render(<InsideContent user={mockUser} games={mockGames} />);
 
         await waitFor(() => {
             expect(
@@ -75,7 +75,7 @@ describe("InsideAdminContent", () => {
     });
 
     it("should call signOut when clicking on the 'Sign out' button", async () => {
-        render(<InsideAdminContent user={mockUser} games={[]} />);
+        render(<InsideContent user={mockUser} games={[]} />);
 
         await waitFor(() => {
             const signOutButton = screen.getByText("Sign out");

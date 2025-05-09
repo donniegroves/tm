@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
 import { useState } from "react";
 import { signOut } from "../actions/signOut";
 
@@ -9,7 +10,7 @@ export default function SignOutButton() {
 
     return (
         <Button
-            className="bg-customlight text-customdark hover:bg-customlight/50 hover:text-customdark"
+            className="bg-customlight text-customdark hover:bg-customlight/50 hover:text-customdark min-w-24"
             onPress={async () => {
                 setIsLoading(true);
                 await signOut();
@@ -17,7 +18,11 @@ export default function SignOutButton() {
             }}
             disabled={isLoading}
         >
-            {isLoading ? <span className="spinner" /> : "Sign Out"}
+            {isLoading ? (
+                <Spinner size="sm" aria-label="Loading..." />
+            ) : (
+                "Sign Out"
+            )}
         </Button>
     );
 }

@@ -1,10 +1,14 @@
+CREATE OR REPLACE FUNCTION is_admin(input_user_id uuid)
+            returns boolean AS
+        $$
+        select true from users
+        where user_id = input_user_id and access_level = 2
+        $$ stable language sql security definer;
+
 CREATE POLICY "Enable users to view their own data only" ON public.users AS PERMISSIVE FOR
 SELECT
     TO authenticated USING (
-        (
-            SELECT
-                auth.uid ()
-        ) = user_id
+          ((auth.uid() = user_id) OR is_admin(auth.uid()))
     );
 
 CREATE POLICY "Enable insert for users based on user_id" ON public.users AS PERMISSIVE FOR INSERT TO public
@@ -19,17 +23,7 @@ WITH
 CREATE POLICY "Allow selects on games for users with access_level 2" ON public.games FOR
 SELECT
     TO authenticated USING (
-        (
-            SELECT
-                access_level
-            FROM
-                public.users
-            WHERE
-                user_id = (
-                    SELECT
-                        auth.uid ()
-                )
-        ) = 2
+        is_admin(auth.uid())
     );
 
 CREATE POLICY "Enable hosts to view their own games" ON public.games AS PERMISSIVE FOR

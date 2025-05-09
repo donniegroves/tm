@@ -1,5 +1,5 @@
 import { insertPublicUser } from "@/app/actions/insertPublicUser";
-import { isUserIdInPublicUserTable } from "@/app/helpers";
+import { getUserFromPublic } from "@/app/helpers";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -30,9 +30,12 @@ export async function GET(request: Request) {
                 { status: 404 }
             );
         }
+        const userIsInPublicUserTable = await getUserFromPublic(
+            exchangeData.user.id
+        );
 
-        if (!isUserIdInPublicUserTable(exchangeData.user.id)) {
-            insertPublicUser(exchangeData.user.id);
+        if (!userIsInPublicUserTable) {
+            await insertPublicUser(exchangeData.user.id);
         }
 
         if (redirectTo) {

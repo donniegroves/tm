@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { isUserIdInPublicUserTable } from "../helpers";
+import { getUserFromPublic } from "../helpers";
 import { insertPublicUser } from "./insertPublicUser";
 
 interface GoogleSignInResponse {
@@ -26,7 +26,7 @@ export const signInWithIdToken = async (
             throw new Error("Error signing in with Google");
         }
 
-        const userExistsInPublictable = await isUserIdInPublicUserTable(
+        const userExistsInPublictable = await getUserFromPublic(
             signInWithIdTokenData.user.id
         );
 

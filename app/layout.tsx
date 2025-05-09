@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body>
+            <body className="bg-customlight dark:bg-customdark text-customdark dark:text-customlight">
                 <ThemeProvider attribute="class">
                     <HeroUIProvider>{children}</HeroUIProvider>
                 </ThemeProvider>
