@@ -23,6 +23,12 @@ export function LoginForm() {
         const email = formData.get("email")?.toString() || "";
         const password = formData.get("password")?.toString() || "";
 
+        if (!email || !password) {
+            setError("Please fill in all fields.");
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const { data, error } = await signIn(email, password);
             if (data.user && !error) {

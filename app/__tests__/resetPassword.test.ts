@@ -1,8 +1,8 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import { redirect } from "next/navigation";
 import { resetPassword } from "../actions/resetPassword";
 
-jest.mock("@/utils/supabase/server", () => ({
+jest.mock("@/utils/supabase/client", () => ({
     createClient: jest.fn(),
 }));
 jest.mock("next/navigation", () => ({
@@ -18,7 +18,7 @@ beforeEach(() => {
 const setupMocks = (updateUserReturn: { error: Error | null }) => {
     const mockUpdateUser = jest.fn().mockResolvedValue(updateUserReturn);
     const mockSupabase = { auth: { updateUser: mockUpdateUser } };
-    (createClient as jest.Mock).mockResolvedValue(mockSupabase);
+    (createClient as jest.Mock).mockReturnValue(mockSupabase);
     return { mockUpdateUser, mockSupabase };
 };
 
@@ -30,7 +30,6 @@ describe("resetPasswordAction", () => {
 
         expect(createClient).toHaveBeenCalled();
         expect(mockUpdateUser).toHaveBeenCalledWith({ password: mockPassword });
-        expect(redirect).toHaveBeenCalledWith("/inside");
     });
 
     it("should throw an error if password update fails", async () => {

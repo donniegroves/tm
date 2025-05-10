@@ -1,10 +1,20 @@
 import { Strings } from "@/app/common";
 import { SignupForm } from "@/app/components/SignupForm";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+    act,
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+} from "@testing-library/react";
+import { useRouter } from "next/navigation";
 import { signUp } from "../actions/signUp";
 
 jest.mock("app/actions/signUp", () => ({
     signUp: jest.fn(),
+}));
+jest.mock("next/navigation", () => ({
+    useRouter: jest.fn(),
 }));
 
 jest.mock("@heroui/input", () => {
@@ -39,12 +49,18 @@ const setup = (email = "", password = "", confirmPassword = "") => {
             target: { value: confirmPassword },
         });
     }
-    fireEvent.click(screen.getByRole("button", { name: submitButtonLabel }));
+    act(() => {
+        fireEvent.click(
+            screen.getByRole("button", { name: submitButtonLabel })
+        );
+    });
 };
 
 describe("SignupForm", () => {
+    const mockPush = jest.fn();
     beforeEach(() => {
         jest.clearAllMocks();
+        (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
     });
 
     it("renders the signup form", () => {
@@ -112,6 +128,30 @@ describe("SignupForm", () => {
 
     it("shows a generic error if signUp throws an unknown error", async () => {
         (signUp as jest.Mock).mockRejectedValueOnce(new Error("unknown_error"));
+        setup("test@example.com", "Password123", "Password123");
+        await waitFor(() => {
+            expect(screen.getByText(Strings.GENERIC)).toBeInTheDocument();
+        });
+    });
+
+    it("redirects to /confirm-email on successful signup", async () => {
+        (signUp as jest.Mock).mockResolvedValueOnce({
+            data: { user: {} },
+            error: null,
+        });
+        setup("test@example.com", "Password123", "Password123");
+        await waitFor(() => {
+            expect(mockPush).toHaveBeenCalledWith(
+                "/confirm-email?email=test@example.com"
+            );
+        });
+    });
+
+    it("shows a generic error if signUp returns an error", async () => {
+        (signUp as jest.Mock).mockResolvedValueOnce({
+            data: null,
+            error: { message: "Some error" },
+        });
         setup("test@example.com", "Password123", "Password123");
         await waitFor(() => {
             expect(screen.getByText(Strings.GENERIC)).toBeInTheDocument();

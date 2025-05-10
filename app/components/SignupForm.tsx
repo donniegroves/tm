@@ -73,7 +73,7 @@ export function SignupForm() {
 
         try {
             const { data } = await signUp(validEmail, validPassword);
-            if (!data.user) {
+            if (!data || !data.user) {
                 setError(Strings.GENERIC);
                 setIsLoading(false);
                 return;
