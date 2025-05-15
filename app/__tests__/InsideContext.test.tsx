@@ -53,13 +53,31 @@ describe("InsideContext", () => {
         },
     ];
 
+    const mockQuestions = [
+        {
+            id: 1,
+            pre_question: "What is your favorite color?",
+            rank_prompt: "Rank your preferences",
+            created_at: null,
+            updated_at: null,
+        },
+        {
+            id: 2,
+            pre_question: "What is your favorite food?",
+            rank_prompt: "Rank your choices",
+            created_at: null,
+            updated_at: null,
+        },
+    ];
+
     const TestComponent = () => {
         const context = useInsideContext();
         return (
             <div>
-                <p>Logged in user: {context.loggedInUser.id}</p>
-                <p>Other users: {context.otherUsers.length}</p>
-                <p>Visible games: {context.visibleGames.length}</p>
+                <p>Logged in user id: {context.loggedInUser.id}</p>
+                <p>Other users count: {context.otherUsers.length}</p>
+                <p>Games count: {context.visibleGames.length}</p>
+                <p>Questions count: {context.questions.length} </p>
             </div>
         );
     };
@@ -70,14 +88,18 @@ describe("InsideContext", () => {
                 loggedInUser={mockLoggedInUser}
                 otherUsers={mockOtherUsers}
                 visibleGames={mockVisibleGames}
+                questions={mockQuestions}
             >
                 <TestComponent />
             </InsideContextProvider>
         );
 
-        expect(screen.getByText(/Logged in user: user1/)).toBeInTheDocument();
-        expect(screen.getByText(/Other users: 2/)).toBeInTheDocument();
-        expect(screen.getByText(/Visible games: 2/)).toBeInTheDocument();
+        expect(
+            screen.getByText(/Logged in user id: user1/)
+        ).toBeInTheDocument();
+        expect(screen.getByText(/Other users count: 2/)).toBeInTheDocument();
+        expect(screen.getByText(/Games count: 2/)).toBeInTheDocument();
+        expect(screen.getByText(/Questions count: 2/)).toBeInTheDocument();
     });
 
     it("throws an error when used outside of the provider", () => {

@@ -10,6 +10,7 @@ interface InsideContextType {
     };
     otherUsers: Database["public"]["Tables"]["users"]["Row"][];
     visibleGames: Database["public"]["Tables"]["games"]["Row"][];
+    questions: Database["public"]["Tables"]["questions"]["Row"][];
 }
 
 const InsideContext = createContext<InsideContextType | undefined>(undefined);
@@ -19,15 +20,17 @@ export function InsideContextProvider({
     loggedInUser,
     otherUsers,
     visibleGames,
+    questions,
 }: {
     children: ReactNode;
     loggedInUser: InsideContextType["loggedInUser"];
     otherUsers: InsideContextType["otherUsers"];
     visibleGames: InsideContextType["visibleGames"];
+    questions: InsideContextType["questions"];
 }) {
     return (
         <InsideContext.Provider
-            value={{ loggedInUser, otherUsers, visibleGames }}
+            value={{ loggedInUser, otherUsers, visibleGames, questions }}
         >
             {children}
         </InsideContext.Provider>

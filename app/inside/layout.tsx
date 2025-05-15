@@ -15,7 +15,8 @@ export default async function InsideLayout({
 }: {
     children: ReactNode;
 }) {
-    const { loggedInUser, otherUsers, gamesData } = await fetchLayoutData();
+    const { loggedInUser, otherUsers, gamesData, questions } =
+        await fetchLayoutData();
 
     return (
         <div className="flex flex-col min-h-screen px-4">
@@ -25,6 +26,7 @@ export default async function InsideLayout({
                     loggedInUser={loggedInUser}
                     otherUsers={otherUsers}
                     visibleGames={gamesData}
+                    questions={questions}
                 >
                     {children}
                 </InsideContextProvider>

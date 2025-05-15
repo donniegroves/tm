@@ -56,3 +56,24 @@ SELECT
                 auth.uid ()
         ) = user_id
     );
+
+create policy "Enable read access for all users"
+on "public"."questions"
+as PERMISSIVE
+for SELECT
+to authenticated
+using (true);
+
+create policy "Enable insert for authenticated users only"
+on "public"."questions"
+as PERMISSIVE
+for INSERT
+to authenticated
+with check ( is_admin(auth.uid()) );
+
+create policy "Enable delete for admins"
+on "public"."questions"
+as PERMISSIVE
+for DELETE
+to authenticated
+using ( is_admin(auth.uid()) );

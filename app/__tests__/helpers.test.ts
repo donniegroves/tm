@@ -73,6 +73,10 @@ describe("helpers", () => {
                 { user_id: "456", access_level: "user" },
             ];
             const mockGamesData = [{ id: "game1" }, { id: "game2" }];
+            const mockQuestionsData = [
+                { id: "question1" },
+                { id: "question2" },
+            ];
 
             mockSupabase.auth.getUser.mockResolvedValue({
                 data: { user: mockAuthUser },
@@ -84,6 +88,10 @@ describe("helpers", () => {
             });
             mockSupabase.select.mockResolvedValueOnce({
                 data: mockGamesData,
+                error: null,
+            });
+            mockSupabase.select.mockResolvedValueOnce({
+                data: mockQuestionsData,
                 error: null,
             });
 
@@ -99,6 +107,7 @@ describe("helpers", () => {
                 },
                 otherUsers: [{ user_id: "456", access_level: "user" }],
                 gamesData: mockGamesData,
+                questions: mockQuestionsData,
             });
         });
 
@@ -152,6 +161,36 @@ describe("helpers", () => {
 
             await expect(fetchLayoutData()).rejects.toThrow(
                 "Error fetching games"
+            );
+        });
+
+        it("should throw an error if fetching questions fails", async () => {
+            const mockAuthUser = { id: "123", email: "test@example.com" };
+            const mockAllUsers = [
+                { user_id: "123", access_level: "admin" },
+                { user_id: "456", access_level: "user" },
+            ];
+            const mockGamesData = [{ id: "game1" }, { id: "game2" }];
+
+            mockSupabase.auth.getUser.mockResolvedValue({
+                data: { user: mockAuthUser },
+                error: null,
+            });
+            mockSupabase.select.mockResolvedValueOnce({
+                data: mockAllUsers,
+                error: null,
+            });
+            mockSupabase.select.mockResolvedValueOnce({
+                data: mockGamesData,
+                error: null,
+            });
+            mockSupabase.select.mockResolvedValueOnce({
+                data: null,
+                error: "Error",
+            });
+
+            await expect(fetchLayoutData()).rejects.toThrow(
+                "Error fetching questions"
             );
         });
 

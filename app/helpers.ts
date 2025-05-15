@@ -44,6 +44,13 @@ export async function fetchLayoutData() {
         throw new Error("Error fetching games");
     }
 
+    const { data: questions, error: questionsError } = await supabase
+        .from("questions")
+        .select();
+    if (questionsError) {
+        throw new Error("Error fetching questions");
+    }
+
     const authedAccessLevel = allUsers.find(
         (user) => user.user_id === authUserData.user?.id
     )?.access_level;
@@ -59,5 +66,5 @@ export async function fetchLayoutData() {
         (user) => user.user_id !== authUserData.user?.id
     );
 
-    return { loggedInUser, otherUsers, gamesData };
+    return { loggedInUser, otherUsers, gamesData, questions };
 }

@@ -32,7 +32,7 @@ describe("SignOutButton", () => {
         expect(button).toBeDisabled();
         expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // TODO: remove this unnecessary wait
 
         expect(button).not.toBeDisabled();
         expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument();
