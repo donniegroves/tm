@@ -1,6 +1,6 @@
 import { Avatar } from "@heroui/avatar";
 import { User } from "@supabase/supabase-js";
-import SignOutButton from "../components/SignOutButton";
+import HeaderProfileButton from "./HeaderProfileButton";
 
 export default function Header({
     loggedInUser,
@@ -15,15 +15,11 @@ export default function Header({
                 {process.env.NEXT_PUBLIC_APP_NAME || "App"}
             </h1>
             <div
-                className="flex flex-row"
+                className="flex items-center gap-2"
                 title={`${loggedInUser.id} / ${loggedInUser.access_level}`}
             >
-                <SignOutButton />
-                <div className="text-sm text-right pr-4">
-                    <div>{loggedInUser.user_metadata.full_name}</div>
-                    <div>{loggedInUser.email}</div>
-                </div>
                 <Avatar
+                    size="sm"
                     classNames={{
                         img: "opacity-100",
                     }}
@@ -32,6 +28,15 @@ export default function Header({
                     src={loggedInUser.user_metadata.avatar_url}
                     name={loggedInUser.user_metadata.full_name}
                 />
+                <div>
+                    <div className="text-xs">
+                        {loggedInUser.user_metadata.full_name}
+                    </div>
+                    <div className="text-[0.65rem]">{loggedInUser.email}</div>
+                </div>
+                <div>
+                    <HeaderProfileButton />
+                </div>
             </div>
         </header>
     );

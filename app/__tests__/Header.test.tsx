@@ -26,8 +26,5 @@ describe("Header", () => {
             "src",
             "https://example.com/avatar.png"
         );
-        expect(
-            screen.getByRole("button", { name: "Sign Out" })
-        ).toBeInTheDocument();
     });
 });

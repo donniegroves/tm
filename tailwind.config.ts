@@ -5,7 +5,7 @@ export default {
   content: [
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@heroui/theme/dist/components/(avatar|button|form|input|spinner|table|ripple|checkbox|spacer).js"
+    "./node_modules/@heroui/theme/dist/components/(avatar|button|dropdown|form|input|spinner|table|ripple|menu|divider|popover|checkbox|spacer).js"
   ],
     theme: {
         extend: {
