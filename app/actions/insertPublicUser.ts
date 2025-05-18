@@ -1,16 +1,13 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { AccessLevel } from "../common";
+import { Database } from "database.types";
 
-export const insertPublicUser = async (userId: string) => {
+export const insertPublicUser = async (
+    userData: Database["public"]["Tables"]["users"]["Insert"]
+) => {
     const supabase = await createClient();
-    const { error } = await supabase.from("users").insert([
-        {
-            user_id: userId,
-            access_level: AccessLevel.USER,
-        },
-    ]);
+    const { error } = await supabase.from("users").insert([userData]);
 
     if (error) {
         throw new Error();

@@ -1,6 +1,6 @@
 export default function Footer() {
     return (
-        <footer className="sticky bottom-0 py-2 border-t border-customdark dark:border-customlight bg-customlight dark:bg-customdark text-center text-sm text-customdark dark:text-customlight z-10">
+        <footer className="w-full fixed left-1/2 -translate-x-1/2 bottom-0 py-1 border-t border-customdark/50 dark:border-customlight/50 bg-customlight dark:bg-customdark text-center text-xs text-customdark dark:text-customlight z-10">
             &copy; {new Date().getFullYear()}{" "}
             {process.env.NEXT_PUBLIC_APP_NAME || "App"}. All rights reserved.
         </footer>

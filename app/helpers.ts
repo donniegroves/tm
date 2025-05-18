@@ -1,6 +1,10 @@
 import { createClient } from "@/utils/supabase/server";
+import { User } from "@supabase/supabase-js";
+import { Database } from "database.types";
 
-export const getUserFromPublic = async (userId: string) => {
+export const getUserFromPublic = async (
+    userId: string
+): Promise<Database["public"]["Tables"]["users"]["Row"] | null> => {
     try {
         const supabase = await createClient();
         const { data: existingUserData, error: existingUserError } =
@@ -16,12 +20,16 @@ export const getUserFromPublic = async (userId: string) => {
 
         return existingUserData;
     } catch (error) {
-        console.error("Error in getUserFromPublic:", error);
         throw error;
     }
 };
 
-export async function fetchLayoutData() {
+export async function fetchLayoutData(): Promise<{
+    loggedInUserId: string;
+    allUsers: Database["public"]["Tables"]["users"]["Row"][];
+    gamesData: Database["public"]["Tables"]["games"]["Row"][];
+    questions: Database["public"]["Tables"]["questions"]["Row"][];
+}> {
     const supabase = await createClient();
 
     const { data: authUserData, error: authUserError } =
@@ -51,20 +59,25 @@ export async function fetchLayoutData() {
         throw new Error("Error fetching questions");
     }
 
-    const authedAccessLevel = allUsers.find(
-        (user) => user.user_id === authUserData.user?.id
-    )?.access_level;
-    if (authedAccessLevel === undefined) {
-        throw new Error("Access level not found for authenticated user");
+    return {
+        loggedInUserId: authUserData.user.id,
+        allUsers,
+        gamesData,
+        questions,
+    };
+}
+
+export function mapAuthUserRowToPublicUserRow(
+    authUserRow: User
+): Database["public"]["Tables"]["users"]["Insert"] {
+    if (!authUserRow.email) {
+        throw new Error("Email was not found in authUserRow");
     }
 
-    const loggedInUser = {
-        ...authUserData.user,
-        access_level: authedAccessLevel,
+    return {
+        avatar_url: authUserRow.user_metadata.avatar_url,
+        email: authUserRow.email,
+        full_name: authUserRow.user_metadata.full_name,
+        user_id: authUserRow.id,
     };
-    const otherUsers = allUsers.filter(
-        (user) => user.user_id !== authUserData.user?.id
-    );
-
-    return { loggedInUser, otherUsers, gamesData, questions };
 }

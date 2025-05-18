@@ -3,80 +3,20 @@ import {
     InsideContextProvider,
     useInsideContext,
 } from "../inside/InsideContext";
+import {
+    mockAllUsers,
+    mockGamesData,
+    mockQuestionsData,
+} from "../test-helpers";
 
 describe("InsideContext", () => {
-    const mockLoggedInUser = {
-        id: "user1",
-        access_level: 1,
-        email: "user1@example.com",
-        user_metadata: {},
-        app_metadata: {},
-        aud: "authenticated",
-        created_at: "2025-05-01T00:00:00.000Z",
-    };
-
-    const mockOtherUsers = [
-        {
-            user_id: "user2",
-            access_level: 2,
-            created_at: "2025-05-01T00:00:00.000Z",
-            updated_at: "2025-05-01T00:00:00.000Z",
-        },
-        {
-            user_id: "user3",
-            access_level: 3,
-            created_at: "2025-05-01T00:00:00.000Z",
-            updated_at: "2025-05-01T00:00:00.000Z",
-        },
-    ];
-
-    const mockVisibleGames = [
-        {
-            id: 111,
-            share_code: "ABC123",
-            created_at: "2025-05-01T00:00:00.000Z",
-            host_user_id: "user1",
-            num_static_ai: 0,
-            seconds_per_pre: 0,
-            seconds_per_rank: 5,
-            updated_at: "2025-05-01T00:00:00.000Z",
-        },
-        {
-            id: 222,
-            share_code: "XYZ789",
-            created_at: "2025-05-01T00:00:00.000Z",
-            host_user_id: "user2",
-            num_static_ai: 0,
-            seconds_per_pre: 0,
-            seconds_per_rank: 5,
-            updated_at: "2025-05-01T00:00:00.000Z",
-        },
-    ];
-
-    const mockQuestions = [
-        {
-            id: 1,
-            pre_question: "What is your favorite color?",
-            rank_prompt: "Rank your preferences",
-            created_at: null,
-            updated_at: null,
-        },
-        {
-            id: 2,
-            pre_question: "What is your favorite food?",
-            rank_prompt: "Rank your choices",
-            created_at: null,
-            updated_at: null,
-        },
-    ];
-
     const TestComponent = () => {
         const context = useInsideContext();
         return (
             <div>
-                <p>Logged in user id: {context.loggedInUser.id}</p>
-                <p>Other users count: {context.otherUsers.length}</p>
-                <p>Games count: {context.visibleGames.length}</p>
+                <p>Logged in user id: {context.loggedInUserId}</p>
+                <p>Total users count: {context.allUsers.length}</p>
+                <p>Games count: {context.gamesData.length}</p>
                 <p>Questions count: {context.questions.length} </p>
             </div>
         );
@@ -85,10 +25,10 @@ describe("InsideContext", () => {
     it("provides the correct context values", () => {
         render(
             <InsideContextProvider
-                loggedInUser={mockLoggedInUser}
-                otherUsers={mockOtherUsers}
-                visibleGames={mockVisibleGames}
-                questions={mockQuestions}
+                loggedInUserId={mockAllUsers[0].user_id}
+                allUsers={mockAllUsers}
+                gamesData={mockGamesData}
+                questions={mockQuestionsData}
             >
                 <TestComponent />
             </InsideContextProvider>
@@ -97,7 +37,7 @@ describe("InsideContext", () => {
         expect(
             screen.getByText(/Logged in user id: user1/)
         ).toBeInTheDocument();
-        expect(screen.getByText(/Other users count: 2/)).toBeInTheDocument();
+        expect(screen.getByText(/Total users count: 2/)).toBeInTheDocument();
         expect(screen.getByText(/Games count: 2/)).toBeInTheDocument();
         expect(screen.getByText(/Questions count: 2/)).toBeInTheDocument();
     });

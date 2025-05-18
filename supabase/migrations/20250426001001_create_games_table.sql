@@ -16,11 +16,11 @@ CREATE TABLE
             AND seconds_per_rank <= 300
         ) NOT NULL,
         created_at timestamp
-        WITH
-            time zone DEFAULT now (),
+        with
+            time zone NOT NULL DEFAULT now (),
             updated_at timestamp
-        WITH
-            time zone DEFAULT now ()
+        with
+            time zone NOT NULL DEFAULT now ()
     );
 
 ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;

@@ -40,34 +40,34 @@ export type Database = {
       }
       games: {
         Row: {
-          created_at: string | null
+          created_at: string
           host_user_id: string | null
           id: number
           num_static_ai: number | null
           seconds_per_pre: number
           seconds_per_rank: number
           share_code: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           host_user_id?: string | null
           id?: number
           num_static_ai?: number | null
           seconds_per_pre: number
           seconds_per_rank: number
           share_code: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           host_user_id?: string | null
           id?: number
           num_static_ai?: number | null
           seconds_per_pre?: number
           seconds_per_rank?: number
           share_code?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -185,21 +185,36 @@ export type Database = {
       users: {
         Row: {
           access_level: number
+          avatar_url: string | null
           created_at: string | null
+          email: string
+          full_name: string | null
+          timezone: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
         }
         Insert: {
           access_level?: number
+          avatar_url?: string | null
           created_at?: string | null
+          email: string
+          full_name?: string | null
+          timezone?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
         }
         Update: {
           access_level?: number
+          avatar_url?: string | null
           created_at?: string | null
+          email?: string
+          full_name?: string | null
+          timezone?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -208,7 +223,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: { input_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

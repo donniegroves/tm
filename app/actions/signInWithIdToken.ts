@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { getUserFromPublic } from "../helpers";
+import { getUserFromPublic, mapAuthUserRowToPublicUserRow } from "../helpers";
 import { insertPublicUser } from "./insertPublicUser";
 
 interface GoogleSignInResponse {
@@ -15,6 +15,7 @@ export const signInWithIdToken = async (
 ) => {
     try {
         const supabase = await createClient();
+
         const { data: signInWithIdTokenData, error: signInWithIdTokenError } =
             await supabase.auth.signInWithIdToken({
                 provider: "google",
@@ -31,7 +32,9 @@ export const signInWithIdToken = async (
         );
 
         if (!userExistsInPublictable) {
-            await insertPublicUser(signInWithIdTokenData.user.id);
+            await insertPublicUser(
+                mapAuthUserRowToPublicUserRow(signInWithIdTokenData.user)
+            );
         }
     } catch {
         throw new Error("Error signing in with Google");

@@ -1,5 +1,16 @@
 import { createClient } from "@/utils/supabase/server";
-import { fetchLayoutData, getUserFromPublic } from "../helpers";
+import { Database } from "database.types";
+import {
+    fetchLayoutData,
+    getUserFromPublic,
+    mapAuthUserRowToPublicUserRow,
+} from "../helpers";
+import {
+    mockAuthUserRow,
+    mockPublicGameRow,
+    mockPublicQuestionRow,
+    mockPublicUserRow,
+} from "../test-helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),
@@ -35,20 +46,20 @@ describe("helpers", () => {
 
     describe("getUserFromPublic", () => {
         it("should return user data if found", async () => {
-            const mockUserId = "123";
-            const mockUserData = { id: mockUserId, name: "Test User" };
-
             mockSupabase.maybeSingle.mockResolvedValue({
-                data: mockUserData,
+                data: mockPublicUserRow,
                 error: null,
             });
 
-            const result = await getUserFromPublic(mockUserId);
+            const result = await getUserFromPublic(mockPublicUserRow.user_id);
 
             expect(mockSupabase.from).toHaveBeenCalledWith("users");
             expect(mockSupabase.select).toHaveBeenCalled();
-            expect(mockSupabase.eq).toHaveBeenCalledWith("user_id", mockUserId);
-            expect(result).toEqual(mockUserData);
+            expect(mockSupabase.eq).toHaveBeenCalledWith(
+                "user_id",
+                mockPublicUserRow.user_id
+            );
+            expect(result).toEqual(mockPublicUserRow);
         });
 
         it("should throw an error if there is an error fetching user data", async () => {
@@ -67,19 +78,15 @@ describe("helpers", () => {
 
     describe("fetchLayoutData", () => {
         it("should return layout data if successful", async () => {
-            const mockAuthUser = { id: "123", email: "test@example.com" };
-            const mockAllUsers = [
-                { user_id: "123", access_level: "admin" },
-                { user_id: "456", access_level: "user" },
-            ];
-            const mockGamesData = [{ id: "game1" }, { id: "game2" }];
-            const mockQuestionsData = [
-                { id: "question1" },
-                { id: "question2" },
-            ];
+            const mockAllUsers: Database["public"]["Tables"]["users"]["Row"][] =
+                [mockPublicUserRow, { ...mockPublicUserRow, user_id: "user2" }];
+            const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] =
+                [mockPublicGameRow, { ...mockPublicGameRow, id: 222 }];
+            const mockQuestionsData: Database["public"]["Tables"]["questions"]["Row"][] =
+                [mockPublicQuestionRow, { ...mockPublicQuestionRow, id: 373 }];
 
             mockSupabase.auth.getUser.mockResolvedValue({
-                data: { user: mockAuthUser },
+                data: { user: mockAuthUserRow },
                 error: null,
             });
             mockSupabase.select.mockResolvedValueOnce({
@@ -101,11 +108,8 @@ describe("helpers", () => {
             expect(mockSupabase.from).toHaveBeenCalledWith("users");
             expect(mockSupabase.from).toHaveBeenCalledWith("games");
             expect(result).toEqual({
-                loggedInUser: {
-                    ...mockAuthUser,
-                    access_level: "admin",
-                },
-                otherUsers: [{ user_id: "456", access_level: "user" }],
+                loggedInUserId: "123",
+                allUsers: mockAllUsers,
                 gamesData: mockGamesData,
                 questions: mockQuestionsData,
             });
@@ -123,10 +127,8 @@ describe("helpers", () => {
         });
 
         it("should throw an error if fetching users fails", async () => {
-            const mockAuthUser = { id: "123", email: "test@example.com" };
-
             mockSupabase.auth.getUser.mockResolvedValue({
-                data: { user: mockAuthUser },
+                data: { user: mockAuthUserRow },
                 error: null,
             });
             mockSupabase.select.mockResolvedValueOnce({
@@ -140,14 +142,13 @@ describe("helpers", () => {
         });
 
         it("should throw an error if fetching games fails", async () => {
-            const mockAuthUser = { id: "123", email: "test@example.com" };
             const mockAllUsers = [
-                { user_id: "123", access_level: "admin" },
-                { user_id: "456", access_level: "user" },
+                mockPublicUserRow,
+                { ...mockPublicUserRow, user_id: "user2" },
             ];
 
             mockSupabase.auth.getUser.mockResolvedValue({
-                data: { user: mockAuthUser },
+                data: { user: mockAuthUserRow },
                 error: null,
             });
             mockSupabase.select.mockResolvedValueOnce({
@@ -165,15 +166,17 @@ describe("helpers", () => {
         });
 
         it("should throw an error if fetching questions fails", async () => {
-            const mockAuthUser = { id: "123", email: "test@example.com" };
             const mockAllUsers = [
-                { user_id: "123", access_level: "admin" },
-                { user_id: "456", access_level: "user" },
+                mockPublicUserRow,
+                { ...mockPublicUserRow, user_id: "user2" },
             ];
-            const mockGamesData = [{ id: "game1" }, { id: "game2" }];
+            const mockGamesData = [
+                mockPublicGameRow,
+                { ...mockPublicGameRow, id: 222 },
+            ];
 
             mockSupabase.auth.getUser.mockResolvedValue({
-                data: { user: mockAuthUser },
+                data: { user: mockAuthUserRow },
                 error: null,
             });
             mockSupabase.select.mockResolvedValueOnce({
@@ -193,23 +196,15 @@ describe("helpers", () => {
                 "Error fetching questions"
             );
         });
+    });
 
-        it("should throw an error if access level is not found", async () => {
-            const mockAuthUser = { id: "123", email: "test@example.com" };
-            const mockAllUsers = [{ user_id: "456", access_level: "user" }];
-
-            mockSupabase.auth.getUser.mockResolvedValue({
-                data: { user: mockAuthUser },
-                error: null,
-            });
-            mockSupabase.select.mockResolvedValueOnce({
-                data: mockAllUsers,
-                error: null,
-            });
-
-            await expect(fetchLayoutData()).rejects.toThrow(
-                "Access level not found for authenticated user"
-            );
+    describe("mapAuthUserRowToPublicUserRow", () => {
+        it("should throw an error if email is missing in authUserRow", () => {
+            const userWithoutEmail = { ...mockAuthUserRow };
+            delete userWithoutEmail.email;
+            expect(() => {
+                mapAuthUserRowToPublicUserRow(userWithoutEmail);
+            }).toThrow("Email was not found in authUserRow");
         });
     });
 });

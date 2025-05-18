@@ -1,15 +1,12 @@
 "use client";
 
-import { User } from "@supabase/supabase-js";
 import { Database } from "database.types";
 import { createContext, ReactNode, useContext } from "react";
 
-interface InsideContextType {
-    loggedInUser: User & {
-        access_level: number;
-    };
-    otherUsers: Database["public"]["Tables"]["users"]["Row"][];
-    visibleGames: Database["public"]["Tables"]["games"]["Row"][];
+export interface InsideContextType {
+    loggedInUserId: Database["public"]["Tables"]["users"]["Row"]["user_id"];
+    allUsers: Database["public"]["Tables"]["users"]["Row"][];
+    gamesData: Database["public"]["Tables"]["games"]["Row"][];
     questions: Database["public"]["Tables"]["questions"]["Row"][];
 }
 
@@ -17,20 +14,20 @@ const InsideContext = createContext<InsideContextType | undefined>(undefined);
 
 export function InsideContextProvider({
     children,
-    loggedInUser,
-    otherUsers,
-    visibleGames,
+    loggedInUserId,
+    allUsers,
+    gamesData,
     questions,
 }: {
     children: ReactNode;
-    loggedInUser: InsideContextType["loggedInUser"];
-    otherUsers: InsideContextType["otherUsers"];
-    visibleGames: InsideContextType["visibleGames"];
+    loggedInUserId: InsideContextType["loggedInUserId"];
+    allUsers: InsideContextType["allUsers"];
+    gamesData: InsideContextType["gamesData"];
     questions: InsideContextType["questions"];
 }) {
     return (
         <InsideContext.Provider
-            value={{ loggedInUser, otherUsers, visibleGames, questions }}
+            value={{ loggedInUserId, allUsers, gamesData, questions }}
         >
             {children}
         </InsideContext.Provider>

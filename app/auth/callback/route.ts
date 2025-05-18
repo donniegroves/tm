@@ -1,9 +1,13 @@
 import { insertPublicUser } from "@/app/actions/insertPublicUser";
-import { getUserFromPublic } from "@/app/helpers";
+import {
+    getUserFromPublic,
+    mapAuthUserRowToPublicUserRow,
+} from "@/app/helpers";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+    // TODO: all this logic should not be here. extract it to a function
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
     const origin = requestUrl.origin;
@@ -35,7 +39,9 @@ export async function GET(request: Request) {
         );
 
         if (!userIsInPublicUserTable) {
-            await insertPublicUser(exchangeData.user.id);
+            await insertPublicUser(
+                mapAuthUserRowToPublicUserRow(exchangeData.user)
+            );
         }
 
         if (redirectTo) {

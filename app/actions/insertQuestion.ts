@@ -12,6 +12,7 @@ export const insertQuestion = async (
         .insert({ pre_question: preQuestion, rank_prompt: rankPrompt });
 
     if (error || status !== 201) {
+        console.log("Error inserting question:", error);
         throw new Error();
     }
 };

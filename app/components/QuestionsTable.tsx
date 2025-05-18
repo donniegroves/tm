@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@heroui/button";
 import {
     Table,
@@ -9,23 +11,19 @@ import {
 } from "@heroui/table";
 import { deleteQuestion } from "../actions/deleteQuestion";
 import { insertQuestion } from "../actions/insertQuestion";
-
-interface QuestionsTableProps {
-    questions: Array<{
-        id: number;
-        pre_question: string;
-        rank_prompt: string;
-    }>;
-}
+import { useInsideContext } from "../inside/InsideContext";
 
 async function handleInsertQuestion() {
+    console.log("Inserting question");
     await insertQuestion(
         Math.random().toString(36).substring(2, 7),
         Math.random().toString(36).substring(2, 7)
     );
 }
 
-export default function QuestionsTable({ questions }: QuestionsTableProps) {
+export default function QuestionsTable() {
+    const { questions } = useInsideContext();
+
     return (
         <div>
             <h2 className="text-2xl font-bold mb-4">
