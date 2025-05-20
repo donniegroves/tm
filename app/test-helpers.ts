@@ -14,7 +14,7 @@ export const mockPublicUserRow: Database["public"]["Tables"]["users"]["Row"] = {
 };
 export const mockPublicGameRow: Database["public"]["Tables"]["games"]["Row"] = {
     id: 111,
-    host_user_id: "some-user-id567",
+    host_user_id: "user1",
     share_code: "yikes",
     num_static_ai: 2,
     seconds_per_pre: 32,

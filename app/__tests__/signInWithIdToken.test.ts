@@ -21,6 +21,9 @@ jest.mock("../helpers", () => {
 jest.mock("../actions/insertPublicUser", () => ({
     insertPublicUser: jest.fn(),
 }));
+jest.mock("../actions/storeAvatar", () => ({
+    storeAvatar: jest.fn().mockResolvedValue("mockStoredAvatarUrl"),
+}));
 
 const sbErrorResponse = {
     error: new Error("Error signing in with Google"),
@@ -80,7 +83,7 @@ describe("signInWithIdToken", () => {
         expect(getUserFromPublic).toHaveBeenCalledWith(mockAuthUserRow.id);
 
         expect(insertPublicUser).toHaveBeenCalledWith({
-            avatar_url: mockAuthUserRow.user_metadata.avatar_url,
+            avatar_url: "mockStoredAvatarUrl",
             email: mockAuthUserRow.email,
             full_name: mockAuthUserRow.user_metadata.full_name,
             user_id: mockAuthUserRow.id,

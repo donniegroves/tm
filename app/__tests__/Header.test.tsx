@@ -9,7 +9,9 @@ describe("Header", () => {
         expect(
             screen.getByText(mockPublicUserRow.full_name ?? "garbage")
         ).toBeInTheDocument();
-        expect(screen.getByText(mockPublicUserRow.email)).toBeInTheDocument();
+        expect(
+            screen.getByText(mockPublicUserRow.username ?? "garbage")
+        ).toBeInTheDocument();
         expect(
             screen.getByTitle(
                 `${mockPublicUserRow.user_id} / ${mockPublicUserRow.access_level}`

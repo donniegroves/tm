@@ -17,7 +17,7 @@ export default function NavMenuItem({
 
     return (
         <Button
-            className="flex flex-col items-center w-14 h-14"
+            className="flex flex-col items-center w-14 h-14 text-customlight"
             isIconOnly
             size="sm"
             aria-label={label}

@@ -186,33 +186,33 @@ export type Database = {
         Row: {
           access_level: number
           avatar_url: string | null
-          created_at: string | null
+          created_at: string
           email: string
           full_name: string | null
           timezone: string | null
-          updated_at: string | null
+          updated_at: string
           user_id: string
           username: string | null
         }
         Insert: {
           access_level?: number
           avatar_url?: string | null
-          created_at?: string | null
+          created_at?: string
           email: string
           full_name?: string | null
           timezone?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
           username?: string | null
         }
         Update: {
           access_level?: number
           avatar_url?: string | null
-          created_at?: string | null
+          created_at?: string
           email?: string
           full_name?: string | null
           timezone?: string | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
           username?: string | null
         }

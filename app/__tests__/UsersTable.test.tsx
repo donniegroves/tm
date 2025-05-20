@@ -27,10 +27,19 @@ describe("UsersTable", () => {
         expect(screen.getByText("testuser")).toBeInTheDocument();
         expect(screen.getByText("Test User")).toBeInTheDocument();
         expect(screen.getByText("testuser@example.com")).toBeInTheDocument();
-        expect(screen.getByText("2")).toBeInTheDocument();
-        expect(
-            screen.getByText("https://example.com/avatar.png")
-        ).toBeInTheDocument();
-        expect(screen.getByText("America/New_York")).toBeInTheDocument();
+
+        const checkboxes = screen.queryAllByRole(
+            "checkbox"
+        ) as HTMLInputElement[];
+        expect(checkboxes.length).toBeGreaterThan(0);
+        expect(checkboxes.filter((cb) => cb.checked)).toHaveLength(1);
+
+        const img = screen
+            .getAllByRole("img")
+            .find(
+                (img) =>
+                    img.getAttribute("src") === "https://example.com/avatar.png"
+            );
+        expect(img).toBeDefined();
     });
 });

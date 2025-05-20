@@ -1,8 +1,7 @@
-import { Avatar } from "@heroui/avatar";
 import { Database } from "database.types";
 import Image from "next/image";
 import Link from "next/link";
-import HeaderProfileButton from "./HeaderProfileButton";
+import AvatarWithName from "./AvatarWithName";
 
 export default function Header({
     loggedInUser,
@@ -20,29 +19,7 @@ export default function Header({
                     {process.env.NEXT_PUBLIC_APP_NAME || "App"}
                 </h1>
             </div>
-
-            <div
-                className="flex items-center gap-2"
-                title={`${loggedInUser.user_id} / ${loggedInUser.access_level}`}
-            >
-                <Avatar
-                    size="sm"
-                    classNames={{
-                        img: "opacity-100",
-                    }}
-                    isBordered
-                    radius="sm"
-                    src={loggedInUser.avatar_url ?? undefined}
-                    name={loggedInUser.full_name ?? undefined}
-                />
-                <div>
-                    <div className="text-xs">{loggedInUser.full_name}</div>
-                    <div className="text-[0.65rem]">{loggedInUser.email}</div>
-                </div>
-                <div>
-                    <HeaderProfileButton />
-                </div>
-            </div>
+            <AvatarWithName user={loggedInUser} showProfileButton />
         </header>
     );
 }

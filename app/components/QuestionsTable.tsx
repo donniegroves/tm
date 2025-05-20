@@ -36,7 +36,7 @@ export default function QuestionsTable() {
                     Add random question
                 </Button>
             </h2>
-            <Table className="max-w-xl" aria-label="Questions">
+            <Table className="w-full" isStriped aria-label="Questions">
                 <TableHeader>
                     <TableColumn>Id</TableColumn>
                     <TableColumn>Pre Question</TableColumn>

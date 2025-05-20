@@ -8,11 +8,11 @@ CREATE TABLE
         avatar_url text,
         timezone text DEFAULT 'UTC',
         created_at timestamp
-        WITH
-            time zone DEFAULT now (),
+        with
+            time zone NOT NULL DEFAULT now (),
             updated_at timestamp
-        WITH
-            time zone DEFAULT now ()
+        with
+            time zone NOT NULL DEFAULT now ()
     );
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;

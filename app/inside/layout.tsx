@@ -32,7 +32,7 @@ export default async function InsideLayout({
             <Header loggedInUser={loggedInUser} />
             <div className="flex flex-row h-full">
                 <InsideNav />
-                <main className="flex-grow container px-2 py-2 overflow-y-auto ml-16">
+                <main className="flex-grow px-2 py-2 overflow-y-auto ml-16">
                     <InsideContextProvider
                         loggedInUserId={loggedInUserId}
                         allUsers={allUsers}

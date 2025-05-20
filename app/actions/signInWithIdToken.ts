@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { getUserFromPublic, mapAuthUserRowToPublicUserRow } from "../helpers";
 import { insertPublicUser } from "./insertPublicUser";
+import { storeAvatar } from "./storeAvatar";
 
 interface GoogleSignInResponse {
     credential: string;
@@ -32,9 +33,17 @@ export const signInWithIdToken = async (
         );
 
         if (!userExistsInPublictable) {
-            await insertPublicUser(
-                mapAuthUserRowToPublicUserRow(signInWithIdTokenData.user)
+            const publicAvatarUrl = await storeAvatar(
+                signInWithIdTokenData.user.id,
+                signInWithIdTokenData.user.user_metadata.avatar_url
             );
+
+            const publicUserRow = {
+                ...mapAuthUserRowToPublicUserRow(signInWithIdTokenData.user),
+                avatar_url: publicAvatarUrl,
+            };
+
+            await insertPublicUser(publicUserRow);
         }
     } catch {
         throw new Error("Error signing in with Google");
