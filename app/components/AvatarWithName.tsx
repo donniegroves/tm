@@ -1,18 +1,25 @@
+"use client";
+
 import { Avatar } from "@heroui/avatar";
-import { Database } from "database.types";
-import HeaderProfileButton from "./HeaderProfileButton";
+import { useInsideContext } from "../inside/InsideContext";
+import HeaderProfileDropdown from "./HeaderProfileDropdown";
 
 interface AvatarWithNameProps {
-    user: Database["public"]["Tables"]["users"]["Row"];
     showProfileButton?: boolean;
     limitNameWidth?: boolean;
+    userId?: string;
 }
 
 export default function AvatarWithName({
-    user,
     showProfileButton = false,
     limitNameWidth = true,
+    userId,
 }: AvatarWithNameProps) {
+    const { allUsers, loggedInUserId } = useInsideContext();
+
+    const userIdToUse = userId ?? loggedInUserId;
+    const userData = allUsers.find((user) => user.user_id === userIdToUse);
+
     const nameClass = limitNameWidth ? "max-w-24" : "max-w-full";
 
     return (
@@ -21,19 +28,27 @@ export default function AvatarWithName({
                 size="sm"
                 isBordered
                 radius="sm"
-                src={user.avatar_url ?? undefined}
-                name={user.full_name ?? undefined}
-                title={`${user.user_id} / ${user.access_level}`}
+                src={
+                    userData?.avatar_url == null
+                        ? undefined
+                        : userData?.avatar_url
+                }
+                name={
+                    userData?.full_name == null
+                        ? undefined
+                        : userData?.full_name
+                }
+                title={`${userData?.user_id} / ${userData?.access_level}`}
             />
             <div className={nameClass}>
-                <div className="text-xs truncate">{user.full_name}</div>
+                <div className="text-xs truncate">{userData?.full_name}</div>
                 <div className="text-[0.65rem] text-customlight/50 truncate">
-                    {user.username}
+                    {userData?.username}
                 </div>
             </div>
             {showProfileButton && (
                 <div>
-                    <HeaderProfileButton />
+                    <HeaderProfileDropdown />
                 </div>
             )}
         </div>

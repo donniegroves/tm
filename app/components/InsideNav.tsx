@@ -19,11 +19,7 @@ export default function InsideNav() {
                 label="Questions"
                 href="/inside/questions"
             />
-            <NavMenuItem
-                icon={<SettingsSvg />}
-                label="Settings"
-                href="/inside/settings"
-            />
+            <NavMenuItem icon={<SettingsSvg />} label="Settings" />
         </nav>
     );
 }

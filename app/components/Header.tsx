@@ -1,13 +1,8 @@
-import { Database } from "database.types";
 import Image from "next/image";
 import Link from "next/link";
 import AvatarWithName from "./AvatarWithName";
 
-export default function Header({
-    loggedInUser,
-}: {
-    loggedInUser: Database["public"]["Tables"]["users"]["Row"];
-}) {
+export default function Header() {
     return (
         <header className="flex flex-row justify-between sticky top-0 px-3 py-1 bg-white dark:bg-black z-10 border-b-1 border-customlight/50">
             <div className="flex flex-row items-center gap-1">
@@ -19,7 +14,7 @@ export default function Header({
                     {process.env.NEXT_PUBLIC_APP_NAME || "App"}
                 </h1>
             </div>
-            <AvatarWithName user={loggedInUser} showProfileButton />
+            <AvatarWithName showProfileButton />
         </header>
     );
 }

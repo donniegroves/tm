@@ -77,3 +77,9 @@ as PERMISSIVE
 for DELETE
 to authenticated
 using ( is_admin(auth.uid()) );
+
+alter policy "Allow admins to update rows"
+on "public"."users"
+to authenticated
+using ((is_admin(auth.uid()) OR (auth.uid() = user_id))
+      with check ((is_admin(auth.uid()) OR (access_level <> 2)) AND (auth.uid() = user_id));

@@ -39,7 +39,7 @@ export default function UsersTable({ ariaLabel }: UsersTableProps) {
                         <TableRow key={user.user_id}>
                             <TableCell className="w-48">
                                 <AvatarWithName
-                                    user={user}
+                                    userId={user.user_id}
                                     showProfileButton={false}
                                     limitNameWidth={false}
                                 />

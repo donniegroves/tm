@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
 import { DateTime } from "luxon";
-import { useFormattedTimestamp } from "./useFormattedTimestamp";
+import { useFormattedTimestamp } from "../components/useFormattedTimestamp";
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: jest.fn(),

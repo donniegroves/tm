@@ -48,7 +48,7 @@ export default function GamesTable() {
                                     {host && (
                                         <AvatarWithName
                                             limitNameWidth={false}
-                                            user={host}
+                                            userId={host.user_id}
                                             showProfileButton={false}
                                         />
                                     )}

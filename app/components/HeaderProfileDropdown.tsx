@@ -7,9 +7,16 @@ import {
     DropdownTrigger,
 } from "@heroui/dropdown";
 import { signOut } from "../actions/signOut";
+import { useDrawer } from "../inside/DrawerProvider";
+import { useInsideContext } from "../inside/InsideContext";
+import DrawerFooter, { DrawerFooterPurpose } from "./DrawerFooter";
 import { DownArrowSvg, SignOutSvg, UserIcon } from "./IconSvg";
+import ProfileForm from "./ProfileForm";
 
-export default function HeaderProfileButton() {
+export default function HeaderProfileDropdown() {
+    const { loggedInUserId } = useInsideContext();
+    const { setIsDrawerOpen, setDrawerContent } = useDrawer();
+
     return (
         <Dropdown classNames={{ content: "min-w-32" }}>
             <DropdownTrigger>
@@ -26,6 +33,22 @@ export default function HeaderProfileButton() {
                 <DropdownItem
                     startContent={<UserIcon size={16} />}
                     key="profile"
+                    onPress={() => {
+                        setDrawerContent({
+                            header: (
+                                <div className="text-lg font-bold">
+                                    Profile &amp; Settings
+                                </div>
+                            ),
+                            body: <ProfileForm userId={loggedInUserId} />,
+                            footer: (
+                                <DrawerFooter
+                                    purpose={DrawerFooterPurpose.ProfileUpdate}
+                                />
+                            ),
+                        });
+                        setIsDrawerOpen(true);
+                    }}
                 >
                     Profile
                 </DropdownItem>
