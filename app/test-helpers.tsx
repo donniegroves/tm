@@ -1,5 +1,9 @@
 import { User } from "@supabase/supabase-js";
+import { render } from "@testing-library/react";
 import { Database } from "database.types";
+import { ReactNode } from "react";
+import DrawerProvider from "./inside/DrawerProvider";
+import { InsideContextProvider } from "./inside/InsideContext";
 
 export const mockPublicUserRow: Database["public"]["Tables"]["users"]["Row"] = {
     user_id: "user1",
@@ -57,3 +61,31 @@ export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
 ];
 export const mockQuestionsData: Database["public"]["Tables"]["questions"]["Row"][] =
     [mockPublicQuestionRow, { ...mockPublicQuestionRow, id: 373 }];
+
+export function renderWithContext(
+    child: ReactNode,
+    {
+        loggedInUserId = mockPublicUserRow.user_id,
+        allUsers = [mockPublicUserRow],
+        gamesData = [],
+        questions = [],
+    }: {
+        loggedInUserId?: Database["public"]["Tables"]["users"]["Row"]["user_id"];
+        allUsers?: Database["public"]["Tables"]["users"]["Row"][];
+        gamesData?: Database["public"]["Tables"]["games"]["Row"][];
+        questions?: Database["public"]["Tables"]["questions"]["Row"][];
+    } = {}
+) {
+    const contextProps = {
+        loggedInUserId,
+        allUsers,
+        gamesData,
+        questions,
+    };
+
+    return render(
+        <InsideContextProvider {...contextProps}>
+            <DrawerProvider>{child}</DrawerProvider>
+        </InsideContextProvider>
+    );
+}

@@ -1,10 +1,12 @@
 import { Button } from "@heroui/button";
+import { Spinner } from "@heroui/spinner";
 import { updateProfile } from "../actions/updateProfile";
 import { useDrawer } from "../inside/DrawerProvider";
 import { useInsideContext } from "../inside/InsideContext";
 
 export enum DrawerFooterPurpose {
     ProfileUpdate = "profile-update",
+    Reserved = "reserved", // Placeholder for future purposes
 }
 
 interface DrawerFooterProps {
@@ -13,11 +15,17 @@ interface DrawerFooterProps {
 
 export default function DrawerFooter({ purpose }: DrawerFooterProps) {
     const { loggedInUserId } = useInsideContext();
-    const { setIsDrawerOpen } = useDrawer();
+    const { setIsDrawerOpen, setIsDrawerActionLoading, isDrawerActionLoading } =
+        useDrawer();
 
     if (purpose === DrawerFooterPurpose.ProfileUpdate) {
         const handleClose = () => setIsDrawerOpen(false);
-        const handleSave = () => updateProfile(loggedInUserId);
+        const handleSave = async () => {
+            setIsDrawerActionLoading(true);
+            await updateProfile(loggedInUserId);
+            setIsDrawerActionLoading(false);
+            setIsDrawerOpen(false);
+        };
 
         return (
             <>
@@ -25,9 +33,21 @@ export default function DrawerFooter({ purpose }: DrawerFooterProps) {
                     Close
                 </Button>
                 <Button color="primary" onPress={handleSave}>
-                    Save
+                    {isDrawerActionLoading ? (
+                        <>
+                            <Spinner
+                                color="white"
+                                size="sm"
+                                aria-label="Loading..."
+                            />
+                        </>
+                    ) : (
+                        "Save"
+                    )}
                 </Button>
             </>
         );
+    } else {
+        return null;
     }
 }

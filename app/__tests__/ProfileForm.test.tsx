@@ -1,32 +1,19 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import ProfileForm from "../components/ProfileForm";
-import { InsideContextProvider } from "../inside/InsideContext";
-import { mockPublicUserRow } from "../test-helpers";
-
-const setup = (userOverrides = {}) => {
-    const user = { ...mockPublicUserRow, ...userOverrides };
-    render(
-        <InsideContextProvider
-            loggedInUserId={user.user_id}
-            allUsers={[user]}
-            gamesData={[]}
-            questions={[]}
-        >
-            <ProfileForm />
-        </InsideContextProvider>
-    );
-};
+import { mockPublicUserRow, renderWithContext } from "../test-helpers";
 
 describe("ProfileForm", () => {
     it("renders username input with user value", () => {
-        setup({ username: "testuser" });
+        renderWithContext(<ProfileForm />);
         const input = screen.getByLabelText(/username/i);
         expect(input).toBeInTheDocument();
         expect(input).toHaveValue("testuser");
     });
 
     it("renders timezone select with user timezone selected", () => {
-        setup({ timezone: "Asia/Tokyo" });
+        renderWithContext(<ProfileForm />, {
+            allUsers: [{ ...mockPublicUserRow, timezone: "Asia/Tokyo" }],
+        });
         const select = screen.getByRole("button", {
             name: /preferred timezone/i,
         });
@@ -38,22 +25,16 @@ describe("ProfileForm", () => {
     });
 
     it("renders all timezone options", () => {
-        setup();
+        renderWithContext(<ProfileForm />);
         expect(screen.getByText("US Outlying Islands")).toBeInTheDocument();
         expect(screen.getByText("New Zealand (Auckland)")).toBeInTheDocument();
     });
 
     it("renders with empty values if user data is missing", () => {
-        render(
-            <InsideContextProvider
-                loggedInUserId={"notfound"}
-                allUsers={[]}
-                gamesData={[]}
-                questions={[]}
-            >
-                <ProfileForm />
-            </InsideContextProvider>
-        );
+        renderWithContext(<ProfileForm />, {
+            loggedInUserId: "notfound",
+            allUsers: [],
+        });
         expect(screen.getByLabelText(/username/i)).toHaveValue("");
 
         const option = screen.getByRole("button", {

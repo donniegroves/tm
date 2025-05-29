@@ -1,5 +1,7 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { signOut } from "../actions/signOut";
 import HeaderProfileDropdown from "../components/HeaderProfileDropdown";
+import { renderWithContext } from "../test-helpers";
 
 jest.mock("../actions/signOut", () => ({
     signOut: jest.fn(),
@@ -9,12 +11,6 @@ jest.mock("../actions/updateProfile", () => ({
 }));
 jest.mock("../inside/DrawerProvider");
 
-import { signOut } from "../actions/signOut";
-import DrawerProvider from "../inside/DrawerProvider";
-import { InsideContextProvider } from "../inside/InsideContext";
-import { mockPublicUserRow } from "../test-helpers";
-
-// Set up mocks for DrawerProvider/useDrawer
 const setDrawerContent = jest.fn();
 const setIsDrawerOpen = jest.fn();
 
@@ -27,25 +23,10 @@ jest.mock("../inside/DrawerProvider", () => ({
     }),
 }));
 
-const setup = () => {
-    render(
-        <InsideContextProvider
-            loggedInUserId={mockPublicUserRow.user_id}
-            allUsers={[mockPublicUserRow]}
-            gamesData={[]}
-            questions={[]}
-        >
-            <DrawerProvider>
-                <HeaderProfileDropdown />
-            </DrawerProvider>
-        </InsideContextProvider>
-    );
-    fireEvent.click(screen.getByRole("button"));
-};
-
 describe("HeaderProfileDropdown", () => {
     it("renders the dropdown and menu items", async () => {
-        setup();
+        renderWithContext(<HeaderProfileDropdown />);
+        fireEvent.click(screen.getByRole("button"));
 
         await waitFor(() => {
             expect(screen.getByText("Profile")).toBeInTheDocument();
@@ -54,7 +35,8 @@ describe("HeaderProfileDropdown", () => {
     });
 
     it("calls signOut when 'Sign out' is clicked", async () => {
-        setup();
+        renderWithContext(<HeaderProfileDropdown />);
+        fireEvent.click(screen.getByRole("button"));
 
         fireEvent.click(screen.getByText("Sign out"));
 
@@ -64,7 +46,8 @@ describe("HeaderProfileDropdown", () => {
     });
 
     it("opens the drawer when the trigger and then profile are clicked", async () => {
-        setup();
+        renderWithContext(<HeaderProfileDropdown />);
+        fireEvent.click(screen.getByRole("button"));
 
         await waitFor(() => {
             expect(screen.getByText("Profile")).toBeInTheDocument();

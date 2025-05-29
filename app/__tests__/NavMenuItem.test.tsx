@@ -1,16 +1,14 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import NavMenuItem from "../components/NavMenuItem";
-import DrawerProvider from "../inside/DrawerProvider";
-import { InsideContextProvider } from "../inside/InsideContext";
-import { mockPublicUserRow } from "../test-helpers";
+import { renderWithContext } from "../test-helpers";
 
 jest.mock("next/navigation", () => ({
     useRouter: jest.fn(),
 }));
+
 const setDrawerContent = jest.fn();
 const setIsDrawerOpen = jest.fn();
-
 jest.mock("../inside/DrawerProvider", () => ({
     __esModule: true,
     default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -20,28 +18,15 @@ jest.mock("../inside/DrawerProvider", () => ({
     }),
 }));
 
-const setup = (label: string) => {
-    render(
-        <InsideContextProvider
-            loggedInUserId={mockPublicUserRow.user_id}
-            allUsers={[mockPublicUserRow]}
-            gamesData={[]}
-            questions={[]}
-        >
-            <DrawerProvider>
-                <NavMenuItem
-                    label={label}
-                    icon={<span data-testid="icon">I</span>}
-                    href="/test"
-                />
-            </DrawerProvider>
-        </InsideContextProvider>
-    );
-};
-
 describe("NavMenuItem", () => {
     it("renders label and icon", () => {
-        setup("Test");
+        renderWithContext(
+            <NavMenuItem
+                label={"Test"}
+                icon={<span data-testid="icon">I</span>}
+                href="/test"
+            />
+        );
 
         expect(screen.getByLabelText("Test")).toBeInTheDocument();
         expect(screen.getByText("Test")).toBeInTheDocument();
@@ -51,7 +36,13 @@ describe("NavMenuItem", () => {
     it("calls router.push on click", async () => {
         const push = jest.fn();
         (useRouter as jest.Mock).mockReturnValue({ push });
-        setup("Test");
+        renderWithContext(
+            <NavMenuItem
+                label={"Test"}
+                icon={<span data-testid="icon">I</span>}
+                href="/test"
+            />
+        );
         const button = screen.getByLabelText("Test");
         act(() => {
             button.click();
@@ -63,7 +54,13 @@ describe("NavMenuItem", () => {
     });
 
     it("calls onPress when label is 'Settings' and Action button is clicked", async () => {
-        setup("Settings");
+        renderWithContext(
+            <NavMenuItem
+                label={"Settings"}
+                icon={<span data-testid="icon">I</span>}
+                href="/settings"
+            />
+        );
 
         const button = screen.getByLabelText("Settings");
         act(() => {

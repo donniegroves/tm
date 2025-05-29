@@ -1,7 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import AvatarWithName from "../components/AvatarWithName";
-import { InsideContextProvider } from "../inside/InsideContext";
-import { mockPublicUserRow } from "../test-helpers";
+import { mockPublicUserRow, renderWithContext } from "../test-helpers";
 
 jest.mock("../components/HeaderProfileDropdown", () => {
     const MockProfileDropdown = () => (
@@ -11,29 +10,15 @@ jest.mock("../components/HeaderProfileDropdown", () => {
     return MockProfileDropdown;
 });
 
-const setup = (
-    userId: string | undefined,
-    showProfileButton: boolean,
-    limitNameWidth: boolean
-) =>
-    render(
-        <InsideContextProvider
-            loggedInUserId={mockPublicUserRow.user_id}
-            allUsers={[mockPublicUserRow]}
-            gamesData={[]}
-            questions={[]}
-        >
-            <AvatarWithName
-                userId={userId}
-                showProfileButton={showProfileButton}
-                limitNameWidth={limitNameWidth}
-            />
-        </InsideContextProvider>
-    );
-
 describe("AvatarWithName", () => {
     it("renders avatar, name, and username", () => {
-        setup(mockPublicUserRow.user_id, false, true);
+        renderWithContext(
+            <AvatarWithName
+                userId={mockPublicUserRow.user_id}
+                showProfileButton={false}
+                limitNameWidth={true}
+            />
+        );
         expect(
             screen.getByRole("img", { name: mockPublicUserRow.full_name ?? "" })
         ).toBeInTheDocument();
@@ -46,17 +31,35 @@ describe("AvatarWithName", () => {
     });
 
     it("shows the profile button when showProfileButton is true", () => {
-        setup(mockPublicUserRow.user_id, true, true);
+        renderWithContext(
+            <AvatarWithName
+                userId={mockPublicUserRow.user_id}
+                showProfileButton={true}
+                limitNameWidth={true}
+            />
+        );
         expect(screen.getByTestId("profile-dropdown")).toBeInTheDocument();
     });
 
     it("does not show the profile button when showProfileButton is false", () => {
-        setup(mockPublicUserRow.user_id, false, true);
+        renderWithContext(
+            <AvatarWithName
+                userId={mockPublicUserRow.user_id}
+                showProfileButton={false}
+                limitNameWidth={true}
+            />
+        );
         expect(screen.queryByTestId("profile-dropdown")).toBeNull();
     });
 
     it("uses loggedInUserId if userId is not passed in", () => {
-        setup(undefined, false, true);
+        renderWithContext(
+            <AvatarWithName
+                userId={undefined}
+                showProfileButton={false}
+                limitNameWidth={true}
+            />
+        );
         expect(
             screen.getByRole("img", { name: mockPublicUserRow.full_name ?? "" })
         ).toBeInTheDocument();
@@ -69,7 +72,13 @@ describe("AvatarWithName", () => {
     });
 
     it("applies max-w-full when limitNameWidth is false", () => {
-        setup(mockPublicUserRow.user_id, false, false);
+        renderWithContext(
+            <AvatarWithName
+                userId={mockPublicUserRow.user_id}
+                showProfileButton={false}
+                limitNameWidth={false}
+            />
+        );
         const nameDiv = screen.getByText(
             mockPublicUserRow.full_name ?? ""
         ).parentElement;
@@ -82,16 +91,12 @@ describe("AvatarWithName", () => {
             full_name: null,
             avatar_url: null,
         };
-        render(
-            <InsideContextProvider
-                loggedInUserId={userWithNulls.user_id}
-                allUsers={[userWithNulls]}
-                gamesData={[]}
-                questions={[]}
-            >
-                <AvatarWithName userId={userWithNulls.user_id} />
-            </InsideContextProvider>
-        );
+        renderWithContext(<AvatarWithName userId={userWithNulls.user_id} />, {
+            loggedInUserId: userWithNulls.user_id,
+            allUsers: [userWithNulls],
+            gamesData: [],
+            questions: [],
+        });
 
         const avatarImg = screen.getByRole("img");
         expect(avatarImg).not.toHaveAttribute("src");

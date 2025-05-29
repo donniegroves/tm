@@ -1,27 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import Header from "../components/Header";
-import DrawerProvider from "../inside/DrawerProvider";
-import { InsideContextProvider } from "../inside/InsideContext";
-import { mockPublicUserRow } from "../test-helpers";
-
-const setup = () => {
-    render(
-        <InsideContextProvider
-            loggedInUserId={mockPublicUserRow.user_id}
-            allUsers={[mockPublicUserRow]}
-            gamesData={[]}
-            questions={[]}
-        >
-            <DrawerProvider>
-                <Header />
-            </DrawerProvider>
-        </InsideContextProvider>
-    );
-};
+import { renderWithContext } from "../test-helpers";
 
 describe("Header", () => {
     it("renders the header with user information", () => {
-        setup();
+        renderWithContext(<Header />);
 
         expect(screen.getByRole("img", { name: "Logo" }));
         expect(

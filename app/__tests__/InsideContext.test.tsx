@@ -1,12 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import {
-    InsideContextProvider,
-    useInsideContext,
-} from "../inside/InsideContext";
+import { useInsideContext } from "../inside/InsideContext";
 import {
     mockAllUsers,
     mockGamesData,
     mockQuestionsData,
+    renderWithContext,
 } from "../test-helpers";
 
 describe("InsideContext", () => {
@@ -23,16 +21,11 @@ describe("InsideContext", () => {
     };
 
     it("provides the correct context values", () => {
-        render(
-            <InsideContextProvider
-                loggedInUserId={mockAllUsers[0].user_id}
-                allUsers={mockAllUsers}
-                gamesData={mockGamesData}
-                questions={mockQuestionsData}
-            >
-                <TestComponent />
-            </InsideContextProvider>
-        );
+        renderWithContext(<TestComponent />, {
+            allUsers: mockAllUsers,
+            gamesData: mockGamesData,
+            questions: mockQuestionsData,
+        });
 
         expect(
             screen.getByText(/Logged in user id: user1/)

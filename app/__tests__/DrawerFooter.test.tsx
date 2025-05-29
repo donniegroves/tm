@@ -1,46 +1,82 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { updateProfile } from "../actions/updateProfile";
 import DrawerFooter, { DrawerFooterPurpose } from "../components/DrawerFooter";
+import { mockAllUsers, renderWithContext } from "../test-helpers";
 
 jest.mock("../actions/updateProfile", () => ({
-    updateProfile: jest.fn(),
+    updateProfile: jest.fn(() => {
+        return Promise.resolve();
+    }),
 }));
 
+const setDrawerContent = jest.fn();
 const setIsDrawerOpen = jest.fn();
-
+const setIsDrawerActionLoading = jest.fn();
 jest.mock("../inside/DrawerProvider", () => ({
-    useDrawer: () => ({ setIsDrawerOpen }),
-}));
-
-jest.mock("../inside/InsideContext", () => ({
-    useInsideContext: () => ({ loggedInUserId: "user-123" }),
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    useDrawer: () => ({
+        isDrawerOpen: false,
+        setIsDrawerOpen,
+        drawerContent: null,
+        setDrawerContent,
+        isDrawerActionLoading: false,
+        setIsDrawerActionLoading,
+    }),
 }));
 
 describe("DrawerFooter", () => {
     beforeEach(() => {
+        jest.resetAllMocks();
         jest.clearAllMocks();
     });
 
+    it("renders nothing for non-profile-update purposes", () => {
+        const { container } = renderWithContext(
+            <DrawerFooter purpose={DrawerFooterPurpose.Reserved} />
+        );
+        expect(container).toBeEmptyDOMElement();
+    });
+
     it("calls setIsDrawerOpen(false) when Close is pressed for profile-update", async () => {
-        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
+        renderWithContext(
+            <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+        );
+
+        const closeButton = screen.getByRole("button", { name: "Close" });
+        const saveButton = screen.getByRole("button", { name: "Save" });
 
         await waitFor(() => {
-            expect(screen.getByText("Close")).toBeInTheDocument();
+            expect(closeButton).toBeInTheDocument();
+            expect(saveButton).toBeInTheDocument();
         });
 
-        fireEvent.click(screen.getByText("Close"));
-        expect(setIsDrawerOpen).toHaveBeenCalledWith(false);
+        fireEvent.click(closeButton);
+        await waitFor(() => {
+            expect(setIsDrawerOpen).toHaveBeenCalledWith(false);
+        });
     });
 
     it("calls updateProfile with loggedInUserId when Save is pressed for profile-update", async () => {
-        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
+        renderWithContext(
+            <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+        );
+
+        const closeButton = screen.getByRole("button", { name: "Close" });
+        const saveButton = screen.getByRole("button", { name: "Save" });
 
         await waitFor(() => {
-            expect(screen.getByText("Save")).toBeInTheDocument();
+            expect(closeButton).toBeInTheDocument();
+            expect(saveButton).toBeInTheDocument();
         });
 
-        fireEvent.click(screen.getByText("Save"));
-        expect(updateProfile).toHaveBeenCalledWith("user-123");
+        fireEvent.click(saveButton);
+        await waitFor(() => {
+            expect(setIsDrawerActionLoading).toHaveBeenNthCalledWith(1, true);
+            expect(updateProfile).toHaveBeenCalledWith(mockAllUsers[0].user_id);
+            expect(setIsDrawerActionLoading).toHaveBeenNthCalledWith(2, false);
+            expect(setIsDrawerOpen).toHaveBeenCalledWith(false);
+        });
     });
 
     it("throws if useDrawer is called outside of DrawerProvider", () => {

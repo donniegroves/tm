@@ -14,6 +14,8 @@ const DrawerContext = createContext<
           setIsDrawerOpen: (open: boolean) => void;
           drawerContent: DrawerContent;
           setDrawerContent: (content: DrawerContent) => void;
+          isDrawerActionLoading: boolean;
+          setIsDrawerActionLoading: (loading: boolean) => void;
       }
     | undefined
 >(undefined);
@@ -31,6 +33,7 @@ export default function DrawerProvider({ children }: { children: ReactNode }) {
         body: null,
         footer: null,
     });
+    const [isDrawerActionLoading, setIsDrawerActionLoading] = useState(false);
 
     return (
         <DrawerContext.Provider
@@ -39,6 +42,8 @@ export default function DrawerProvider({ children }: { children: ReactNode }) {
                 setIsDrawerOpen,
                 drawerContent,
                 setDrawerContent,
+                isDrawerActionLoading,
+                setIsDrawerActionLoading,
             }}
         >
             {children}
