@@ -1,6 +1,6 @@
 import { updatePublicUserRow } from "./updatePublicUserRow";
 
-export async function updateProfile(userId: string) {
+export const updateProfile = async ({ userId }: { userId: string }) => {
     const form = document.getElementById("profile-form");
     if (!form) {
         console.warn("Profile form not found");
@@ -20,4 +20,4 @@ export async function updateProfile(userId: string) {
         username: username,
         timezone: timezone,
     });
-}
+};

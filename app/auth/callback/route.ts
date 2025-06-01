@@ -39,9 +39,9 @@ export async function GET(request: Request) {
         );
 
         if (!userIsInPublicUserTable) {
-            await insertPublicUser(
-                mapAuthUserRowToPublicUserRow(exchangeData.user)
-            );
+            await insertPublicUser({
+                userData: mapAuthUserRowToPublicUserRow(exchangeData.user),
+            });
         }
 
         if (redirectTo) {

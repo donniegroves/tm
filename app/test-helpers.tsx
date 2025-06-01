@@ -1,10 +1,60 @@
 import { User } from "@supabase/supabase-js";
-import { render } from "@testing-library/react";
 import { Database } from "database.types";
-import { ReactNode } from "react";
-import DrawerProvider from "./inside/DrawerProvider";
-import { InsideContextProvider } from "./inside/InsideContext";
 
+export const mockAuthUserRow: User = {
+    id: "mock-uuid-1",
+    aud: "authenticated",
+    role: "authenticated",
+    email: "mockuser-1@example.com",
+    email_confirmed_at: "2025-05-19T01:56:28.49964Z",
+    phone: "",
+    confirmed_at: "2025-05-19T01:56:28.49964Z",
+    last_sign_in_at: "2025-05-27T17:54:34.905577Z",
+    app_metadata: {
+        provider: "google",
+        providers: ["google"],
+    },
+    user_metadata: {
+        avatar_url: "https://example.com/avatar.png",
+        email: "mockuser-1@example.com",
+        email_verified: true,
+        full_name: "John Smith",
+        iss: "https://accounts.example.com",
+        name: "John Smith",
+        phone_verified: false,
+        picture: "https://example.com/avatar.png",
+        provider_id: "provider-id-1",
+        sub: "provider-id-1",
+    },
+    identities: [
+        {
+            identity_id: "mock-identity-id-1",
+            id: "provider-id-1",
+            user_id: "mock-uuid-1",
+            identity_data: {
+                avatar_url: "https://example.com/avatar.png",
+                email: "mockuser-1@example.com",
+                email_verified: true,
+                full_name: "John Smith",
+                iss: "https://accounts.example.com",
+                name: "John Smith",
+                phone_verified: false,
+                picture: "https://example.com/avatar.png",
+                provider_id: "provider-id-1",
+                sub: "provider-id-1",
+            },
+            provider: "google",
+            last_sign_in_at: "2025-05-19T01:56:28.492241Z",
+            created_at: "2025-05-19T01:56:28.492291Z",
+            updated_at: "2025-05-27T17:54:34.892342Z",
+            // email here does not match User type, but does get included in the response
+            // email: "johnsmith@example.com",
+        },
+    ],
+    created_at: "2025-05-19T01:56:28.486826Z",
+    updated_at: "2025-05-30T00:06:33.293563Z",
+    is_anonymous: false,
+};
 export const mockPublicUserRow: Database["public"]["Tables"]["users"]["Row"] = {
     user_id: "user1",
     username: "testuser",
@@ -20,7 +70,7 @@ export const mockPublicGameRow: Database["public"]["Tables"]["games"]["Row"] = {
     id: 111,
     host_user_id: "user1",
     share_code: "yikes",
-    num_static_ai: 2,
+    num_static_ai: 74,
     seconds_per_pre: 32,
     seconds_per_rank: 31,
     created_at: "2024-06-01T12:00:00Z",
@@ -34,17 +84,6 @@ export const mockPublicQuestionRow: Database["public"]["Tables"]["questions"]["R
         created_at: "2024-06-01T12:00:00Z",
         updated_at: "2024-06-01T12:00:00Z",
     };
-export const mockAuthUserRow: User = {
-    id: "123",
-    email: "test@example.com",
-    user_metadata: {
-        full_name: "Test User",
-        avatar_url: "url1",
-    },
-    app_metadata: {},
-    aud: "test-aud",
-    created_at: "2024-06-01T12:00:00Z",
-};
 
 export const mockAllUsers: Database["public"]["Tables"]["users"]["Row"][] = [
     mockPublicUserRow,
@@ -55,37 +94,29 @@ export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
     {
         ...mockPublicGameRow,
         id: 222,
+        seconds_per_pre: 45,
+        seconds_per_rank: 50,
         share_code: "XYZ789",
-        host_user_id: "user2",
+        host_user_id: "user3",
+        num_static_ai: 75,
     },
 ];
 export const mockQuestionsData: Database["public"]["Tables"]["questions"]["Row"][] =
     [mockPublicQuestionRow, { ...mockPublicQuestionRow, id: 373 }];
 
-export function renderWithContext(
-    child: ReactNode,
-    {
-        loggedInUserId = mockPublicUserRow.user_id,
-        allUsers = [mockPublicUserRow],
-        gamesData = [],
-        questions = [],
-    }: {
-        loggedInUserId?: Database["public"]["Tables"]["users"]["Row"]["user_id"];
-        allUsers?: Database["public"]["Tables"]["users"]["Row"][];
-        gamesData?: Database["public"]["Tables"]["games"]["Row"][];
-        questions?: Database["public"]["Tables"]["questions"]["Row"][];
-    } = {}
-) {
-    const contextProps = {
-        loggedInUserId,
-        allUsers,
-        gamesData,
-        questions,
-    };
+export const defaultInsideContext = {
+    loggedInUserId: mockPublicUserRow.user_id,
+    allUsers: mockAllUsers,
+    games: mockGamesData,
+    questions: mockQuestionsData,
+};
 
-    return render(
-        <InsideContextProvider {...contextProps}>
-            <DrawerProvider>{child}</DrawerProvider>
-        </InsideContextProvider>
-    );
+let currentMock = { ...defaultInsideContext };
+
+export function setMockInsideContext(overrides = {}) {
+    currentMock = { ...defaultInsideContext, ...overrides };
+}
+
+export function mockUseInsideContext() {
+    return currentMock;
 }

@@ -1,7 +1,7 @@
-import { act, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import NavMenuItem from "../components/NavMenuItem";
-import { renderWithContext } from "../test-helpers";
+import { mockUseInsideContext, setMockInsideContext } from "../test-helpers";
 
 jest.mock("next/navigation", () => ({
     useRouter: jest.fn(),
@@ -18,9 +18,16 @@ jest.mock("../inside/DrawerProvider", () => ({
     }),
 }));
 
+jest.mock("../inside/InsideContext", () => ({
+    useInsideContext: () => mockUseInsideContext(),
+}));
+beforeEach(() => {
+    setMockInsideContext();
+});
+
 describe("NavMenuItem", () => {
     it("renders label and icon", () => {
-        renderWithContext(
+        render(
             <NavMenuItem
                 label={"Test"}
                 icon={<span data-testid="icon">I</span>}
@@ -36,7 +43,7 @@ describe("NavMenuItem", () => {
     it("calls router.push on click", async () => {
         const push = jest.fn();
         (useRouter as jest.Mock).mockReturnValue({ push });
-        renderWithContext(
+        render(
             <NavMenuItem
                 label={"Test"}
                 icon={<span data-testid="icon">I</span>}
@@ -54,7 +61,7 @@ describe("NavMenuItem", () => {
     });
 
     it("calls onPress when label is 'Settings' and Action button is clicked", async () => {
-        renderWithContext(
+        render(
             <NavMenuItem
                 label={"Settings"}
                 icon={<span data-testid="icon">I</span>}

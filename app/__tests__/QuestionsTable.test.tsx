@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { deleteQuestion } from "../actions/deleteQuestion";
 import { insertQuestion } from "../actions/insertQuestion";
 import QuestionsTable from "../components/QuestionsTable";
+import { TanstackProvider } from "../components/TanstackProvider";
 import { mockPublicQuestionRow } from "../test-helpers";
 
 jest.mock("../actions/deleteQuestion", () => ({
@@ -26,23 +27,35 @@ jest.mock("../inside/InsideContext", () => ({
 
 describe("QuestionsTable", () => {
     it("renders questions in the table", () => {
-        render(<QuestionsTable />);
+        render(
+            <TanstackProvider>
+                <QuestionsTable />
+            </TanstackProvider>
+        );
         expect(screen.getByText("What is your name?")).toBeInTheDocument();
         expect(screen.getByText("What is your quest?")).toBeInTheDocument();
-        expect(screen.getAllByText("Del").length).toBe(2);
+        expect(screen.getAllByText("Delete").length).toBe(2);
     });
 
-    it("calls deleteQuestion when Del button is pressed", async () => {
-        render(<QuestionsTable />);
-        const delButtons = screen.getAllByText("Del");
+    it("calls deleteQuestion when Delete button is pressed", async () => {
+        render(
+            <TanstackProvider>
+                <QuestionsTable />
+            </TanstackProvider>
+        );
+        const delButtons = screen.getAllByText("Delete");
         fireEvent.click(delButtons[1]);
         await waitFor(() => {
-            expect(deleteQuestion).toHaveBeenCalledWith(456);
+            expect(deleteQuestion).toHaveBeenCalledWith({ questionId: 456 });
         });
     });
 
     it("calls insertQuestion when Add random question button is pressed", async () => {
-        render(<QuestionsTable />);
+        render(
+            <TanstackProvider>
+                <QuestionsTable />
+            </TanstackProvider>
+        );
 
         const insertButton = screen.getByRole("button", {
             name: "Add random question",

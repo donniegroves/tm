@@ -1,7 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { updateProfile } from "../actions/updateProfile";
 import DrawerFooter, { DrawerFooterPurpose } from "../components/DrawerFooter";
-import { mockAllUsers, renderWithContext } from "../test-helpers";
+import { TanstackProvider } from "../components/TanstackProvider";
+import {
+    mockAllUsers,
+    mockUseInsideContext,
+    setMockInsideContext,
+} from "../test-helpers";
 
 jest.mock("../actions/updateProfile", () => ({
     updateProfile: jest.fn(() => {
@@ -25,6 +30,13 @@ jest.mock("../inside/DrawerProvider", () => ({
     }),
 }));
 
+jest.mock("../inside/InsideContext", () => ({
+    useInsideContext: () => mockUseInsideContext(),
+}));
+beforeEach(() => {
+    setMockInsideContext();
+});
+
 describe("DrawerFooter", () => {
     beforeEach(() => {
         jest.resetAllMocks();
@@ -32,15 +44,19 @@ describe("DrawerFooter", () => {
     });
 
     it("renders nothing for non-profile-update purposes", () => {
-        const { container } = renderWithContext(
-            <DrawerFooter purpose={DrawerFooterPurpose.Reserved} />
+        const { container } = render(
+            <TanstackProvider>
+                <DrawerFooter purpose={DrawerFooterPurpose.Reserved} />
+            </TanstackProvider>
         );
         expect(container).toBeEmptyDOMElement();
     });
 
     it("calls setIsDrawerOpen(false) when Close is pressed for profile-update", async () => {
-        renderWithContext(
-            <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+        render(
+            <TanstackProvider>
+                <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+            </TanstackProvider>
         );
 
         const closeButton = screen.getByRole("button", { name: "Close" });
@@ -58,8 +74,10 @@ describe("DrawerFooter", () => {
     });
 
     it("calls updateProfile with loggedInUserId when Save is pressed for profile-update", async () => {
-        renderWithContext(
-            <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+        render(
+            <TanstackProvider>
+                <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+            </TanstackProvider>
         );
 
         const closeButton = screen.getByRole("button", { name: "Close" });
@@ -73,7 +91,9 @@ describe("DrawerFooter", () => {
         fireEvent.click(saveButton);
         await waitFor(() => {
             expect(setIsDrawerActionLoading).toHaveBeenNthCalledWith(1, true);
-            expect(updateProfile).toHaveBeenCalledWith(mockAllUsers[0].user_id);
+            expect(updateProfile).toHaveBeenCalledWith({
+                userId: mockAllUsers[0].user_id,
+            });
             expect(setIsDrawerActionLoading).toHaveBeenNthCalledWith(2, false);
             expect(setIsDrawerOpen).toHaveBeenCalledWith(false);
         });

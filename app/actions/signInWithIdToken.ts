@@ -43,7 +43,7 @@ export const signInWithIdToken = async (
                 avatar_url: publicAvatarUrl,
             };
 
-            await insertPublicUser(publicUserRow);
+            await insertPublicUser({ userData: publicUserRow });
         }
     } catch {
         throw new Error("Error signing in with Google");

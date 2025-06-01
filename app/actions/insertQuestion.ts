@@ -2,11 +2,15 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-export const insertQuestion = async (
-    preQuestion: string,
-    rankPrompt: string
-) => {
+export const insertQuestion = async ({
+    preQuestion,
+    rankPrompt,
+}: {
+    preQuestion: string;
+    rankPrompt: string;
+}) => {
     const supabase = await createClient();
+
     const { error, status } = await supabase
         .from("questions")
         .insert({ pre_question: preQuestion, rank_prompt: rankPrompt });

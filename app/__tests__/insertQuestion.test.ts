@@ -16,10 +16,10 @@ describe("insertQuestion", () => {
 
         (createClient as jest.Mock).mockResolvedValue(mockSupabase);
 
-        await insertQuestion(
-            "What is your favorite color?",
-            "Rank your preferences"
-        );
+        await insertQuestion({
+            preQuestion: "What is your favorite color?",
+            rankPrompt: "Rank your preferences",
+        });
 
         expect(mockSupabase.from).toHaveBeenCalledWith("questions");
         expect(mockInsert).toHaveBeenCalledWith({
@@ -40,10 +40,10 @@ describe("insertQuestion", () => {
         (createClient as jest.Mock).mockResolvedValue(mockSupabase);
 
         await expect(
-            insertQuestion(
-                "What is your favorite color?",
-                "Rank your preferences"
-            )
+            insertQuestion({
+                preQuestion: "What is your favorite color?",
+                rankPrompt: "Rank your preferences",
+            })
         ).rejects.toThrow();
 
         expect(mockSupabase.from).toHaveBeenCalledWith("questions");

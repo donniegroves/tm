@@ -1,6 +1,10 @@
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import AvatarWithName from "../components/AvatarWithName";
-import { mockPublicUserRow, renderWithContext } from "../test-helpers";
+import {
+    mockPublicUserRow,
+    mockUseInsideContext,
+    setMockInsideContext,
+} from "../test-helpers";
 
 jest.mock("../components/HeaderProfileDropdown", () => {
     const MockProfileDropdown = () => (
@@ -10,9 +14,16 @@ jest.mock("../components/HeaderProfileDropdown", () => {
     return MockProfileDropdown;
 });
 
+jest.mock("../inside/InsideContext", () => ({
+    useInsideContext: () => mockUseInsideContext(),
+}));
+beforeEach(() => {
+    setMockInsideContext();
+});
+
 describe("AvatarWithName", () => {
     it("renders avatar, name, and username", () => {
-        renderWithContext(
+        render(
             <AvatarWithName
                 userId={mockPublicUserRow.user_id}
                 showProfileButton={false}
@@ -31,7 +42,7 @@ describe("AvatarWithName", () => {
     });
 
     it("shows the profile button when showProfileButton is true", () => {
-        renderWithContext(
+        render(
             <AvatarWithName
                 userId={mockPublicUserRow.user_id}
                 showProfileButton={true}
@@ -42,7 +53,7 @@ describe("AvatarWithName", () => {
     });
 
     it("does not show the profile button when showProfileButton is false", () => {
-        renderWithContext(
+        render(
             <AvatarWithName
                 userId={mockPublicUserRow.user_id}
                 showProfileButton={false}
@@ -53,7 +64,7 @@ describe("AvatarWithName", () => {
     });
 
     it("uses loggedInUserId if userId is not passed in", () => {
-        renderWithContext(
+        render(
             <AvatarWithName
                 userId={undefined}
                 showProfileButton={false}
@@ -72,7 +83,7 @@ describe("AvatarWithName", () => {
     });
 
     it("applies max-w-full when limitNameWidth is false", () => {
-        renderWithContext(
+        render(
             <AvatarWithName
                 userId={mockPublicUserRow.user_id}
                 showProfileButton={false}
@@ -91,12 +102,13 @@ describe("AvatarWithName", () => {
             full_name: null,
             avatar_url: null,
         };
-        renderWithContext(<AvatarWithName userId={userWithNulls.user_id} />, {
+        setMockInsideContext({
             loggedInUserId: userWithNulls.user_id,
             allUsers: [userWithNulls],
             gamesData: [],
             questions: [],
         });
+        render(<AvatarWithName userId={userWithNulls.user_id} />);
 
         const avatarImg = screen.getByRole("img");
         expect(avatarImg).not.toHaveAttribute("src");

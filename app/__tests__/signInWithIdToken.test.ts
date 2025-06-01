@@ -83,10 +83,12 @@ describe("signInWithIdToken", () => {
         expect(getUserFromPublic).toHaveBeenCalledWith(mockAuthUserRow.id);
 
         expect(insertPublicUser).toHaveBeenCalledWith({
-            avatar_url: "mockStoredAvatarUrl",
-            email: mockAuthUserRow.email,
-            full_name: mockAuthUserRow.user_metadata.full_name,
-            user_id: mockAuthUserRow.id,
+            userData: {
+                avatar_url: "mockStoredAvatarUrl",
+                email: mockAuthUserRow.email,
+                full_name: mockAuthUserRow.user_metadata.full_name,
+                user_id: mockAuthUserRow.id,
+            },
         });
 
         expect(redirect).toHaveBeenCalledWith("/inside");

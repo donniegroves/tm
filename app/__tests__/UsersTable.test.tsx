@@ -11,7 +11,7 @@ jest.mock("../inside/InsideContext", () => ({
     useInsideContext: (): InsideContextType => ({
         loggedInUserId: mockPublicUserRow.user_id,
         allUsers: [mockPublicUserRow],
-        gamesData: mockGamesData,
+        games: mockGamesData,
         questions: mockQuestionsData,
     }),
 }));

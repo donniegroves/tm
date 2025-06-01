@@ -16,7 +16,7 @@ describe("deleteQuestion", () => {
 
         (createClient as jest.Mock).mockResolvedValue(mockSupabase);
 
-        await deleteQuestion(123);
+        await deleteQuestion({ questionId: 123 });
 
         expect(mockFrom).toHaveBeenCalledWith("questions");
         expect(mockDelete).toHaveBeenCalled();
@@ -34,7 +34,7 @@ describe("deleteQuestion", () => {
 
         (createClient as jest.Mock).mockResolvedValue(mockSupabase);
 
-        await expect(deleteQuestion(345)).rejects.toThrow();
+        await expect(deleteQuestion({ questionId: 345 })).rejects.toThrow();
 
         expect(mockFrom).toHaveBeenCalledWith("questions");
         expect(mockDelete).toHaveBeenCalled();

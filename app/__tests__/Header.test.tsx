@@ -1,10 +1,22 @@
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Header from "../components/Header";
-import { renderWithContext } from "../test-helpers";
+import DrawerProvider from "../inside/DrawerProvider";
+import { mockUseInsideContext, setMockInsideContext } from "../test-helpers";
+
+jest.mock("../inside/InsideContext", () => ({
+    useInsideContext: () => mockUseInsideContext(),
+}));
+beforeEach(() => {
+    setMockInsideContext();
+});
 
 describe("Header", () => {
     it("renders the header with user information", () => {
-        renderWithContext(<Header />);
+        render(
+            <DrawerProvider>
+                <Header />
+            </DrawerProvider>
+        );
 
         expect(screen.getByRole("img", { name: "Logo" }));
         expect(

@@ -1,7 +1,7 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { signOut } from "../actions/signOut";
 import HeaderProfileDropdown from "../components/HeaderProfileDropdown";
-import { renderWithContext } from "../test-helpers";
+import { mockUseInsideContext, setMockInsideContext } from "../test-helpers";
 
 jest.mock("../actions/signOut", () => ({
     signOut: jest.fn(),
@@ -23,9 +23,16 @@ jest.mock("../inside/DrawerProvider", () => ({
     }),
 }));
 
+jest.mock("../inside/InsideContext", () => ({
+    useInsideContext: () => mockUseInsideContext(),
+}));
+beforeEach(() => {
+    setMockInsideContext();
+});
+
 describe("HeaderProfileDropdown", () => {
     it("renders the dropdown and menu items", async () => {
-        renderWithContext(<HeaderProfileDropdown />);
+        render(<HeaderProfileDropdown />);
         fireEvent.click(screen.getByRole("button"));
 
         await waitFor(() => {
@@ -35,7 +42,7 @@ describe("HeaderProfileDropdown", () => {
     });
 
     it("calls signOut when 'Sign out' is clicked", async () => {
-        renderWithContext(<HeaderProfileDropdown />);
+        render(<HeaderProfileDropdown />);
         fireEvent.click(screen.getByRole("button"));
 
         fireEvent.click(screen.getByText("Sign out"));
@@ -46,7 +53,7 @@ describe("HeaderProfileDropdown", () => {
     });
 
     it("opens the drawer when the trigger and then profile are clicked", async () => {
-        renderWithContext(<HeaderProfileDropdown />);
+        render(<HeaderProfileDropdown />);
         fireEvent.click(screen.getByRole("button"));
 
         await waitFor(() => {

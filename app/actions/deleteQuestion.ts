@@ -2,7 +2,11 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-export const deleteQuestion = async (questionId: number) => {
+export const deleteQuestion = async ({
+    questionId,
+}: {
+    questionId: number;
+}) => {
     const supabase = await createClient();
     const { error, status } = await supabase
         .from("questions")

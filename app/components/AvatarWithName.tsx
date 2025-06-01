@@ -5,15 +5,15 @@ import { useInsideContext } from "../inside/InsideContext";
 import HeaderProfileDropdown from "./HeaderProfileDropdown";
 
 interface AvatarWithNameProps {
+    userId?: string;
     showProfileButton?: boolean;
     limitNameWidth?: boolean;
-    userId?: string;
 }
 
 export default function AvatarWithName({
+    userId,
     showProfileButton = false,
     limitNameWidth = true,
-    userId,
 }: AvatarWithNameProps) {
     const { allUsers, loggedInUserId } = useInsideContext();
 

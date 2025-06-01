@@ -13,7 +13,7 @@ import AvatarWithName from "./AvatarWithName";
 import { useFormattedTimestamp } from "./useFormattedTimestamp";
 
 export default function GamesTable() {
-    const { gamesData, allUsers } = useInsideContext();
+    const { games, allUsers } = useInsideContext();
     const formatTimestamp = useFormattedTimestamp();
 
     return (
@@ -35,7 +35,7 @@ export default function GamesTable() {
                     <TableColumn>Created date/time</TableColumn>
                 </TableHeader>
                 <TableBody>
-                    {gamesData.map((game) => {
+                    {games.map((game) => {
                         const host = allUsers.find(
                             (user) => user.user_id === game.host_user_id
                         );

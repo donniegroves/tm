@@ -1,6 +1,7 @@
-import { screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import DrawerFooter, { DrawerFooterPurpose } from "../components/DrawerFooter";
-import { renderWithContext } from "../test-helpers";
+import { TanstackProvider } from "../components/TanstackProvider";
+import { mockUseInsideContext, setMockInsideContext } from "../test-helpers";
 
 const setDrawerContent = jest.fn();
 const setIsDrawerOpen = jest.fn();
@@ -18,6 +19,13 @@ jest.mock("../inside/DrawerProvider", () => ({
     }),
 }));
 
+jest.mock("../inside/InsideContext", () => ({
+    useInsideContext: () => mockUseInsideContext(),
+}));
+beforeEach(() => {
+    setMockInsideContext();
+});
+
 describe("DrawerFooter loading", () => {
     beforeEach(() => {
         jest.resetAllMocks();
@@ -25,8 +33,10 @@ describe("DrawerFooter loading", () => {
     });
 
     it("renders spinner when isDrawerActionLoading is true", async () => {
-        renderWithContext(
-            <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+        render(
+            <TanstackProvider>
+                <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
+            </TanstackProvider>
         );
 
         const saveButton = screen.getByRole("button", { name: "Loading..." });

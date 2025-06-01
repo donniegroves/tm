@@ -27,7 +27,7 @@ describe("insertPublicUser", () => {
         const { mockInsert, mockFrom, createClient } = setupSupabaseMock();
 
         await expect(
-            insertPublicUser(mockPublicUserRow)
+            insertPublicUser({ userData: mockPublicUserRow })
         ).resolves.not.toThrow();
 
         expect(createClient).toHaveBeenCalled();
@@ -38,7 +38,9 @@ describe("insertPublicUser", () => {
     it("should throw an error if insertion fails", async () => {
         const { mockInsert, mockFrom, createClient } = setupSupabaseMock(true);
 
-        await expect(insertPublicUser(mockPublicUserRow)).rejects.toThrow();
+        await expect(
+            insertPublicUser({ userData: mockPublicUserRow })
+        ).rejects.toThrow();
 
         expect(createClient).toHaveBeenCalled();
         expect(mockFrom).toHaveBeenCalledWith("users");

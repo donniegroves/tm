@@ -1,23 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import GamesTable from "../components/GamesTable";
-import { mockAllUsers, mockPublicGameRow } from "../test-helpers";
+import {
+    mockAllUsers,
+    mockPublicGameRow,
+    mockUseInsideContext,
+    setMockInsideContext,
+} from "../test-helpers";
 
 jest.mock("../inside/InsideContext", () => ({
-    useInsideContext: () => ({
-        gamesData: [
-            mockPublicGameRow,
-            {
-                ...mockPublicGameRow,
-                num_static_ai: null,
-                share_code: "test923",
-                host_user_id: "something_else",
-                seconds_per_pre: 12,
-                seconds_per_rank: 13,
-            },
-        ],
-        allUsers: mockAllUsers,
-    }),
+    useInsideContext: () => mockUseInsideContext(),
 }));
+beforeEach(() => {
+    setMockInsideContext();
+});
 
 describe("GamesTable", () => {
     beforeEach(() => {
@@ -52,14 +47,9 @@ describe("GamesTable", () => {
     });
     it("shows 0 for missing AI bots", () => {
         const gameWithNoBots = { ...mockPublicGameRow, num_static_ai: null };
-        jest.resetModules();
-        jest.resetAllMocks();
-        jest.mock("../inside/InsideContext", () => ({
-            useInsideContext: () => ({
-                gamesData: [gameWithNoBots],
-                allUsers: mockAllUsers,
-            }),
-        }));
+        setMockInsideContext({
+            games: [gameWithNoBots],
+        });
         render(<GamesTable />);
 
         expect(screen.getByRole("gridcell", { name: "0" })).toBeInTheDocument();

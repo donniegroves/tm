@@ -1,49 +1,93 @@
 import { render, screen } from "@testing-library/react";
-import { useInsideContext } from "../inside/InsideContext";
+import {
+    InsideContextProvider,
+    useInsideContext,
+} from "../inside/InsideContext";
 import {
     mockAllUsers,
     mockGamesData,
+    mockPublicUserRow,
     mockQuestionsData,
-    renderWithContext,
 } from "../test-helpers";
 
-describe("InsideContext", () => {
-    const TestComponent = () => {
-        const context = useInsideContext();
-        return (
-            <div>
-                <p>Logged in user id: {context.loggedInUserId}</p>
-                <p>Total users count: {context.allUsers.length}</p>
-                <p>Games count: {context.gamesData.length}</p>
-                <p>Questions count: {context.questions.length} </p>
+jest.mock("@tanstack/react-query", () => ({
+    useQuery: jest.fn(),
+}));
+
+type UseQueryArgs = { queryKey: string[] };
+
+function TestComponent() {
+    const context = useInsideContext();
+    return (
+        <div>
+            <div data-testid="user-id">{context.loggedInUserId}</div>
+            <div data-testid="user-name">{context.allUsers[0]?.full_name}</div>
+            <div data-testid="game-id">{context.games[0]?.id}</div>
+            <div data-testid="question-pre">
+                {context.questions[0]?.pre_question}
             </div>
-        );
-    };
+        </div>
+    );
+}
 
-    it("provides the correct context values", () => {
-        renderWithContext(<TestComponent />, {
-            allUsers: mockAllUsers,
-            gamesData: mockGamesData,
-            questions: mockQuestionsData,
+describe("InsideContextProvider", () => {
+    beforeEach(() => {
+        const useQuery = jest.requireMock("@tanstack/react-query")
+            .useQuery as jest.Mock;
+        useQuery.mockImplementation((args: UseQueryArgs) => {
+            switch (args.queryKey[0]) {
+                case "loggedInUserId":
+                    return { data: mockPublicUserRow.user_id };
+                case "allUsers":
+                    return { data: mockAllUsers };
+                case "games":
+                    return { data: mockGamesData };
+                case "questions":
+                    return { data: mockQuestionsData };
+                default:
+                    return { data: undefined };
+            }
         });
-
-        expect(
-            screen.getByText(/Logged in user id: user1/)
-        ).toBeInTheDocument();
-        expect(screen.getByText(/Total users count: 2/)).toBeInTheDocument();
-        expect(screen.getByText(/Games count: 2/)).toBeInTheDocument();
-        expect(screen.getByText(/Questions count: 2/)).toBeInTheDocument();
     });
 
-    it("throws an error when used outside of the provider", () => {
-        const consoleError = jest
-            .spyOn(console, "error")
-            .mockImplementation(() => {});
-
-        expect(() => render(<TestComponent />)).toThrow(
-            "useInsideContext must be used within a InsideContextProvider"
+    it("provides context values from queries", () => {
+        render(
+            <InsideContextProvider>
+                <TestComponent />
+            </InsideContextProvider>
         );
+        expect(screen.getByTestId("user-id")).toHaveTextContent(
+            mockPublicUserRow.user_id
+        );
+        expect(screen.getByTestId("user-name")).toHaveTextContent("Test User");
+        expect(screen.getByTestId("game-id")).toHaveTextContent("1");
+        expect(screen.getByTestId("question-pre")).toHaveTextContent(
+            "What is your name?"
+        );
+    });
 
-        consoleError.mockRestore();
+    it("returns null if any query is undefined", () => {
+        const useQuery = jest.requireMock("@tanstack/react-query")
+            .useQuery as jest.Mock;
+        useQuery.mockImplementation((args: UseQueryArgs) => {
+            if (args.queryKey[0] === "games") return { data: undefined };
+            return { data: "ok" };
+        });
+        const { container } = render(
+            <InsideContextProvider>
+                <TestComponent />
+            </InsideContextProvider>
+        );
+        expect(container.firstChild).toBeNull();
+    });
+
+    it("throws if used outside provider", () => {
+        function ThrowingComponent() {
+            useInsideContext();
+            return null;
+        }
+        expect(() => render(<ThrowingComponent />)).toThrow(
+            /useInsideContext must be used within a InsideContextProvider/
+        );
     });
 });
