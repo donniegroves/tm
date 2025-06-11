@@ -1,23 +1,30 @@
-import { updatePublicUserRow } from "./updatePublicUserRow";
+"use client";
+
+import { createClient } from "@/utils/supabase/client";
 
 export const updateProfile = async ({ userId }: { userId: string }) => {
     const form = document.getElementById("profile-form");
-    if (!form) {
-        console.warn("Profile form not found");
-        return;
+    const usernameInput = form?.querySelector("input");
+    const timezoneSelect = form?.querySelector("select");
+
+    if (!form || !usernameInput || !timezoneSelect) {
+        throw new Error("Proper form elements not found to update profile");
     }
 
-    const usernameInput = form.querySelector("input");
-    const timezoneSelect = form.querySelector("select");
-    const username = usernameInput
-        ? (usernameInput as HTMLInputElement).value
-        : undefined;
-    const timezone = timezoneSelect
-        ? (timezoneSelect as HTMLSelectElement).value
-        : undefined;
+    const username = (usernameInput as HTMLInputElement).value;
+    const timezone = (timezoneSelect as HTMLSelectElement).value;
 
-    await updatePublicUserRow(userId, {
-        username: username,
-        timezone: timezone,
-    });
+    const supabase = createClient();
+
+    const { error, status } = await supabase
+        .from("users")
+        .update({
+            username: username,
+            timezone: timezone,
+        })
+        .eq("user_id", userId);
+
+    if (error || status !== 204) {
+        throw new Error("Failed to update profile");
+    }
 };

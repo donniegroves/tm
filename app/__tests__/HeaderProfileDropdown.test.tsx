@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { signOut } from "../actions/signOut";
 import HeaderProfileDropdown from "../components/HeaderProfileDropdown";
-import { mockUseInsideContext, setMockInsideContext } from "../test-helpers";
+import {
+    mockUseInsideContext,
+    setMockInsideContext,
+} from "./helpers/helper-InsideContext";
 
 jest.mock("../actions/signOut", () => ({
     signOut: jest.fn(),

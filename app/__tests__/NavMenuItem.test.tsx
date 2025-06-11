@@ -1,7 +1,10 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import NavMenuItem from "../components/NavMenuItem";
-import { mockUseInsideContext, setMockInsideContext } from "../test-helpers";
+import {
+    mockUseInsideContext,
+    setMockInsideContext,
+} from "./helpers/helper-InsideContext";
 
 jest.mock("next/navigation", () => ({
     useRouter: jest.fn(),

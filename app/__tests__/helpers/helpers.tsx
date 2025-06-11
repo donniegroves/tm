@@ -110,13 +110,3 @@ export const defaultInsideContext = {
     games: mockGamesData,
     questions: mockQuestionsData,
 };
-
-let currentMock = { ...defaultInsideContext };
-
-export function setMockInsideContext(overrides = {}) {
-    currentMock = { ...defaultInsideContext, ...overrides };
-}
-
-export function mockUseInsideContext() {
-    return currentMock;
-}

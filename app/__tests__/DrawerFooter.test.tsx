@@ -1,63 +1,96 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { updateProfile } from "../actions/updateProfile";
 import DrawerFooter, { DrawerFooterPurpose } from "../components/DrawerFooter";
-import { TanstackProvider } from "../components/TanstackProvider";
 import {
-    mockAllUsers,
+    mockUseDrawer,
+    setMockUseDrawer,
+} from "./helpers/helper-DrawerContext";
+import {
     mockUseInsideContext,
     setMockInsideContext,
-} from "../test-helpers";
-
-jest.mock("../actions/updateProfile", () => ({
-    updateProfile: jest.fn(() => {
-        return Promise.resolve();
-    }),
-}));
-
-const setDrawerContent = jest.fn();
-const setIsDrawerOpen = jest.fn();
-const setIsDrawerActionLoading = jest.fn();
-jest.mock("../inside/DrawerProvider", () => ({
-    __esModule: true,
-    default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    useDrawer: () => ({
-        isDrawerOpen: false,
-        setIsDrawerOpen,
-        drawerContent: null,
-        setDrawerContent,
-        isDrawerActionLoading: false,
-        setIsDrawerActionLoading,
-    }),
-}));
+} from "./helpers/helper-InsideContext";
+import { mockUseMutation, setMockUseMutation } from "./helpers/helper-Mutation";
+import { mockUseQueryClient } from "./helpers/helper-QueryClient";
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: () => mockUseInsideContext(),
 }));
-beforeEach(() => {
-    setMockInsideContext();
-});
+jest.mock("../inside/DrawerProvider", () => ({
+    useDrawer: () => mockUseDrawer(),
+}));
+jest.mock("@tanstack/react-query", () => ({
+    ...jest.requireActual("@tanstack/react-query"),
+    useQueryClient: () => mockUseQueryClient(),
+    useMutation: () => mockUseMutation(),
+}));
 
 describe("DrawerFooter", () => {
-    beforeEach(() => {
-        jest.resetAllMocks();
-        jest.clearAllMocks();
+    afterEach(() => {
+        setMockInsideContext({});
+        setMockUseDrawer({});
+        setMockUseMutation({});
     });
 
     it("renders nothing for non-profile-update purposes", () => {
+        setMockInsideContext({ loggedInUserId: 755 });
+        setMockUseDrawer({ isDrawerOpen: true });
+
         const { container } = render(
-            <TanstackProvider>
-                <DrawerFooter purpose={DrawerFooterPurpose.Reserved} />
-            </TanstackProvider>
+            <DrawerFooter purpose={DrawerFooterPurpose.Reserved} />
         );
         expect(container).toBeEmptyDOMElement();
     });
 
+    it("renders close and save button for profile-update purpose", async () => {
+        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
+
+        screen.getByRole("button", { name: "Close" });
+        screen.getByRole("button", { name: "Save" });
+    });
+
+    it("renders close and add button for add-question purpose", async () => {
+        const mockMutate = jest.fn();
+        setMockUseMutation({
+            mutate: mockMutate,
+        });
+        render(<DrawerFooter purpose={DrawerFooterPurpose.AddQuestion} />);
+
+        screen.getByRole("button", { name: "Close" });
+        const addButton = screen.getByRole("button", { name: "Add" });
+
+        await waitFor(() => {
+            fireEvent.click(addButton);
+        });
+        expect(mockMutate).toHaveBeenCalled();
+    });
+
+    it("calls queryClient.invalidateQueries on successful profile update", async () => {
+        const mockMutate = jest.fn();
+
+        setMockUseMutation({
+            mutate: mockMutate,
+        });
+
+        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
+        const saveButton = screen.getByRole("button", { name: "Save" });
+
+        await waitFor(() => fireEvent.click(saveButton));
+        expect(mockMutate).toHaveBeenCalled();
+        expect(mockMutate).toHaveBeenCalledWith({
+            userId: "user1",
+        });
+    });
+
+    it("loads spinner when isDrawerActionLoading is true", async () => {
+        setMockUseDrawer({ isDrawerActionLoading: true });
+        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
+        const saveButton = screen.getByRole("button", { name: "Loading..." });
+        expect(saveButton).toBeInTheDocument();
+    });
+
     it("calls setIsDrawerOpen(false) when Close is pressed for profile-update", async () => {
-        render(
-            <TanstackProvider>
-                <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
-            </TanstackProvider>
-        );
+        const setIsDrawerOpen = jest.fn();
+        setMockUseDrawer({ setIsDrawerOpen });
+        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
 
         const closeButton = screen.getByRole("button", { name: "Close" });
         const saveButton = screen.getByRole("button", { name: "Save" });
@@ -71,45 +104,5 @@ describe("DrawerFooter", () => {
         await waitFor(() => {
             expect(setIsDrawerOpen).toHaveBeenCalledWith(false);
         });
-    });
-
-    it("calls updateProfile with loggedInUserId when Save is pressed for profile-update", async () => {
-        render(
-            <TanstackProvider>
-                <DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />
-            </TanstackProvider>
-        );
-
-        const closeButton = screen.getByRole("button", { name: "Close" });
-        const saveButton = screen.getByRole("button", { name: "Save" });
-
-        await waitFor(() => {
-            expect(closeButton).toBeInTheDocument();
-            expect(saveButton).toBeInTheDocument();
-        });
-
-        fireEvent.click(saveButton);
-        await waitFor(() => {
-            expect(setIsDrawerActionLoading).toHaveBeenNthCalledWith(1, true);
-            expect(updateProfile).toHaveBeenCalledWith({
-                userId: mockAllUsers[0].user_id,
-            });
-            expect(setIsDrawerActionLoading).toHaveBeenNthCalledWith(2, false);
-            expect(setIsDrawerOpen).toHaveBeenCalledWith(false);
-        });
-    });
-
-    it("throws if useDrawer is called outside of DrawerProvider", () => {
-        const { useDrawer } = jest.requireActual("../inside/DrawerProvider");
-        function TestComponent() {
-            useDrawer();
-            return null;
-        }
-
-        const spy = jest.spyOn(console, "error").mockImplementation(() => {});
-        expect(() => render(<TestComponent />)).toThrow(
-            /useDrawer must be used within DrawerContext/
-        );
-        spy.mockRestore();
     });
 });

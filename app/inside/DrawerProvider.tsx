@@ -3,9 +3,9 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 
 export type DrawerContent = {
-    header: ReactNode | null;
-    body: ReactNode | null;
-    footer: ReactNode | null;
+    header: ReactNode;
+    body: ReactNode;
+    footer: ReactNode;
 };
 
 const DrawerContext = createContext<

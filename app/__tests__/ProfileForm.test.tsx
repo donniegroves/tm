@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import ProfileForm from "../components/ProfileForm";
 import {
-    mockPublicUserRow,
     mockUseInsideContext,
     setMockInsideContext,
-} from "../test-helpers";
+} from "./helpers/helper-InsideContext";
+import { mockPublicUserRow } from "./helpers/helpers";
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: () => mockUseInsideContext(),

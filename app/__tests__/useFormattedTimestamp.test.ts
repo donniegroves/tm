@@ -7,7 +7,7 @@ jest.mock("../inside/InsideContext", () => ({
 }));
 
 import { useInsideContext } from "../inside/InsideContext";
-import { mockPublicUserRow } from "../test-helpers";
+import { mockPublicUserRow } from "./helpers/helpers";
 
 describe("useFormattedTimestamp", () => {
     const mockUser = mockPublicUserRow;

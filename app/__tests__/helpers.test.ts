@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { getUserFromPublic, mapAuthUserRowToPublicUserRow } from "../helpers";
-import { mockAuthUserRow, mockPublicUserRow } from "../test-helpers";
+import { mockAuthUserRow, mockPublicUserRow } from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),

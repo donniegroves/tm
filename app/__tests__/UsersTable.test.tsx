@@ -5,7 +5,7 @@ import {
     mockGamesData,
     mockPublicUserRow,
     mockQuestionsData,
-} from "../test-helpers";
+} from "./helpers/helpers";
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: (): InsideContextType => ({

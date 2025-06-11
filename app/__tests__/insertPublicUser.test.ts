@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { insertPublicUser } from "../actions/insertPublicUser";
-import { mockPublicUserRow } from "../test-helpers";
+import { mockPublicUserRow } from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),

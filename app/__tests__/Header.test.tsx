@@ -1,7 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import Header from "../components/Header";
 import DrawerProvider from "../inside/DrawerProvider";
-import { mockUseInsideContext, setMockInsideContext } from "../test-helpers";
+import {
+    mockUseInsideContext,
+    setMockInsideContext,
+} from "./helpers/helper-InsideContext";
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: () => mockUseInsideContext(),

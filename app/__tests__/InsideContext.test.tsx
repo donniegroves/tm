@@ -8,7 +8,7 @@ import {
     mockGamesData,
     mockPublicUserRow,
     mockQuestionsData,
-} from "../test-helpers";
+} from "./helpers/helpers";
 
 jest.mock("@tanstack/react-query", () => ({
     useQuery: jest.fn(),

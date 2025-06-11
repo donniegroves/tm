@@ -18,6 +18,12 @@ const config: Config = {
         "^@/utils/(.*)$": "<rootDir>/utils/$1",
     },
     setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+    testPathIgnorePatterns: ["<rootDir>/app/__tests__/helpers/"],
+    coveragePathIgnorePatterns: [
+        "/node_modules/",
+        "/.next/",
+        "<rootDir>/app/__tests__/helpers/",
+    ],
 };
 
 export default createJestConfig(config);

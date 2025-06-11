@@ -1,11 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import GamesTable from "../components/GamesTable";
 import {
-    mockAllUsers,
-    mockPublicGameRow,
     mockUseInsideContext,
     setMockInsideContext,
-} from "../test-helpers";
+} from "./helpers/helper-InsideContext";
+import { mockAllUsers, mockPublicGameRow } from "./helpers/helpers";
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: () => mockUseInsideContext(),

@@ -1,16 +1,32 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { deleteQuestion } from "../actions/deleteQuestion";
-import { insertQuestion } from "../actions/insertQuestion";
 import QuestionsTable from "../components/QuestionsTable";
-import { TanstackProvider } from "../components/TanstackProvider";
-import { mockPublicQuestionRow } from "../test-helpers";
+import { mockUseDrawer } from "./helpers/helper-DrawerContext";
+import { mockPublicQuestionRow } from "./helpers/helpers";
 
-jest.mock("../actions/deleteQuestion", () => ({
-    deleteQuestion: jest.fn(),
+jest.mock("../inside/DrawerProvider", () => ({
+    useDrawer: () => mockUseDrawer(),
 }));
-jest.mock("../actions/insertQuestion", () => ({
-    insertQuestion: jest.fn(),
+jest.mock("@tanstack/react-query", () => ({
+    useQueryClient: () => ({
+        getQueryState: jest.fn(() => ({
+            fetchStatus: "idle",
+        })),
+    }),
 }));
+jest.mock("../hooks/useDeleteQuestion", () => ({
+    useDeleteQuestion: () => ({
+        variables: { questionId: 456 },
+        mutateAsync: jest.fn(),
+    }),
+}));
+
+jest.mock("../components/AddQuestionButton", () => {
+    const MockAddQuestionButton = () => (
+        <button>Fake add question button</button>
+    );
+    MockAddQuestionButton.displayName = "MockAddQuestionButton";
+    return MockAddQuestionButton;
+});
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: () => ({
@@ -27,45 +43,24 @@ jest.mock("../inside/InsideContext", () => ({
 
 describe("QuestionsTable", () => {
     it("renders questions in the table", () => {
-        render(
-            <TanstackProvider>
-                <QuestionsTable />
-            </TanstackProvider>
-        );
+        render(<QuestionsTable />);
         expect(screen.getByText("What is your name?")).toBeInTheDocument();
         expect(screen.getByText("What is your quest?")).toBeInTheDocument();
+        expect(screen.getByText("Questions")).toBeInTheDocument();
+        expect(
+            screen.getByText("Fake add question button")
+        ).toBeInTheDocument();
         expect(screen.getAllByText("Delete").length).toBe(2);
     });
-
-    it("calls deleteQuestion when Delete button is pressed", async () => {
-        render(
-            <TanstackProvider>
-                <QuestionsTable />
-            </TanstackProvider>
-        );
-        const delButtons = screen.getAllByText("Delete");
-        fireEvent.click(delButtons[1]);
-        await waitFor(() => {
-            expect(deleteQuestion).toHaveBeenCalledWith({ questionId: 456 });
-        });
-    });
-
-    it("calls insertQuestion when Add random question button is pressed", async () => {
-        render(
-            <TanstackProvider>
-                <QuestionsTable />
-            </TanstackProvider>
-        );
-
-        const insertButton = screen.getByRole("button", {
-            name: "Add random question",
-        });
-        expect(insertButton).toBeInTheDocument();
-
-        fireEvent.click(insertButton);
+    it("row is blurred when question is being deleted", async () => {
+        render(<QuestionsTable />);
+        const deleteButton = screen.getAllByText("Delete")[0];
+        fireEvent.click(deleteButton);
 
         await waitFor(() => {
-            expect(insertQuestion).toHaveBeenCalledTimes(1);
+            const pendingRow = screen.getAllByRole("row")[1];
+            expect(pendingRow).toHaveAttribute("data-key", "292");
+            expect(pendingRow).toHaveClass("blur-xs");
         });
     });
 });

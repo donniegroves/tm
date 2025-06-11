@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { insertPublicUser } from "../actions/insertPublicUser";
 import { signInWithIdToken } from "../actions/signInWithIdToken";
 import { getUserFromPublic } from "../helpers";
-import { mockAuthUserRow } from "../test-helpers";
+import { mockAuthUserRow } from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),
