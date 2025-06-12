@@ -50,9 +50,15 @@ describe("DrawerFooter", () => {
     it("renders close and add button for add-question purpose", async () => {
         const mockMutate = jest.fn();
         setMockUseMutation({
-            mutate: mockMutate,
+            mutateAsync: mockMutate,
         });
-        render(<DrawerFooter purpose={DrawerFooterPurpose.AddQuestion} />);
+        const whenDoneFunction = jest.fn();
+        render(
+            <DrawerFooter
+                purpose={DrawerFooterPurpose.AddQuestion}
+                whenDoneFunction={whenDoneFunction}
+            />
+        );
 
         screen.getByRole("button", { name: "Close" });
         const addButton = screen.getByRole("button", { name: "Add" });
@@ -61,16 +67,50 @@ describe("DrawerFooter", () => {
             fireEvent.click(addButton);
         });
         expect(mockMutate).toHaveBeenCalled();
+        expect(whenDoneFunction).toHaveBeenCalled();
+    });
+
+    it("renders close and edit button for edit-question purpose", async () => {
+        const mockMutate = jest.fn();
+        setMockUseMutation({
+            mutateAsync: mockMutate,
+        });
+        const whenDoneFunction = jest.fn();
+        const setPendingIdFunction = jest.fn();
+        render(
+            <DrawerFooter
+                purpose={DrawerFooterPurpose.EditQuestion}
+                setPendingIdFunction={setPendingIdFunction}
+                whenDoneFunction={whenDoneFunction}
+            />
+        );
+
+        screen.getByRole("button", { name: "Close" });
+        const editButton = screen.getByRole("button", { name: "Save" });
+
+        await waitFor(() => {
+            fireEvent.click(editButton);
+        });
+        expect(mockMutate).toHaveBeenCalled();
+        expect(whenDoneFunction).toHaveBeenCalled();
+        expect(setPendingIdFunction).toHaveBeenCalledWith(-1);
     });
 
     it("calls queryClient.invalidateQueries on successful profile update", async () => {
         const mockMutate = jest.fn();
 
         setMockUseMutation({
-            mutate: mockMutate,
+            mutateAsync: mockMutate,
         });
 
-        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
+        const mockWhenDoneFunction = jest.fn();
+
+        render(
+            <DrawerFooter
+                purpose={DrawerFooterPurpose.ProfileUpdate}
+                whenDoneFunction={mockWhenDoneFunction}
+            />
+        );
         const saveButton = screen.getByRole("button", { name: "Save" });
 
         await waitFor(() => fireEvent.click(saveButton));
@@ -78,6 +118,7 @@ describe("DrawerFooter", () => {
         expect(mockMutate).toHaveBeenCalledWith({
             userId: "user1",
         });
+        expect(mockWhenDoneFunction).toHaveBeenCalled();
     });
 
     it("loads spinner when isDrawerActionLoading is true", async () => {

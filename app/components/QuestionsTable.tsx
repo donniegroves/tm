@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useInsideContext } from "../inside/InsideContext";
 import AddQuestionButton from "./AddQuestionButton";
 import DeleteQuestionButton from "./DeleteQuestionButton";
+import EditQuestionButton from "./EditQuestionButton";
 
 export default function QuestionsTable() {
     const [pendingRowId, setPendingRowId] = useState<number>(-1);
@@ -56,10 +57,17 @@ export default function QuestionsTable() {
                                 <TableCell>{question.pre_question}</TableCell>
                                 <TableCell>{question.rank_prompt}</TableCell>
                                 <TableCell>
-                                    <DeleteQuestionButton
-                                        questionId={question.id}
-                                        setPendingRowId={setPendingRowId}
-                                    />
+                                    <div className="flex flex-row space-x-2">
+                                        <DeleteQuestionButton
+                                            questionId={question.id}
+                                            setPendingRowId={setPendingRowId}
+                                        />
+                                        <EditQuestionButton
+                                            questionId={question.id}
+                                            pendingRowId={pendingRowId}
+                                            setPendingRowId={setPendingRowId}
+                                        />
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}

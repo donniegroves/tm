@@ -13,8 +13,15 @@ jest.mock("@tanstack/react-query", () => ({
         })),
     }),
 }));
+
 jest.mock("../hooks/useDeleteQuestion", () => ({
     useDeleteQuestion: () => ({
+        variables: { questionId: 456 },
+        mutateAsync: jest.fn(),
+    }),
+}));
+jest.mock("../hooks/useEditQuestion", () => ({
+    useEditQuestion: () => ({
         variables: { questionId: 456 },
         mutateAsync: jest.fn(),
     }),
@@ -48,9 +55,11 @@ describe("QuestionsTable", () => {
         expect(screen.getByText("What is your quest?")).toBeInTheDocument();
         expect(screen.getByText("Questions")).toBeInTheDocument();
         expect(
-            screen.getByText("Fake add question button")
+            screen.getByRole("button", { name: "Fake add question button" })
         ).toBeInTheDocument();
+        expect(screen.getAllByRole("row").length).toBe(3);
         expect(screen.getAllByText("Delete").length).toBe(2);
+        expect(screen.getAllByText("Edit").length).toBe(2);
     });
     it("row is blurred when question is being deleted", async () => {
         render(<QuestionsTable />);
@@ -60,6 +69,17 @@ describe("QuestionsTable", () => {
         await waitFor(() => {
             const pendingRow = screen.getAllByRole("row")[1];
             expect(pendingRow).toHaveAttribute("data-key", "292");
+            expect(pendingRow).toHaveClass("blur-xs");
+        });
+    });
+    it("row is blurred when question is being edited", async () => {
+        render(<QuestionsTable />);
+        const editButton = screen.getAllByText("Edit")[1];
+        fireEvent.click(editButton);
+
+        await waitFor(() => {
+            const pendingRow = screen.getAllByRole("row")[2];
+            expect(pendingRow).toHaveAttribute("data-key", "456");
             expect(pendingRow).toHaveClass("blur-xs");
         });
     });

@@ -1,5 +1,6 @@
 import { Button } from "@heroui/button";
 import { Spinner } from "@heroui/spinner";
+import { useEditQuestion } from "../hooks/useEditQuestion";
 import { useInsertQuestion } from "../hooks/useInsertQuestion";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import { useDrawer } from "../inside/DrawerProvider";
@@ -8,18 +9,26 @@ import { useInsideContext } from "../inside/InsideContext";
 export enum DrawerFooterPurpose {
     ProfileUpdate = "profile-update",
     AddQuestion = "add-question",
+    EditQuestion = "edit-question",
     Reserved = "reserved", // Placeholder for future purposes
 }
 
 interface DrawerFooterProps {
     purpose: DrawerFooterPurpose;
+    whenDoneFunction?: () => void;
+    setPendingIdFunction?: (id: number) => void;
 }
 
-export default function DrawerFooter({ purpose }: DrawerFooterProps) {
+export default function DrawerFooter({
+    purpose,
+    whenDoneFunction,
+    setPendingIdFunction,
+}: DrawerFooterProps) {
     const { loggedInUserId } = useInsideContext();
     const { setIsDrawerOpen, isDrawerActionLoading } = useDrawer();
     const updateProfileMutation = useUpdateProfile();
     const insertQuestionMutation = useInsertQuestion();
+    const editMutation = useEditQuestion();
 
     function renderCloseButton() {
         return (
@@ -59,10 +68,14 @@ export default function DrawerFooter({ purpose }: DrawerFooterProps) {
                 {renderCloseButton()}
                 {renderActionButton({
                     label: "Save",
-                    onPress: () =>
-                        updateProfileMutation.mutate({
+                    onPress: async () => {
+                        await updateProfileMutation.mutateAsync({
                             userId: loggedInUserId,
-                        }),
+                        });
+                        if (whenDoneFunction) {
+                            whenDoneFunction();
+                        }
+                    },
                     loading:
                         isDrawerActionLoading ||
                         updateProfileMutation.isPending,
@@ -77,8 +90,35 @@ export default function DrawerFooter({ purpose }: DrawerFooterProps) {
                 {renderCloseButton()}
                 {renderActionButton({
                     label: "Add",
-                    onPress: () => {
-                        insertQuestionMutation.mutate();
+                    onPress: async () => {
+                        await insertQuestionMutation.mutateAsync();
+                        if (whenDoneFunction) {
+                            whenDoneFunction();
+                        }
+                    },
+                    loading:
+                        isDrawerActionLoading ||
+                        insertQuestionMutation.isPending,
+                })}
+            </>
+        );
+    }
+
+    if (purpose === DrawerFooterPurpose.EditQuestion) {
+        return (
+            <>
+                {renderCloseButton()}
+                {renderActionButton({
+                    label: "Save",
+                    onPress: async () => {
+                        await editMutation.mutateAsync();
+                        if (whenDoneFunction) {
+                            whenDoneFunction();
+                        }
+                        if (setPendingIdFunction) {
+                            setPendingIdFunction(-1);
+                        }
+                        setIsDrawerOpen(false);
                     },
                     loading:
                         isDrawerActionLoading ||

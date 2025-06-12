@@ -22,7 +22,7 @@ export default function AddQuestionButton() {
 
     const currentDrawerHeader = drawerContent.header as JSX.Element;
     const currentDrawerHeaderText =
-        currentDrawerHeader.props.children.toString();
+        currentDrawerHeader?.props.children.toString();
     const addQuestionHeaderText = addQuestionHeader.props.children.toString();
 
     const isAddQuestionHeader =
