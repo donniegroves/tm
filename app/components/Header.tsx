@@ -11,7 +11,7 @@ export default function Header() {
                 </Link>
 
                 <h1 className="text-xl font-semibold">
-                    {process.env.NEXT_PUBLIC_APP_NAME || "App"}
+                    {process.env.NEXT_PUBLIC_APP_NAME}
                 </h1>
             </div>
             <AvatarWithName showProfileButton />

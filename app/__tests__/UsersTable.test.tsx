@@ -18,15 +18,13 @@ jest.mock("../inside/InsideContext", () => ({
 
 describe("UsersTable", () => {
     it("renders users in the table", () => {
-        render(<UsersTable ariaLabel="TestLabel" />);
+        render(<UsersTable />);
 
-        expect(
-            screen.getByRole("grid", { name: "TestLabel" })
-        ).toBeInTheDocument();
+        expect(screen.getByRole("grid", { name: "Users" })).toBeInTheDocument();
         expect(screen.getByText("user1")).toBeInTheDocument();
-        expect(screen.getByText("testuser")).toBeInTheDocument();
-        expect(screen.getByText("Test User")).toBeInTheDocument();
-        expect(screen.getByText("testuser@example.com")).toBeInTheDocument();
+        expect(screen.getByText("testuser1")).toBeInTheDocument();
+        expect(screen.getByText("Test User 1")).toBeInTheDocument();
+        expect(screen.getByText("testuser1@example.com")).toBeInTheDocument();
 
         const checkboxes = screen.queryAllByRole(
             "checkbox"
@@ -38,7 +36,8 @@ describe("UsersTable", () => {
             .getAllByRole("img")
             .find(
                 (img) =>
-                    img.getAttribute("src") === "https://example.com/avatar.png"
+                    img.getAttribute("src") ===
+                    "https://example.com/avatar1.png"
             );
         expect(img).toBeDefined();
     });

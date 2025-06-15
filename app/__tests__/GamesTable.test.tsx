@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import GamesTable from "../components/GamesTable";
+import DrawerProvider from "../inside/DrawerProvider";
 import {
     mockUseInsideContext,
     setMockInsideContext,
@@ -19,7 +20,11 @@ describe("GamesTable", () => {
     });
 
     it("renders games in the table", () => {
-        render(<GamesTable />);
+        render(
+            <DrawerProvider>
+                <GamesTable />
+            </DrawerProvider>
+        );
 
         expect(screen.getByRole("grid", { name: "Games" })).toBeInTheDocument();
 
@@ -49,8 +54,23 @@ describe("GamesTable", () => {
         setMockInsideContext({
             games: [gameWithNoBots],
         });
-        render(<GamesTable />);
+        render(
+            <DrawerProvider>
+                <GamesTable />
+            </DrawerProvider>
+        );
 
         expect(screen.getByRole("gridcell", { name: "0" })).toBeInTheDocument();
+    });
+    it("renders an add game button", () => {
+        render(
+            <DrawerProvider>
+                <GamesTable />
+            </DrawerProvider>
+        );
+
+        expect(
+            screen.getByRole("button", { name: "Add game" })
+        ).toBeInTheDocument();
     });
 });

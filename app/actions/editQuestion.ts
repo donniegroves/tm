@@ -31,9 +31,6 @@ export const editQuestion = async (): Promise<
         .select()
         .single();
 
-    console.log("editQuestion data:", data);
-    console.log("editQuestion error:", error);
-
     if (error || !data) {
         throw new Error(
             error?.message || `Failed to edit question with id ${questionId}`

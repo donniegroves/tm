@@ -27,9 +27,11 @@ export default function QuestionsTable() {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-4">
-                Questions <AddQuestionButton />
-            </h2>
+            <div className="flex flex-row items-center ml-2 mb-2">
+                <h2 className="text-2xl font-bold mr-2">Questions</h2>
+                <AddQuestionButton />
+            </div>
+
             <div style={{ position: "relative" }}>
                 {questionsIsFetching && (
                     <div className="absolute inset-0 bg-white/10 z-10 flex items-center justify-center">

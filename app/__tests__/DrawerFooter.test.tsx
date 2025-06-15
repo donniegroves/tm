@@ -96,6 +96,32 @@ describe("DrawerFooter", () => {
         expect(setPendingIdFunction).toHaveBeenCalledWith(-1);
     });
 
+    it("renders close and add button for add-game purpose", async () => {
+        const mockMutate = jest.fn();
+        setMockUseMutation({
+            mutateAsync: mockMutate,
+        });
+        const whenDoneFunction = jest.fn();
+        const setPendingIdFunction = jest.fn();
+        render(
+            <DrawerFooter
+                purpose={DrawerFooterPurpose.AddGame}
+                whenDoneFunction={whenDoneFunction}
+                setPendingIdFunction={setPendingIdFunction}
+            />
+        );
+
+        screen.getByRole("button", { name: "Close" });
+        const addButton = screen.getByRole("button", { name: "Add" });
+
+        await waitFor(() => {
+            fireEvent.click(addButton);
+        });
+        expect(mockMutate).toHaveBeenCalled();
+        expect(whenDoneFunction).toHaveBeenCalled();
+        expect(setPendingIdFunction).toHaveBeenCalledWith(-1);
+    });
+
     it("calls queryClient.invalidateQueries on successful profile update", async () => {
         const mockMutate = jest.fn();
 

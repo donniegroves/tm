@@ -89,3 +89,8 @@ on "public"."questions"
 to authenticated
 using (is_admin(auth.uid()))
 with check (true);
+
+create policy "Allow admins to insert games"
+on "public"."games"
+to authenticated
+with check (is_admin(auth.uid()));

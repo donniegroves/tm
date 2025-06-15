@@ -14,18 +14,14 @@ import { useInsideContext } from "../inside/InsideContext";
 import AvatarWithName from "./AvatarWithName";
 import { useFormattedTimestamp } from "./useFormattedTimestamp";
 
-interface UsersTableProps {
-    ariaLabel?: string;
-}
-
-export default function UsersTable({ ariaLabel }: UsersTableProps) {
+export default function UsersTable() {
     const { allUsers } = useInsideContext();
     const formatTimestamp = useFormattedTimestamp();
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-4">{ariaLabel}</h2>
-            <Table className="w-full" isStriped aria-label={ariaLabel}>
+            <h2 className="text-2xl font-bold mb-4 ml-2">Users</h2>
+            <Table className="w-full" isStriped aria-label="Users">
                 <TableHeader>
                     <TableColumn>Name / Username</TableColumn>
                     <TableColumn className="text-center">

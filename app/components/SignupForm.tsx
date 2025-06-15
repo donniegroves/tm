@@ -62,8 +62,9 @@ export function SignupForm() {
         event.preventDefault();
         setIsLoading(true);
         const formData = new FormData(event.target as HTMLFormElement);
-        const { isValid, error, validEmail, validPassword } =
-            validateFormData(formData);
+        const { isValid, error, validEmail, validPassword } = validateFormData(
+            formData as FormData
+        );
 
         if (!isValid) {
             setError(error);

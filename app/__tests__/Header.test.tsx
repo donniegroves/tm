@@ -15,6 +15,7 @@ beforeEach(() => {
 
 describe("Header", () => {
     it("renders the header with user information", () => {
+        process.env.NEXT_PUBLIC_APP_NAME = "MyTestApp";
         render(
             <DrawerProvider>
                 <Header />
@@ -23,7 +24,7 @@ describe("Header", () => {
 
         expect(screen.getByRole("img", { name: "Logo" }));
         expect(
-            screen.getByRole("heading", { level: 1, name: "App" })
+            screen.getByRole("heading", { level: 1, name: "MyTestApp" })
         ).toBeInTheDocument();
     });
 });

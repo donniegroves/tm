@@ -18,7 +18,7 @@ describe("ProfileForm", () => {
         render(<ProfileForm />);
         const input = screen.getByLabelText(/username/i);
         expect(input).toBeInTheDocument();
-        expect(input).toHaveValue("testuser");
+        expect(input).toHaveValue("testuser1");
     });
 
     it("renders timezone select with user timezone selected", () => {

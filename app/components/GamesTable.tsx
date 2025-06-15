@@ -9,6 +9,7 @@ import {
     TableRow,
 } from "@heroui/table";
 import { useInsideContext } from "../inside/InsideContext";
+import AddGameButton from "./AddGameButton";
 import AvatarWithName from "./AvatarWithName";
 import { useFormattedTimestamp } from "./useFormattedTimestamp";
 
@@ -18,7 +19,11 @@ export default function GamesTable() {
 
     return (
         <div>
-            <h2 className="text-2xl font-bold mb-4">Games</h2>
+            <div className="flex flex-row items-center ml-2 mb-2">
+                <h2 className="text-2xl font-bold mr-2">Games</h2>
+                <AddGameButton />
+            </div>
+
             <Table className="w-full" isStriped aria-label="Games">
                 <TableHeader>
                     <TableColumn>Code</TableColumn>

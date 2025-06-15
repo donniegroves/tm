@@ -20,8 +20,8 @@ export function LoginForm() {
         event.preventDefault();
         setIsLoading(true);
         const formData = new FormData(event.target as HTMLFormElement);
-        const email = formData.get("email")?.toString() || "";
-        const password = formData.get("password")?.toString() || "";
+        const email = formData.get("email")?.toString();
+        const password = formData.get("password")?.toString();
 
         if (!email || !password) {
             setError("Please fill in all fields.");

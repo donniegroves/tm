@@ -1,5 +1,6 @@
 import { Button } from "@heroui/button";
 import { Spinner } from "@heroui/spinner";
+import { useInsertGame } from "../hooks/useAddGame";
 import { useEditQuestion } from "../hooks/useEditQuestion";
 import { useInsertQuestion } from "../hooks/useInsertQuestion";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
@@ -10,6 +11,7 @@ export enum DrawerFooterPurpose {
     ProfileUpdate = "profile-update",
     AddQuestion = "add-question",
     EditQuestion = "edit-question",
+    AddGame = "add-game",
     Reserved = "reserved", // Placeholder for future purposes
 }
 
@@ -28,7 +30,8 @@ export default function DrawerFooter({
     const { setIsDrawerOpen, isDrawerActionLoading } = useDrawer();
     const updateProfileMutation = useUpdateProfile();
     const insertQuestionMutation = useInsertQuestion();
-    const editMutation = useEditQuestion();
+    const editQuestionMutation = useEditQuestion();
+    const insertGameMutation = useInsertGame();
 
     function renderCloseButton() {
         return (
@@ -111,7 +114,31 @@ export default function DrawerFooter({
                 {renderActionButton({
                     label: "Save",
                     onPress: async () => {
-                        await editMutation.mutateAsync();
+                        await editQuestionMutation.mutateAsync();
+                        if (whenDoneFunction) {
+                            whenDoneFunction();
+                        }
+                        if (setPendingIdFunction) {
+                            setPendingIdFunction(-1);
+                        }
+                        setIsDrawerOpen(false);
+                    },
+                    loading:
+                        isDrawerActionLoading ||
+                        insertQuestionMutation.isPending,
+                })}
+            </>
+        );
+    }
+
+    if (purpose === DrawerFooterPurpose.AddGame) {
+        return (
+            <>
+                {renderCloseButton()}
+                {renderActionButton({
+                    label: "Add",
+                    onPress: async () => {
+                        await insertGameMutation.mutateAsync();
                         if (whenDoneFunction) {
                             whenDoneFunction();
                         }

@@ -57,11 +57,11 @@ export const mockAuthUserRow: User = {
 };
 export const mockPublicUserRow: Database["public"]["Tables"]["users"]["Row"] = {
     user_id: "user1",
-    username: "testuser",
-    full_name: "Test User",
-    email: "testuser@example.com",
+    username: "testuser1",
+    full_name: "Test User 1",
+    email: "testuser1@example.com",
     access_level: 2,
-    avatar_url: "https://example.com/avatar.png",
+    avatar_url: "https://example.com/avatar1.png",
     timezone: "America/New_York",
     created_at: "2024-06-01T12:00:00Z",
     updated_at: "2024-06-01T12:00:00Z",
@@ -87,7 +87,15 @@ export const mockPublicQuestionRow: Database["public"]["Tables"]["questions"]["R
 
 export const mockAllUsers: Database["public"]["Tables"]["users"]["Row"][] = [
     mockPublicUserRow,
-    { ...mockPublicUserRow, user_id: "user2" },
+    {
+        ...mockPublicUserRow,
+        user_id: "user2",
+        username: "testuser2",
+        full_name: "Test User 2",
+        email: "testuser2@example.com",
+        avatar_url: "https://example.com/avatar2.png",
+        timezone: "America/Los_Angeles",
+    },
 ];
 export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
     mockPublicGameRow,

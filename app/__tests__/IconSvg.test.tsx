@@ -3,6 +3,7 @@ import {
     DownArrowSvg,
     GamesSvg,
     QuestionSvg,
+    RandomSvg,
     SettingsSvg,
     SignOutSvg,
     UserIcon,
@@ -91,5 +92,20 @@ describe("IconSvg components", () => {
         expect(svg).toBeInTheDocument();
         expect(svg).toHaveAttribute("height", "24");
         expect(svg).toHaveAttribute("width", "24");
+    });
+
+    it("renders RandomSvg with default height and width", () => {
+        const { container } = render(<RandomSvg />);
+        const svg = container.querySelector("svg");
+        expect(svg).toBeInTheDocument();
+        expect(svg).toHaveAttribute("height", "24");
+        expect(svg).toHaveAttribute("width", "24");
+    });
+    it("renders RandomSvg with custom height and width", () => {
+        const { container } = render(<RandomSvg height={30} width={35} />);
+        const svg = container.querySelector("svg");
+        expect(svg).toBeInTheDocument();
+        expect(svg).toHaveAttribute("height", "30");
+        expect(svg).toHaveAttribute("width", "35");
     });
 });
