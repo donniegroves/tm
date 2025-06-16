@@ -6,10 +6,9 @@ import { Database } from "database.types";
 export const insertGame = async (): Promise<
     Database["public"]["Tables"]["games"]["Row"]
 > => {
-    // TODO: add invitee support
     const form = document.getElementById("add-game-form");
     const hostInput = form?.querySelector("#host-input");
-    // const inviteesInput = form?.querySelector("#invitees-input");
+    const inviteesInput = form?.querySelector("#invitees-input");
     const shareCodeInput = form?.querySelector("#share-code-input");
     const aiBotsInput = form?.querySelector("#ai-bots-input");
     const secondsPerQuestionInput = form?.querySelector(
@@ -22,7 +21,7 @@ export const insertGame = async (): Promise<
     if (
         !form ||
         !hostInput ||
-        // !inviteesInput ||
+        !inviteesInput ||
         !shareCodeInput ||
         !aiBotsInput ||
         !secondsPerQuestionInput ||
@@ -31,7 +30,7 @@ export const insertGame = async (): Promise<
         throw new Error("Proper form elements not found to insert game");
     }
     const host_user_id = (hostInput as HTMLSelectElement).value;
-    // const invitees = (inviteesInput as HTMLSelectElement).value;
+    const invitees = (inviteesInput as HTMLSelectElement).value;
     const num_static_ai = Number((aiBotsInput as HTMLSelectElement).value);
     const share_code = (shareCodeInput as HTMLInputElement).value.trim();
     const seconds_per_pre = Number(
@@ -43,7 +42,11 @@ export const insertGame = async (): Promise<
 
     const supabase = createClient();
 
-    const { data, error, status } = await supabase
+    const {
+        data: gameData,
+        error: gameError,
+        status: gameStatus,
+    } = await supabase
         .from("games")
         .insert({
             host_user_id,
@@ -55,9 +58,25 @@ export const insertGame = async (): Promise<
         .select()
         .single();
 
-    if (error || status !== 201 || !data) {
-        throw new Error(error?.message || `Failed to insert game`);
+    if (gameError || gameStatus !== 201 || !gameData) {
+        throw new Error(gameError?.message || `Failed to insert game`);
     }
 
-    return data;
+    const inviteeArray = invitees.split(",").map((invitee) => invitee.trim());
+    const {
+        data: inviteeData,
+        error: inviteeError,
+        status: inviteeStatus,
+    } = await supabase.from("game_users").insert(
+        inviteeArray.map((invitee) => ({
+            game_id: gameData.id,
+            user_id: invitee,
+        }))
+    );
+
+    if (inviteeError || inviteeStatus !== 201 || !inviteeData) {
+        throw new Error(`Failed to insert invitees`);
+    }
+
+    return gameData;
 };

@@ -51,10 +51,13 @@ SELECT
 CREATE POLICY "Allow users to select their own game_users rows" ON public.game_users FOR
 SELECT
     TO authenticated USING (
-        (
-            SELECT
-                auth.uid ()
-        ) = user_id
+          (( SELECT auth.uid() AS uid) = user_id)
+    );
+
+CREATE POLICY "Allow admins to select all game_users rows" ON public.game_users FOR
+SELECT
+    TO authenticated USING (
+          (is_admin(auth.uid()))
     );
 
 create policy "Enable read access for all users"
@@ -92,5 +95,10 @@ with check (true);
 
 create policy "Allow admins to insert games"
 on "public"."games"
+to authenticated
+with check (is_admin(auth.uid()));
+
+create policy "Allow admins to insert rows"
+on "public"."game_users"
 to authenticated
 with check (is_admin(auth.uid()));

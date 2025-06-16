@@ -13,13 +13,28 @@ import AddGameForm, {
 import { mockAllUsers } from "./helpers/helpers";
 
 jest.mock("../inside/InsideContext", () => ({
-    useInsideContext: () => ({ allUsers: mockAllUsers }),
+    useInsideContext: () => ({
+        allUsers: [
+            ...mockAllUsers,
+            {
+                user_id: "user3",
+                username: "testuser3",
+                full_name: null,
+                email: "testuser3@example.com",
+                access_level: 2,
+                avatar_url: null,
+                timezone: "America/New_York",
+                created_at: "2024-06-01T12:00:00Z",
+                updated_at: "2024-06-01T12:00:00Z",
+            },
+        ],
+    }),
 }));
 
 describe("AddGameForm", () => {
     it("renders all main fields and allows host selection and share code entry", () => {
         render(<AddGameForm />);
-        expect(screen.getByLabelText(/host/i)).toBeInTheDocument();
+        expect(screen.getByLabelText("Host")).toBeInTheDocument();
         expect(screen.getByLabelText("Share Code")).toBeInTheDocument();
         expect(
             screen.getByRole("button", { name: /number of ai bots/i })
@@ -108,26 +123,27 @@ describe("AddGameForm", () => {
 
     it("renders avatars in the host autocomplete options", async () => {
         render(<AddGameForm />);
+        const hostDropdownButton = screen.getByLabelText(
+            "Host dropdown button"
+        );
 
         act(() => {
-            fireEvent.click(
-                screen.getAllByRole("button", { name: "Show suggestions" })[0]
-            );
+            fireEvent.click(hostDropdownButton);
         });
 
         await waitFor(() => {
             expect(screen.getAllByRole("img")).toHaveLength(
-                mockAllUsers.length
+                mockAllUsers.length + 1
             );
         });
 
         mockAllUsers.forEach((user) => {
             if (user.full_name && user.avatar_url) {
-                expect(screen.getByText(user.full_name)).toBeInTheDocument();
-                expect(screen.getByAltText(user.full_name)).toHaveAttribute(
-                    "src",
-                    user.avatar_url
-                );
+                const avatarImages = screen.getAllByRole("img", {
+                    name: user.full_name,
+                });
+                expect(avatarImages).toHaveLength(1);
+                expect(avatarImages[0]).toHaveAttribute("src", user.avatar_url);
             }
         });
 
@@ -144,6 +160,44 @@ describe("AddGameForm", () => {
             "src",
             "https://example.com/avatar2.png"
         );
+    });
+
+    it("renders avatars in the invitee autocomplete options", async () => {
+        render(<AddGameForm />);
+        const inviteeDropdownButton = screen.getByRole("button", {
+            name: "Select a user Invitees",
+        });
+
+        act(() => {
+            fireEvent.click(inviteeDropdownButton);
+        });
+
+        await waitFor(() => {
+            expect(screen.getAllByRole("img")).toHaveLength(
+                mockAllUsers.length + 1
+            );
+        });
+
+        mockAllUsers.forEach((user) => {
+            if (user.full_name && user.avatar_url) {
+                const avatarImages = screen.getAllByRole("img", {
+                    name: user.full_name,
+                });
+                expect(avatarImages).toHaveLength(1);
+                expect(avatarImages[0]).toHaveAttribute("src", user.avatar_url);
+            }
+        });
+
+        act(() => {
+            fireEvent.click(
+                screen.getByRole("option", {
+                    name: "testuser3@example.com",
+                })
+            );
+        });
+
+        // selected user has no full_name or avatar_url, so Chip shows "Invitee:"
+        expect(screen.getByLabelText("Invitee:")).toBeInTheDocument();
     });
 });
 

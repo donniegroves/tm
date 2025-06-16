@@ -3,11 +3,12 @@
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
+import { Chip } from "@heroui/chip";
 import { Input } from "@heroui/input";
-import { Select, SelectItem } from "@heroui/select";
+import { Select, SelectedItems, SelectItem } from "@heroui/select";
 import { SharedSelection } from "@heroui/system";
 import { Database } from "database.types";
-import { Key, useState } from "react";
+import { ChangeEventHandler, Key, useState } from "react";
 import { useInsideContext } from "../inside/InsideContext";
 import { RandomSvg } from "./IconSvg";
 
@@ -45,9 +46,9 @@ export default function AddGameForm() {
     const [selectedHostUser, setSelectedHostUser] = useState<
         Database["public"]["Tables"]["users"]["Row"]["user_id"] | null
     >(null);
-    // const [selectedInvitees, setSelectedInvitees] = useState<
-    //     Database["public"]["Tables"]["users"]["Row"]["user_id"][]
-    // >([]);
+    const [selectedInvitees, setSelectedInvitees] = useState<
+        Database["public"]["Tables"]["users"]["Row"]["user_id"][]
+    >([]);
     const [shareCode, setShareCode] = useState("");
     const [numStaticAi, setNumStaticAi] = useState(defaultAIBots);
     const [secondsPerQuestion, setSecondsPerQuestion] = useState(30);
@@ -60,15 +61,15 @@ export default function AddGameForm() {
             setSelectedHostUser(key as string);
         }
     };
-    // const onInviteeSelectionChange: ChangeEventHandler<HTMLSelectElement> = (
-    //     e
-    // ) => {
-    //     const selectedOptions = e.target.value
-    //         .split(",")
-    //         .map((id) => id.trim())
-    //         .filter((id) => id.length > 0);
-    //     setSelectedInvitees(selectedOptions);
-    // };
+    const onInviteeSelectionChange: ChangeEventHandler<HTMLSelectElement> = (
+        e
+    ) => {
+        const selectedOptions = e.target.value
+            .split(",")
+            .map((id) => id.trim())
+            .filter((id) => id.length > 0);
+        setSelectedInvitees(selectedOptions);
+    };
     const onAiBotsSelectionChange = (key: SharedSelection): void => {
         if (key.currentKey) {
             setNumStaticAi(parseInt(key.currentKey, 10));
@@ -93,12 +94,12 @@ export default function AddGameForm() {
                 value={selectedHostUser ?? ""}
                 aria-hidden="true"
             />
-            {/* <Input
+            <Input
                 type="hidden"
                 id="invitees-input"
                 value={selectedInvitees.join(",")}
                 aria-hidden="true"
-            /> */}
+            />
             <Input
                 type="hidden"
                 id="share-code-input"
@@ -124,6 +125,9 @@ export default function AddGameForm() {
                 aria-hidden="true"
             />
             <Autocomplete
+                selectorButtonProps={{
+                    "aria-label": "Host dropdown button",
+                }}
                 inputProps={{
                     startContent: (
                         <>
@@ -183,7 +187,7 @@ export default function AddGameForm() {
                     </AutocompleteItem>
                 )}
             </Autocomplete>
-            {/* <Select
+            <Select
                 id="add-game-invitees-input"
                 isMultiline={true}
                 items={allUsers}
@@ -198,8 +202,14 @@ export default function AddGameForm() {
                     return (
                         <div className="flex flex-wrap gap-2">
                             {items.map((item) => (
-                                <Chip key={item.data?.user_id}>
-                                    {item.data?.full_name}
+                                <Chip
+                                    key={item.data?.user_id}
+                                    role="button"
+                                    aria-label={`Invitee: ${
+                                        item.data?.full_name ?? ""
+                                    }`}
+                                >
+                                    {item.data?.full_name ?? ""}
                                 </Chip>
                             ))}
                         </div>
@@ -207,7 +217,6 @@ export default function AddGameForm() {
                 }}
                 selectionMode="multiple"
                 onChange={onInviteeSelectionChange}
-                // onSelectionChange={onInviteeSelectionChange}
                 defaultSelectedKeys={selectedInvitees}
                 variant="bordered"
             >
@@ -234,7 +243,7 @@ export default function AddGameForm() {
                         </div>
                     </SelectItem>
                 )}
-            </Select> */}
+            </Select>
             <div className="flex flex-row gap-2">
                 <Input
                     value={shareCode}

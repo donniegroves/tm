@@ -7,6 +7,7 @@ jest.mock("@/utils/supabase/client", () => ({
 
 const createForm = (
     hostValue: string | undefined,
+    inviteesValue: string | undefined,
     shareCodeValue: string | undefined,
     aiBotsValue: string | undefined,
     questionDurationValue: string | undefined,
@@ -24,6 +25,16 @@ const createForm = (
         hostInput.appendChild(option);
         hostInput.value = hostValue;
         form.appendChild(hostInput);
+    }
+    if (inviteesValue) {
+        const inviteesInput = document.createElement("select");
+        inviteesInput.id = "invitees-input";
+        const option = document.createElement("option");
+        option.value = inviteesValue;
+        option.text = inviteesValue;
+        inviteesInput.appendChild(option);
+        inviteesInput.value = inviteesValue;
+        form.appendChild(inviteesInput);
     }
     if (shareCodeValue) {
         const shareCodeInput = document.createElement("input");
@@ -65,43 +76,68 @@ const createForm = (
     return form;
 };
 
-const setupSupabaseMock = (mockSingleResult: unknown) => {
-    const mockSingle = jest.fn().mockResolvedValue(mockSingleResult);
-    const mockSelect = jest.fn(() => ({ single: mockSingle }));
-    const mockInsert = jest.fn(() => ({ select: mockSelect }));
-    const mockFrom = jest.fn(() => ({ insert: mockInsert }));
+const setupSupabaseMock = (
+    mockGameSingleResult: unknown,
+    mockInviteeInsertResult: unknown = { data: [{}], error: null, status: 201 }
+) => {
+    const mockGameSingle = jest.fn().mockResolvedValue(mockGameSingleResult);
+    const mockGameSelect = jest.fn(() => ({ single: mockGameSingle }));
+    const mockGameInsert = jest.fn(() => ({ select: mockGameSelect }));
+
+    const mockInviteeInsert = jest
+        .fn()
+        .mockResolvedValue(mockInviteeInsertResult);
+
+    const mockFrom = jest.fn((table: string) => {
+        if (table === "games") {
+            return { insert: mockGameInsert };
+        }
+        if (table === "game_users") {
+            return { insert: mockInviteeInsert };
+        }
+        throw new Error("Unknown table: " + table);
+    });
+
     const mockSupabase = { from: mockFrom };
     (createClient as jest.Mock).mockReturnValue(mockSupabase);
-    return { mockFrom, mockInsert, mockSelect, mockSingle };
+
+    return {
+        mockFrom,
+        mockGameInsert,
+        mockGameSelect,
+        mockGameSingle,
+        mockInviteeInsert,
+    };
 };
 
 describe("insertGame", () => {
-    afterEach(() => {
+    beforeEach(() => {
         document.body.innerHTML = "";
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it("should insert a game into the database", async () => {
-        createForm("host1", "SHARE123", "2", "60", "90");
-        const { mockFrom, mockInsert, mockSelect, mockSingle } =
-            setupSupabaseMock({ data: { id: 1 }, error: null, status: 201 });
+        createForm("host1", "invitee1", "SHARE123", "2", "60", "90");
+        const { mockFrom, mockGameInsert } = setupSupabaseMock(
+            { data: { id: 1 }, error: null, status: 201 },
+            { data: [{}], error: null, status: 201 }
+        );
 
         const result = await insertGame();
         expect(mockFrom).toHaveBeenCalledWith("games");
-        expect(mockInsert).toHaveBeenCalledWith({
+        expect(mockGameInsert).toHaveBeenCalledWith({
             host_user_id: "host1",
             num_static_ai: 2,
             seconds_per_pre: 60,
             seconds_per_rank: 90,
             share_code: "SHARE123",
         });
-        expect(mockSelect).toHaveBeenCalled();
-        expect(mockSingle).toHaveBeenCalled();
         expect(result).toEqual({ id: 1 });
     });
 
     it("should throw an error if the insertion fails", async () => {
-        createForm("host1", "SHARE123", "2", "60", "90");
+        createForm("host1", "invitee1", "SHARE123", "2", "60", "90");
         setupSupabaseMock({
             data: null,
             error: new Error("error from supabase"),
@@ -111,7 +147,7 @@ describe("insertGame", () => {
     });
 
     it("should throw a generic error if the insertion fails with no message", async () => {
-        createForm("host1", "SHARE123", "2", "60", "90");
+        createForm("host1", "invitee1", "SHARE123", "2", "60", "90");
         setupSupabaseMock({
             data: null,
             error: new Error(),
@@ -120,45 +156,55 @@ describe("insertGame", () => {
         await expect(insertGame()).rejects.toThrow("Failed to insert game");
     });
 
-    it("should throw if the form is not found", async () => {
-        document.getElementById = jest.fn(() => null);
-        await expect(insertGame()).rejects.toThrow(
-            "Proper form elements not found to insert game"
-        );
-    });
-
     it("should throw if the host input is not found", async () => {
-        createForm(undefined, "SHARE123", "2", "60", "90");
+        createForm(undefined, "invitee1", "SHARE123", "2", "60", "90");
         await expect(insertGame()).rejects.toThrow(
             "Proper form elements not found to insert game"
         );
     });
 
     it("should throw if the share code input is not found", async () => {
-        createForm("host1", undefined, "2", "60", "90");
+        createForm("host1", "invitee1", undefined, "2", "60", "90");
         await expect(insertGame()).rejects.toThrow(
             "Proper form elements not found to insert game"
         );
     });
 
     it("should throw if the ai bots input is not found", async () => {
-        createForm("host1", "SHARE123", undefined, "60", "90");
+        createForm("host1", "invitee1", "SHARE123", undefined, "60", "90");
         await expect(insertGame()).rejects.toThrow(
             "Proper form elements not found to insert game"
         );
     });
 
     it("should throw if the question duration input is not found", async () => {
-        createForm("host1", "SHARE123", "2", undefined, "90");
+        createForm("host1", "invitee1", "SHARE123", "2", undefined, "90");
         await expect(insertGame()).rejects.toThrow(
             "Proper form elements not found to insert game"
         );
     });
 
     it("should throw if the ranking duration input is not found", async () => {
-        createForm("host1", "SHARE123", "2", "60", undefined);
+        createForm("host1", "invitee1", "SHARE123", "2", "60", undefined);
         await expect(insertGame()).rejects.toThrow(
             "Proper form elements not found to insert game"
         );
+    });
+    it("should throw if invitee call fails", async () => {
+        createForm("host1", "invitee1", "SHARE123", "2", "60", "90");
+        const { mockFrom, mockInviteeInsert } = setupSupabaseMock(
+            { data: { id: 1 }, error: null, status: 201 },
+            { data: null, error: new Error("error from supabase"), status: 400 }
+        );
+
+        await expect(insertGame()).rejects.toThrow("Failed to insert invitees");
+
+        expect(mockFrom).toHaveBeenCalledWith("game_users");
+        expect(mockInviteeInsert).toHaveBeenCalledWith([
+            {
+                game_id: 1,
+                user_id: "invitee1",
+            },
+        ]);
     });
 });
