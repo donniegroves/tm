@@ -3,6 +3,7 @@ import { fetchAllUsers } from "../actions/fetchAllUsers";
 import { fetchGames } from "../actions/fetchGames";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
 import { fetchQuestions } from "../actions/fetchQuestions";
+import { fetchGameUsers } from "../actions/fetchGameUsers";
 
 jest.mock("@/utils/supabase/client", () => ({
     createClient: jest.fn(),
@@ -82,6 +83,33 @@ describe("fetchGames", () => {
             }),
         });
         await expect(fetchGames()).rejects.toThrow("Error fetching games");
+    });
+});
+
+describe("fetchGameUsers", () => {
+    beforeEach(() => {
+        createClientMock.mockReset();
+    });
+    it("returns game users data", async () => {
+        const mockGameUsers = [{ user_id: "user1", game_id: 1 }];
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () =>
+                    Promise.resolve({ data: mockGameUsers, error: null }),
+            }),
+        });
+        const result = await fetchGameUsers();
+        expect(result).toEqual(mockGameUsers);
+    });
+    it("throws on error or missing data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () => Promise.resolve({ data: null, error: "err" }),
+            }),
+        });
+        await expect(fetchGameUsers()).rejects.toThrow(
+            "Error fetching game users"
+        );
     });
 });
 

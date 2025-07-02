@@ -7,12 +7,14 @@ import { fetchAllUsers } from "../actions/fetchAllUsers";
 import { fetchGames } from "../actions/fetchGames";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
 import { fetchQuestions } from "../actions/fetchQuestions";
+import { fetchGameUsers } from "../actions/fetchGameUsers";
 
 export interface InsideContextType {
     loggedInUserId: Database["public"]["Tables"]["users"]["Row"]["user_id"];
     allUsers: Database["public"]["Tables"]["users"]["Row"][];
     games: Database["public"]["Tables"]["games"]["Row"][];
     questions: Database["public"]["Tables"]["questions"]["Row"][];
+    gameUsers: Database["public"]["Tables"]["game_users"]["Row"][];
 }
 
 const InsideContext = createContext<InsideContextType | undefined>(undefined);
@@ -34,19 +36,24 @@ export function InsideContextProvider({ children }: { children: ReactNode }) {
         queryKey: ["questions"],
         queryFn: fetchQuestions,
     });
+    const { data: gameUsers } = useQuery({
+        queryKey: ["gameUsers"],
+        queryFn: fetchGameUsers,
+    });
 
     if (
         loggedInUserId === undefined ||
         allUsers === undefined ||
         games === undefined ||
-        questions === undefined
+        questions === undefined ||
+        gameUsers === undefined
     ) {
         return null;
     }
 
     return (
         <InsideContext.Provider
-            value={{ loggedInUserId, allUsers, games, questions }}
+            value={{ loggedInUserId, allUsers, games, questions, gameUsers }}
         >
             {children}
         </InsideContext.Provider>

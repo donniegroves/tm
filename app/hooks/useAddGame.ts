@@ -29,6 +29,7 @@ export function useInsertGame(): UseMutationResult<
             );
         },
         onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["gameUsers"] });
             setIsDrawerActionLoading(false);
             setIsDrawerOpen(false);
         },

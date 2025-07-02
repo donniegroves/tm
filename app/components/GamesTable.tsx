@@ -14,11 +14,12 @@ import AvatarWithName from "./AvatarWithName";
 import { useFormattedTimestamp } from "./useFormattedTimestamp";
 import DeleteGameButton from "./DeleteGameButton";
 import { useState } from "react";
+import { Avatar, AvatarGroup } from "@heroui/avatar";
 
 export default function GamesTable() {
     const [pendingRowId, setPendingRowId] = useState<number>(-1);
 
-    const { games, allUsers } = useInsideContext();
+    const { games, allUsers, gameUsers } = useInsideContext();
     const formatTimestamp = useFormattedTimestamp();
 
     return (
@@ -32,6 +33,7 @@ export default function GamesTable() {
                 <TableHeader>
                     <TableColumn>Code</TableColumn>
                     <TableColumn>Host</TableColumn>
+                    <TableColumn>Invitees</TableColumn>
                     <TableColumn className="w-32 text-center">
                         AI Bots
                     </TableColumn>
@@ -67,6 +69,37 @@ export default function GamesTable() {
                                             showProfileButton={false}
                                         />
                                     )}
+                                </TableCell>
+                                <TableCell className="w-32">
+                                    <AvatarGroup>
+                                        {gameUsers
+                                            .filter(
+                                                (gu) =>
+                                                    gu.game_id === game.id &&
+                                                    gu.user_id !==
+                                                        game.host_user_id
+                                            )
+                                            .map((gu) => {
+                                                const user = allUsers.find(
+                                                    (u) =>
+                                                        u.user_id === gu.user_id
+                                                );
+                                                return (
+                                                    user && (
+                                                        <Avatar
+                                                            key={user.user_id}
+                                                            size="sm"
+                                                            src={
+                                                                user.avatar_url ||
+                                                                ""
+                                                            }
+                                                        >
+                                                            {user.full_name}
+                                                        </Avatar>
+                                                    )
+                                                );
+                                            })}
+                                    </AvatarGroup>
                                 </TableCell>
                                 <TableCell className="w-32 text-center">
                                     {game.num_static_ai ?? 0}

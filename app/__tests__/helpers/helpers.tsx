@@ -96,6 +96,15 @@ export const mockAllUsers: Database["public"]["Tables"]["users"]["Row"][] = [
         avatar_url: "https://example.com/avatar2.png",
         timezone: "America/Los_Angeles",
     },
+    {
+        ...mockPublicUserRow,
+        user_id: "user3",
+        username: "testuser3",
+        full_name: "Test User 3",
+        email: "testuser3@example.com",
+        avatar_url: null,
+        timezone: "America/Los_Angeles",
+    },
 ];
 export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
     mockPublicGameRow,
@@ -112,9 +121,20 @@ export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
 export const mockQuestionsData: Database["public"]["Tables"]["questions"]["Row"][] =
     [mockPublicQuestionRow, { ...mockPublicQuestionRow, id: 373 }];
 
+export const mockGameUsersData: Database["public"]["Tables"]["game_users"]["Row"][] =
+    [
+        {
+            user_id: mockAllUsers[2].user_id,
+            game_id: mockPublicGameRow.id,
+            created_at: "2024-06-01T12:00:00Z",
+            updated_at: "2024-06-01T12:00:00Z",
+        },
+    ];
+
 export const defaultInsideContext = {
     loggedInUserId: mockPublicUserRow.user_id,
     allUsers: mockAllUsers,
     games: mockGamesData,
     questions: mockQuestionsData,
+    gameUsers: mockGameUsersData,
 };
