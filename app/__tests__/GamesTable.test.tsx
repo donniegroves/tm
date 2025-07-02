@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import GamesTable from "../components/GamesTable";
 import DrawerProvider from "../inside/DrawerProvider";
 import {
@@ -6,6 +6,25 @@ import {
     setMockInsideContext,
 } from "./helpers/helper-InsideContext";
 import { mockAllUsers, mockPublicGameRow } from "./helpers/helpers";
+import { mockUseDrawer } from "./helpers/helper-DrawerContext";
+
+jest.mock("../inside/DrawerProvider", () => ({
+    useDrawer: () => mockUseDrawer(),
+}));
+jest.mock("@tanstack/react-query", () => ({
+    useQueryClient: () => ({
+        getQueryState: jest.fn(() => ({
+            fetchStatus: "idle",
+        })),
+    }),
+}));
+
+jest.mock("../hooks/useDeleteGame", () => ({
+    useDeleteGame: () => ({
+        variables: { gameId: 123 },
+        mutate: jest.fn(),
+    }),
+}));
 
 jest.mock("../inside/InsideContext", () => ({
     useInsideContext: () => mockUseInsideContext(),
@@ -20,11 +39,7 @@ describe("GamesTable", () => {
     });
 
     it("renders games in the table", () => {
-        render(
-            <DrawerProvider>
-                <GamesTable />
-            </DrawerProvider>
-        );
+        render(<GamesTable />);
 
         expect(screen.getByRole("grid", { name: "Games" })).toBeInTheDocument();
 
@@ -54,23 +69,36 @@ describe("GamesTable", () => {
         setMockInsideContext({
             games: [gameWithNoBots],
         });
-        render(
-            <DrawerProvider>
-                <GamesTable />
-            </DrawerProvider>
-        );
+        render(<GamesTable />);
 
         expect(screen.getByRole("gridcell", { name: "0" })).toBeInTheDocument();
     });
     it("renders an add game button", () => {
-        render(
-            <DrawerProvider>
-                <GamesTable />
-            </DrawerProvider>
-        );
+        render(<GamesTable />);
 
         expect(
             screen.getByRole("button", { name: "Add game" })
         ).toBeInTheDocument();
+    });
+    it("renders multiple delete game buttons", () => {
+        render(<GamesTable />);
+
+        expect(screen.getAllByRole("button", { name: "Delete" }).length).toBe(
+            2
+        );
+    });
+    it("row is blurred when question is being deleted", async () => {
+        render(<GamesTable />);
+        const deleteButton = screen.getAllByText("Delete")[1];
+        fireEvent.click(deleteButton);
+
+        await waitFor(() => {
+            const blurredRow = screen
+                .getAllByRole("row")
+                .find((row) => row.classList.contains("blur-xs"));
+            expect(blurredRow).toBeInTheDocument();
+
+            expect(blurredRow).toHaveAttribute("data-key", "222");
+        });
     });
 });

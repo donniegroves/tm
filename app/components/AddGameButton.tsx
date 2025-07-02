@@ -12,7 +12,6 @@ export default function AddGameButton() {
         setIsDrawerOpen,
         setDrawerContent,
         isDrawerOpen,
-        isDrawerActionLoading,
         drawerContent,
     } = useDrawer();
 
@@ -23,7 +22,7 @@ export default function AddGameButton() {
         currentDrawerHeader?.props.children.toString();
     const addGameHeaderText = addGameHeader.props.children.toString();
 
-    const isAddGameHeader =
+    const pendingGameAdd =
         isDrawerOpen && currentDrawerHeaderText === addGameHeaderText;
 
     return (
@@ -39,7 +38,7 @@ export default function AddGameButton() {
                 setIsDrawerOpen(true);
             }}
         >
-            {isAddGameHeader || (isDrawerActionLoading && isAddGameHeader) ? (
+            {pendingGameAdd ? (
                 <Spinner />
             ) : (
                 <div>Add game</div>

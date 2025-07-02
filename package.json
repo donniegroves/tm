@@ -48,14 +48,17 @@
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
-        "eslint": "^9",
+        "@typescript-eslint/parser": "^8.35.1",
+        "eslint": "^9.30.0",
         "eslint-config-next": "15.1.7",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
         "postcss": "^8",
+        "prettier": "^3.6.2",
+        "prettier-eslint": "^16.4.2",
         "supabase": "^2.15.8",
         "tailwindcss": "^3.4.1",
         "ts-node": "^10.9.2",
-        "typescript": "^5"
+        "typescript": "^5.8.3"
     }
 }

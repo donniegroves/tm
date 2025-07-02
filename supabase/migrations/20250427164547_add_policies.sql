@@ -102,3 +102,10 @@ create policy "Allow admins to insert rows"
 on "public"."game_users"
 to authenticated
 with check (is_admin(auth.uid()));
+
+create policy "Enable delete for admins"
+on "public"."games"
+as PERMISSIVE
+for DELETE
+to authenticated
+using ( is_admin(auth.uid()) );

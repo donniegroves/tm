@@ -67,9 +67,11 @@ describe("QuestionsTable", () => {
         fireEvent.click(deleteButton);
 
         await waitFor(() => {
-            const pendingRow = screen.getAllByRole("row")[1];
-            expect(pendingRow).toHaveAttribute("data-key", "292");
-            expect(pendingRow).toHaveClass("blur-xs");
+            const blurredRow = screen
+                .getAllByRole("row")
+                .find((row) => row.classList.contains("blur-xs"));
+            expect(blurredRow).toBeInTheDocument();
+            expect(blurredRow).toHaveAttribute("data-key", "292");
         });
     });
     it("row is blurred when question is being edited", async () => {
@@ -78,9 +80,11 @@ describe("QuestionsTable", () => {
         fireEvent.click(editButton);
 
         await waitFor(() => {
-            const pendingRow = screen.getAllByRole("row")[2];
-            expect(pendingRow).toHaveAttribute("data-key", "456");
-            expect(pendingRow).toHaveClass("blur-xs");
+            const blurredRow = screen
+                .getAllByRole("row")
+                .find((row) => row.classList.contains("blur-xs"));
+            expect(blurredRow).toBeInTheDocument();
+            expect(blurredRow).toHaveAttribute("data-key", "456");
         });
     });
 });
