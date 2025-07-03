@@ -3,17 +3,16 @@ import { ReactNode } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { InsideDrawer } from "../components/InsideDrawer";
-import InsideNav from "../components/InsideNav";
 import { TanstackProvider } from "../components/TanstackProvider";
 import "../globals.css";
-import DrawerProvider from "./DrawerProvider";
-import { InsideContextProvider } from "./InsideContext";
+import DrawerProvider from "@/app/inside/DrawerProvider";
+import { InsideContextProvider } from "@/app/inside/InsideContext";
 
 export const metadata: Metadata = {
     title: process.env.NEXT_PUBLIC_APP_NAME,
 };
 
-export default async function InsideLayout({
+export default async function PlayLayout({
     children,
 }: {
     children: ReactNode;
@@ -24,12 +23,9 @@ export default async function InsideLayout({
                 <DrawerProvider>
                     <div className="flex flex-col min-h-screen">
                         <Header />
-                        <div className="flex flex-row flex-grow">
-                            <InsideNav />
-                            <main className="flex-grow px-2 py-2 overflow-y-auto ml-16">
-                                {children}
-                            </main>
-                        </div>
+                        <main className="flex-grow flex items-center justify-center px-2 py-2 overflow-y-auto">
+                            {children}
+                        </main>
                         <Footer />
                     </div>
                     <InsideDrawer />
