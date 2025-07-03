@@ -2,7 +2,10 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { mapAuthUserRowToPublicUserRow } from "../helpers";
 import { insertPublicUser } from "./insertPublicUser";
+import { storeAvatar } from "./storeAvatar";
+import { getUserFromPublic } from "../server-helpers";
 
 interface GoogleSignInResponse {
     credential: string;
@@ -12,30 +15,39 @@ export const signInWithIdToken = async (
     response: GoogleSignInResponse,
     nonHashedNonce: string
 ) => {
-    const supabase = await createClient();
-    const { data: signInWithIdTokenData, error: signInWithIdTokenError } =
-        await supabase.auth.signInWithIdToken({
-            provider: "google",
-            token: response.credential,
-            nonce: nonHashedNonce,
-        });
+    try {
+        const supabase = await createClient();
 
-    if (signInWithIdTokenError) {
+        const { data: signInWithIdTokenData, error: signInWithIdTokenError } =
+            await supabase.auth.signInWithIdToken({
+                provider: "google",
+                token: response.credential,
+                nonce: nonHashedNonce,
+            });
+
+        if (signInWithIdTokenError) {
+            throw new Error("Error signing in with Google");
+        }
+
+        const userExistsInPublictable = await getUserFromPublic(
+            signInWithIdTokenData.user.id
+        );
+
+        if (!userExistsInPublictable) {
+            const publicAvatarUrl = await storeAvatar(
+                signInWithIdTokenData.user.id,
+                signInWithIdTokenData.user.user_metadata.avatar_url
+            );
+
+            const publicUserRow = {
+                ...mapAuthUserRowToPublicUserRow(signInWithIdTokenData.user),
+                avatar_url: publicAvatarUrl,
+            };
+
+            await insertPublicUser({ userData: publicUserRow });
+        }
+    } catch {
         throw new Error("Error signing in with Google");
-    }
-
-    const { data: existingUserData, error: existingUserError } = await supabase
-        .from("users")
-        .select("user_id")
-        .eq("user_id", signInWithIdTokenData.user.id)
-        .maybeSingle();
-
-    if (existingUserError) {
-        throw new Error("Error checking existing user");
-    }
-
-    if (!existingUserData) {
-        await insertPublicUser(signInWithIdTokenData.user.id);
     }
 
     return redirect(`/inside`);

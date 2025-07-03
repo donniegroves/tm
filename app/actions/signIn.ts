@@ -1,12 +1,11 @@
-"use server";
+"use client";
 
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 export const signIn = async (email: string, password: string) => {
-    const supabase = await createClient();
+    const supabase = createClient();
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
     });
@@ -19,5 +18,5 @@ export const signIn = async (email: string, password: string) => {
         }
     }
 
-    return redirect("/inside");
+    return { data, error: null };
 };

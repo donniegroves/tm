@@ -1,10 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
-import InsidePageContent from "../components/InsidePageContent";
+import InsideContent from "../components/InsideContent";
 
 export default async function InsidePage() {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getUser();
-    const user = data?.user;
-
-    return <InsidePageContent user={user} />;
+    return <InsideContent />;
 }

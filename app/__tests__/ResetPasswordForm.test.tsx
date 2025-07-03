@@ -1,12 +1,19 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useRouter } from "next/navigation";
 import { resetPassword } from "../actions/resetPassword";
 import ResetPasswordForm from "../components/ResetPasswordForm";
 
 jest.mock("@/app/actions/resetPassword");
+jest.mock("next/navigation", () => ({
+    useRouter: jest.fn(),
+}));
 
 describe("ResetPasswordForm", () => {
+    const mockPush = jest.fn();
+
     beforeEach(() => {
         jest.clearAllMocks();
+        (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
     });
 
     test("renders ResetPasswordForm with inputs and submit button", () => {

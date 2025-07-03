@@ -1,11 +1,10 @@
 import { createClient } from "@/utils/supabase/server";
 import { insertPublicUser } from "../actions/insertPublicUser";
+import { mockPublicUserRow } from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),
 }));
-
-const mockUserId = "test-user-id";
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -27,30 +26,24 @@ describe("insertPublicUser", () => {
     it("should insert a public user with the given userId", async () => {
         const { mockInsert, mockFrom, createClient } = setupSupabaseMock();
 
-        await expect(insertPublicUser(mockUserId)).resolves.not.toThrow();
+        await expect(
+            insertPublicUser({ userData: mockPublicUserRow })
+        ).resolves.not.toThrow();
 
         expect(createClient).toHaveBeenCalled();
         expect(mockFrom).toHaveBeenCalledWith("users");
-        expect(mockInsert).toHaveBeenCalledWith([
-            {
-                user_id: mockUserId,
-                access_level: 0,
-            },
-        ]);
+        expect(mockInsert).toHaveBeenCalledWith([mockPublicUserRow]);
     });
 
     it("should throw an error if insertion fails", async () => {
         const { mockInsert, mockFrom, createClient } = setupSupabaseMock(true);
 
-        await expect(insertPublicUser(mockUserId)).rejects.toThrow();
+        await expect(
+            insertPublicUser({ userData: mockPublicUserRow })
+        ).rejects.toThrow();
 
         expect(createClient).toHaveBeenCalled();
         expect(mockFrom).toHaveBeenCalledWith("users");
-        expect(mockInsert).toHaveBeenCalledWith([
-            {
-                user_id: mockUserId,
-                access_level: 0,
-            },
-        ]);
+        expect(mockInsert).toHaveBeenCalledWith([mockPublicUserRow]);
     });
 });

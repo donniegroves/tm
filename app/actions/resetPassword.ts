@@ -1,10 +1,9 @@
-"use server";
+"use client";
 
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 export const resetPassword = async (password: string) => {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     const { error } = await supabase.auth.updateUser({
         password: password,
@@ -13,6 +12,4 @@ export const resetPassword = async (password: string) => {
     if (error) {
         throw new Error("Password update failed.");
     }
-
-    return redirect(`/inside`);
 };

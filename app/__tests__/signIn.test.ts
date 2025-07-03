@@ -1,8 +1,8 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import { redirect } from "next/navigation";
 import { signIn } from "../actions/signIn";
 
-jest.mock("@/utils/supabase/server", () => ({
+jest.mock("@/utils/supabase/client", () => ({
     createClient: jest.fn(),
 }));
 jest.mock("next/navigation", () => ({
@@ -19,7 +19,7 @@ const setupMocks = (signInReturn: {
     const mockSupabase = {
         auth: { signInWithPassword: mockSignInWithPassword },
     };
-    (createClient as jest.Mock).mockResolvedValue(mockSupabase);
+    (createClient as jest.Mock).mockReturnValue(mockSupabase); // Fixed to return the mockSupabase object synchronously
     return { mockSignInWithPassword, mockSupabase };
 };
 
@@ -38,7 +38,6 @@ describe("signIn", () => {
             email: mockEmail,
             password: mockPassword,
         });
-        expect(redirect).toHaveBeenCalledWith("/inside");
     });
 
     it("should throw an error if credentials are invalid", async () => {
@@ -62,6 +61,7 @@ describe("signIn", () => {
         const { mockSignInWithPassword } = setupMocks({
             error: new Error("Sign-in failed"),
         });
+
         await expect(signIn(mockEmail, mockPassword)).rejects.toThrow();
 
         expect(createClient).toHaveBeenCalled();
