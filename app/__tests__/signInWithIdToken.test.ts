@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { insertPublicUser } from "../actions/insertPublicUser";
 import { signInWithIdToken } from "../actions/signInWithIdToken";
-import { getUserFromPublic } from "../helpers";
+import { getUserFromPublic } from "../server-helpers";
 import { mockAuthUserRow } from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
@@ -11,8 +11,8 @@ jest.mock("@/utils/supabase/server", () => ({
 jest.mock("next/navigation", () => ({
     redirect: jest.fn(),
 }));
-jest.mock("../helpers", () => {
-    const actual = jest.requireActual("../helpers");
+jest.mock("../server-helpers", () => {
+    const actual = jest.requireActual("../server-helpers");
     return {
         ...actual,
         getUserFromPublic: jest.fn(),

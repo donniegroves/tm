@@ -38,10 +38,16 @@ Migrations can be added using:
 npx supabase migration new name_of_table
 ```
 
+To reset the database entirely and start over:
+
+```bash
+npx supabase db reset --linked
+```
+
 Database types can be generated from Supabase using:
 
 ```bash
-supabase gen types typescript --project-id abcdefghijklmnopqrst > database.types.ts
+npx supabase gen types typescript --project-id abcdefghijklmnopqrst > database.types.ts
 ```
 
 For more info, visit [Supabase TypeScript Support](https://supabase.com/docs/reference/javascript/typescript-support)

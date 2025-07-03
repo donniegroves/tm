@@ -43,7 +43,7 @@ export type Database = {
           created_at: string
           host_user_id: string | null
           id: number
-          num_static_ai: number | null
+          num_static_ai: number
           seconds_per_pre: number
           seconds_per_rank: number
           share_code: string
@@ -53,7 +53,7 @@ export type Database = {
           created_at?: string
           host_user_id?: string | null
           id?: number
-          num_static_ai?: number | null
+          num_static_ai: number
           seconds_per_pre: number
           seconds_per_rank: number
           share_code: string
@@ -63,7 +63,7 @@ export type Database = {
           created_at?: string
           host_user_id?: string | null
           id?: number
-          num_static_ai?: number | null
+          num_static_ai?: number
           seconds_per_pre?: number
           seconds_per_rank?: number
           share_code?: string

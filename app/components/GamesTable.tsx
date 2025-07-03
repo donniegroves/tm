@@ -15,6 +15,7 @@ import { useFormattedTimestamp } from "./useFormattedTimestamp";
 import DeleteGameButton from "./DeleteGameButton";
 import { useState } from "react";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
+import EditGameButton from "./EditGameButton";
 
 export default function GamesTable() {
     const [pendingRowId, setPendingRowId] = useState<number>(-1);
@@ -102,7 +103,7 @@ export default function GamesTable() {
                                     </AvatarGroup>
                                 </TableCell>
                                 <TableCell className="w-32 text-center">
-                                    {game.num_static_ai ?? 0}
+                                    {game.num_static_ai}
                                 </TableCell>
                                 <TableCell className="w-32 text-center">
                                     {game.seconds_per_pre}
@@ -114,10 +115,17 @@ export default function GamesTable() {
                                     {formatTimestamp(game.created_at)}
                                 </TableCell>
                                 <TableCell>
-                                    <DeleteGameButton
-                                        gameId={game.id}
-                                        setPendingRowId={setPendingRowId}
-                                    />
+                                    <div className="flex gap-2">
+                                        <DeleteGameButton
+                                            gameId={game.id}
+                                            setPendingRowId={setPendingRowId}
+                                        />
+                                        <EditGameButton
+                                            gameId={game.id}
+                                            pendingRowId={pendingRowId}
+                                            setPendingRowId={setPendingRowId}
+                                        />
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         );

@@ -143,7 +143,7 @@ describe("insertGame", () => {
             error: new Error("error from supabase"),
             status: 400,
         });
-        await expect(insertGame()).rejects.toThrow("error from supabase");
+        await expect(insertGame()).rejects.toThrow("Failed to insert game");
     });
 
     it("should throw a generic error if the insertion fails with no message", async () => {

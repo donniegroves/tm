@@ -59,7 +59,7 @@ export const insertGame = async (): Promise<
         .single();
 
     if (gameError || gameStatus !== 201 || !gameData) {
-        throw new Error(gameError?.message || `Failed to insert game`);
+        throw new Error(`Failed to insert game`);
     }
 
     const inviteeArray = invitees.split(",").map((invitee) => invitee.trim());

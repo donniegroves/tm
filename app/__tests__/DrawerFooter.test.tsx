@@ -96,6 +96,32 @@ describe("DrawerFooter", () => {
         expect(setPendingIdFunction).toHaveBeenCalledWith(-1);
     });
 
+    it("renders close and edit button for edit-game purpose", async () => {
+        const mockMutate = jest.fn();
+        setMockUseMutation({
+            mutateAsync: mockMutate,
+        });
+        const whenDoneFunction = jest.fn();
+        const setPendingIdFunction = jest.fn();
+        render(
+            <DrawerFooter
+                purpose={DrawerFooterPurpose.EditGame}
+                setPendingIdFunction={setPendingIdFunction}
+                whenDoneFunction={whenDoneFunction}
+            />
+        );
+
+        screen.getByRole("button", { name: "Close" });
+        const editButton = screen.getByRole("button", { name: "Save" });
+
+        await waitFor(() => {
+            fireEvent.click(editButton);
+        });
+        expect(mockMutate).toHaveBeenCalled();
+        expect(whenDoneFunction).toHaveBeenCalled();
+        expect(setPendingIdFunction).toHaveBeenCalledWith(-1);
+    });
+
     it("renders close and add button for add-game purpose", async () => {
         const mockMutate = jest.fn();
         setMockUseMutation({
@@ -157,7 +183,12 @@ describe("DrawerFooter", () => {
     it("calls setIsDrawerOpen(false) when Close is pressed for profile-update", async () => {
         const setIsDrawerOpen = jest.fn();
         setMockUseDrawer({ setIsDrawerOpen });
-        render(<DrawerFooter purpose={DrawerFooterPurpose.ProfileUpdate} />);
+        render(
+            <DrawerFooter
+                purpose={DrawerFooterPurpose.ProfileUpdate}
+                setPendingIdFunction={() => {}}
+            />
+        );
 
         const closeButton = screen.getByRole("button", { name: "Close" });
         const saveButton = screen.getByRole("button", { name: "Save" });

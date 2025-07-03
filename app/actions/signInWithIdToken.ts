@@ -2,9 +2,10 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { getUserFromPublic, mapAuthUserRowToPublicUserRow } from "../helpers";
+import { mapAuthUserRowToPublicUserRow } from "../helpers";
 import { insertPublicUser } from "./insertPublicUser";
 import { storeAvatar } from "./storeAvatar";
+import { getUserFromPublic } from "../server-helpers";
 
 interface GoogleSignInResponse {
     credential: string;

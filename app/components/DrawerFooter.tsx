@@ -6,12 +6,14 @@ import { useInsertQuestion } from "../hooks/useInsertQuestion";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import { useDrawer } from "../inside/DrawerProvider";
 import { useInsideContext } from "../inside/InsideContext";
+import { useEditGame } from "../hooks/useEditGame";
 
 export enum DrawerFooterPurpose {
     ProfileUpdate = "profile-update",
     AddQuestion = "add-question",
     EditQuestion = "edit-question",
     AddGame = "add-game",
+    EditGame = "edit-game",
     Reserved = "reserved", // Placeholder for future purposes
 }
 
@@ -32,13 +34,17 @@ export default function DrawerFooter({
     const insertQuestionMutation = useInsertQuestion();
     const editQuestionMutation = useEditQuestion();
     const insertGameMutation = useInsertGame();
+    const editGameMutation = useEditGame();
 
     function renderCloseButton() {
         return (
             <Button
                 color="danger"
                 variant="light"
-                onPress={() => setIsDrawerOpen(false)}
+                onPress={() => {
+                    setPendingIdFunction?.(-1);
+                    setIsDrawerOpen(false);
+                }}
             >
                 Close
             </Button>
@@ -141,6 +147,30 @@ export default function DrawerFooter({
                         await insertGameMutation.mutateAsync();
                         if (whenDoneFunction) {
                             whenDoneFunction();
+                        }
+                        if (setPendingIdFunction) {
+                            setPendingIdFunction(-1);
+                        }
+                        setIsDrawerOpen(false);
+                    },
+                    loading:
+                        isDrawerActionLoading ||
+                        insertQuestionMutation.isPending,
+                })}
+            </>
+        );
+    }
+
+    if (purpose === DrawerFooterPurpose.EditGame) {
+        return (
+            <>
+                {renderCloseButton()}
+                {renderActionButton({
+                    label: "Save",
+                    onPress: async () => {
+                        await editGameMutation.mutateAsync();
+                        if (whenDoneFunction) {
+                            whenDoneFunction(); // TODO: check to see if we should use whenDoneFunction EVERYWHERE or just use onSettled
                         }
                         if (setPendingIdFunction) {
                             setPendingIdFunction(-1);

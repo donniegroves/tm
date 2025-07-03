@@ -5,11 +5,7 @@ import {
     screen,
     waitFor,
 } from "@testing-library/react";
-import AddGameForm, {
-    getAvatarUrlFromUser,
-    getFullNameStringFromUser,
-    getUserFromAllUsers,
-} from "../components/AddGameForm";
+import AddGameForm from "../components/AddGameForm";
 import { mockAllUsers } from "./helpers/helpers";
 
 jest.mock("../inside/InsideContext", () => ({
@@ -198,60 +194,5 @@ describe("AddGameForm", () => {
 
         // selected user has no full_name or avatar_url, so Chip shows "Invitee:"
         expect(screen.getByLabelText("Invitee:")).toBeInTheDocument();
-    });
-});
-
-describe("getUserFromAllUsers", () => {
-    it("finds by user_id", () => {
-        const result = getUserFromAllUsers({ user_id: "user2" }, mockAllUsers);
-        expect(result).toEqual(mockAllUsers[1]);
-    });
-
-    it("finds by email", () => {
-        const result = getUserFromAllUsers(
-            { email: "testuser1@example.com" },
-            mockAllUsers
-        );
-        expect(result).toEqual(mockAllUsers[0]);
-    });
-
-    it("finds by username", () => {
-        const result = getUserFromAllUsers(
-            { username: "testuser2" },
-            mockAllUsers
-        );
-        expect(result).toEqual(mockAllUsers[1]);
-    });
-
-    it("returns undefined if not found", () => {
-        const result = getUserFromAllUsers(
-            { user_id: "notfound" },
-            mockAllUsers
-        );
-        expect(result).toBeUndefined();
-    });
-});
-
-describe("getFullNameStringFromUser", () => {
-    it("returns the full_name if user is defined", () => {
-        const user = { ...mockAllUsers[0], full_name: "Test User" };
-        const result = getFullNameStringFromUser(user);
-        expect(result).toBe("Test User");
-    });
-    it("returns undefined if user is undefined", () => {
-        const result = getFullNameStringFromUser(undefined);
-        expect(result).toBeUndefined();
-    });
-});
-
-describe("getAvatarUrlFromUser", () => {
-    it("returns the avatar_url if user is defined", () => {
-        const user = { ...mockAllUsers[0], avatar_url: "avatar.png" };
-        const result = getAvatarUrlFromUser(user);
-        expect(result).toBe("avatar.png");
-    });
-    it("returns undefined if user is undefined", () => {
-        const result = getAvatarUrlFromUser(undefined);
-        expect(result).toBeUndefined();
     });
 });

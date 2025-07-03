@@ -11,25 +11,40 @@ import { ChangeEventHandler, Key, useState } from "react";
 import { useInsideContext } from "../inside/InsideContext";
 import GenerateShareCodeButton from "./GenerateShareCodeButton";
 import {
-    getAvatarUrlFromUser,
-    getFullNameStringFromUser,
     getUserFromAllUsers,
+    getFullNameStringFromUser,
+    getAvatarUrlFromUser,
 } from "../helpers";
 
-export default function AddGameForm() {
-    const defaultAIBots = 1;
+export default function EditGameForm({ gameId }: { gameId: number }) {
+    const { allUsers, games, gameUsers } = useInsideContext();
+
+    const initialGame = games.find((g) => g.id === gameId);
+    const initialGameInvitees = gameUsers
+        .filter((gu) => gu.game_id === gameId)
+        .map((gu) => gu.user_id);
+
     const [selectedHostUser, setSelectedHostUser] = useState<
         Database["public"]["Tables"]["users"]["Row"]["user_id"] | null
-    >(null);
-    const [selectedInvitees, setSelectedInvitees] = useState<
-        Database["public"]["Tables"]["users"]["Row"]["user_id"][]
-    >([]);
-    const [shareCode, setShareCode] = useState("");
-    const [numStaticAi, setNumStaticAi] = useState(defaultAIBots);
-    const [secondsPerQuestion, setSecondsPerQuestion] = useState(30);
-    const [secondsPerRanking, setSecondsPerRanking] = useState(60);
+    >(initialGame?.host_user_id ?? null);
+    const [selectedInvitees, setSelectedInvitees] =
+        useState<Database["public"]["Tables"]["users"]["Row"]["user_id"][]>(
+            initialGameInvitees
+        );
+    const [shareCode, setShareCode] = useState(initialGame?.share_code ?? "");
+    const [numStaticAi, setNumStaticAi] = useState(
+        initialGame?.num_static_ai ?? 0
+    );
+    const [secondsPerQuestion, setSecondsPerQuestion] = useState(
+        initialGame?.seconds_per_pre ?? 30
+    );
+    const [secondsPerRanking, setSecondsPerRanking] = useState(
+        initialGame?.seconds_per_rank ?? 60
+    );
 
-    const { allUsers } = useInsideContext();
+    if (!initialGame) {
+        return <div>Game not found.</div>;
+    }
 
     const onHostSelectionChange = (key: Key | null): void => {
         if (key) {
@@ -62,7 +77,13 @@ export default function AddGameForm() {
     };
 
     return (
-        <form id="add-game-form" role="form" className="flex flex-col gap-4">
+        <form id="edit-game-form" role="form" className="flex flex-col gap-4">
+            <Input
+                type="hidden"
+                id="game-id-input"
+                value={gameId.toString()}
+                aria-hidden="true"
+            />
             <Input
                 type="hidden"
                 id="host-input"
@@ -163,8 +184,8 @@ export default function AddGameForm() {
                 )}
             </Autocomplete>
             <Select
-                id="add-game-invitees-input"
-                isMultiline={true}
+                id="edit-game-invitees-input"
+                isMultiline
                 items={allUsers}
                 label="Invitees"
                 labelPlacement="inside"
@@ -222,7 +243,7 @@ export default function AddGameForm() {
             <div className="flex flex-row gap-2">
                 <Input
                     value={shareCode}
-                    id="add-game-share-code-input"
+                    id="edit-game-share-code-input"
                     label="Share Code"
                     placeholder="Enter share code"
                     maxLength={6}
@@ -239,10 +260,10 @@ export default function AddGameForm() {
             <div className="w-1/2">
                 <Select
                     className="pr-2"
-                    id="add-game-aibots-select"
+                    id="edit-game-aibots-select"
                     label="Number of AI Bots"
                     placeholder="Select number of AI bots"
-                    defaultSelectedKeys={[defaultAIBots.toString()]}
+                    defaultSelectedKeys={[initialGame.num_static_ai.toString()]}
                     items={[
                         { key: "0", label: "0" },
                         { key: "1", label: "1" },
@@ -257,10 +278,12 @@ export default function AddGameForm() {
 
             <div className="flex flex-row gap-4">
                 <Select
-                    id="add-game-seconds-per-question-select"
+                    id="edit-game-seconds-per-question-select"
                     label="Seconds per question"
                     placeholder="Select seconds per question"
-                    defaultSelectedKeys={["30"]}
+                    defaultSelectedKeys={[
+                        initialGame.seconds_per_pre.toString(),
+                    ]}
                     items={[
                         { key: "30", label: "30" },
                         { key: "60", label: "60" },
@@ -271,10 +294,12 @@ export default function AddGameForm() {
                     {(item) => <SelectItem>{item.label}</SelectItem>}
                 </Select>
                 <Select
-                    id="add-game-seconds-per-ranking-select"
+                    id="edit-game-seconds-per-ranking-select"
                     label="Seconds per ranking"
                     placeholder="Select seconds per ranking"
-                    defaultSelectedKeys={["60"]}
+                    defaultSelectedKeys={[
+                        initialGame.seconds_per_rank.toString(),
+                    ]}
                     items={[
                         { key: "30", label: "30" },
                         { key: "60", label: "60" },

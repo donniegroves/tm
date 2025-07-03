@@ -3,7 +3,7 @@ CREATE TABLE
         id serial PRIMARY KEY,
         host_user_id uuid REFERENCES auth.users (id) ON DELETE SET NULL,
         share_code varchar(6) UNIQUE NOT NULL,
-        num_static_ai smallint CHECK (
+        num_static_ai smallint NOT NULL CHECK (
             num_static_ai >= 0
             AND num_static_ai <= 9
         ),

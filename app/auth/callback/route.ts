@@ -1,8 +1,6 @@
 import { insertPublicUser } from "@/app/actions/insertPublicUser";
-import {
-    getUserFromPublic,
-    mapAuthUserRowToPublicUserRow,
-} from "@/app/helpers";
+import { mapAuthUserRowToPublicUserRow } from "@/app/helpers";
+import { getUserFromPublic } from "@/app/server-helpers";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 

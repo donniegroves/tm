@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import GamesTable from "../components/GamesTable";
-import DrawerProvider from "../inside/DrawerProvider";
 import {
     mockUseInsideContext,
     setMockInsideContext,
@@ -55,23 +54,14 @@ describe("GamesTable", () => {
             })
         ).toHaveAttribute("src", mockAllUsers[0].avatar_url);
         expect(
-            screen.getByText(mockPublicGameRow.num_static_ai ?? "garbage")
+            screen.getByText(mockPublicGameRow.num_static_ai)
         ).toBeInTheDocument();
         expect(
-            screen.getByText(mockPublicGameRow.seconds_per_pre)
-        ).toBeInTheDocument();
+            screen.getAllByText(mockPublicGameRow.seconds_per_pre)
+        ).toHaveLength(3);
         expect(
             screen.getByText(mockPublicGameRow.seconds_per_rank)
         ).toBeInTheDocument();
-    });
-    it("shows 0 for missing AI bots", () => {
-        const gameWithNoBots = { ...mockPublicGameRow, num_static_ai: null };
-        setMockInsideContext({
-            games: [gameWithNoBots],
-        });
-        render(<GamesTable />);
-
-        expect(screen.getByRole("gridcell", { name: "0" })).toBeInTheDocument();
     });
     it("renders an add game button", () => {
         render(<GamesTable />);
@@ -84,8 +74,13 @@ describe("GamesTable", () => {
         render(<GamesTable />);
 
         expect(screen.getAllByRole("button", { name: "Delete" }).length).toBe(
-            2
+            3
         );
+    });
+    it("renders multiple edit game buttons", () => {
+        render(<GamesTable />);
+
+        expect(screen.getAllByRole("button", { name: "Edit" }).length).toBe(3);
     });
     it("row is blurred when question is being deleted", async () => {
         render(<GamesTable />);

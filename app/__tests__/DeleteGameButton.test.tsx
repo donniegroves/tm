@@ -13,8 +13,6 @@ function setup(isPending = false, variables = {}) {
     });
 }
 
-const mockSetPendingRowId = jest.fn();
-
 describe("DeleteGameButton", () => {
     it("renders a button with text 'Delete'", () => {
         setup();

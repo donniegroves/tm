@@ -1,6 +1,16 @@
 import { createClient } from "@/utils/supabase/server";
-import { getUserFromPublic, mapAuthUserRowToPublicUserRow } from "../helpers";
-import { mockAuthUserRow, mockPublicUserRow } from "./helpers/helpers";
+import {
+    getAvatarUrlFromUser,
+    getFullNameStringFromUser,
+    getUserFromAllUsers,
+    mapAuthUserRowToPublicUserRow,
+} from "../helpers";
+import {
+    mockAllUsers,
+    mockAuthUserRow,
+    mockPublicUserRow,
+} from "./helpers/helpers";
+import { getUserFromPublic } from "../server-helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),
@@ -73,6 +83,64 @@ describe("helpers", () => {
             expect(() => {
                 mapAuthUserRowToPublicUserRow(userWithoutEmail);
             }).toThrow("Email was not found in authUserRow");
+        });
+    });
+
+    describe("getUserFromAllUsers", () => {
+        it("finds by user_id", () => {
+            const result = getUserFromAllUsers(
+                { user_id: "user2" },
+                mockAllUsers
+            );
+            expect(result).toEqual(mockAllUsers[1]);
+        });
+
+        it("finds by email", () => {
+            const result = getUserFromAllUsers(
+                { email: "testuser1@example.com" },
+                mockAllUsers
+            );
+            expect(result).toEqual(mockAllUsers[0]);
+        });
+
+        it("finds by username", () => {
+            const result = getUserFromAllUsers(
+                { username: "testuser2" },
+                mockAllUsers
+            );
+            expect(result).toEqual(mockAllUsers[1]);
+        });
+
+        it("returns undefined if not found", () => {
+            const result = getUserFromAllUsers(
+                { user_id: "notfound" },
+                mockAllUsers
+            );
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe("getFullNameStringFromUser", () => {
+        it("returns the full_name if user is defined", () => {
+            const user = { ...mockAllUsers[0], full_name: "Test User" };
+            const result = getFullNameStringFromUser(user);
+            expect(result).toBe("Test User");
+        });
+        it("returns undefined if user is undefined", () => {
+            const result = getFullNameStringFromUser(undefined);
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe("getAvatarUrlFromUser", () => {
+        it("returns the avatar_url if user is defined", () => {
+            const user = { ...mockAllUsers[0], avatar_url: "avatar.png" };
+            const result = getAvatarUrlFromUser(user);
+            expect(result).toBe("avatar.png");
+        });
+        it("returns undefined if user is undefined", () => {
+            const result = getAvatarUrlFromUser(undefined);
+            expect(result).toBeUndefined();
         });
     });
 });

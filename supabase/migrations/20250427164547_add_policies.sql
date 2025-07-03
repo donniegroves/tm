@@ -109,3 +109,18 @@ as PERMISSIVE
 for DELETE
 to authenticated
 using ( is_admin(auth.uid()) );
+
+create policy "Allow admins to update games"
+on "public"."games"
+as PERMISSIVE
+for UPDATE
+to authenticated
+using (is_admin(auth.uid()))
+with check (true);
+
+create policy "Allow admins to delete game_users"
+on "public"."game_users"
+as PERMISSIVE
+for DELETE
+to authenticated
+using ( is_admin(auth.uid()) );
