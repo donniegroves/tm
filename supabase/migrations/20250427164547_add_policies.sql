@@ -26,15 +26,6 @@ SELECT
         is_admin(auth.uid())
     );
 
-CREATE POLICY "Enable hosts to view their own games" ON public.games AS PERMISSIVE FOR
-SELECT
-    TO authenticated USING (
-        (
-            SELECT
-                auth.uid ()
-        ) = host_user_id
-    );
-
 CREATE POLICY "Allow users to select games they are associated with" ON public.games FOR
 SELECT
     TO authenticated USING (

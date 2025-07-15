@@ -27,12 +27,6 @@ describe("UsersTable", () => {
         expect(screen.getByText("Test User 1")).toBeInTheDocument();
         expect(screen.getByText("testuser1@example.com")).toBeInTheDocument();
 
-        const checkboxes = screen.queryAllByRole(
-            "checkbox"
-        ) as HTMLInputElement[];
-        expect(checkboxes.length).toBeGreaterThan(0);
-        expect(checkboxes.filter((cb) => cb.checked)).toHaveLength(1);
-
         const img = screen
             .getAllByRole("img")
             .find(

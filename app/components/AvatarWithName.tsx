@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar } from "@heroui/avatar";
+import { Avatar, AvatarProps } from "@heroui/avatar";
 import { useInsideContext } from "../inside/InsideContext";
 import HeaderProfileDropdown from "./HeaderProfileDropdown";
 
@@ -8,12 +8,14 @@ interface AvatarWithNameProps {
     userId?: string;
     showProfileButton?: boolean;
     limitNameWidth?: boolean;
+    color?: AvatarProps["color"];
 }
 
 export default function AvatarWithName({
     userId,
     showProfileButton = false,
     limitNameWidth = true,
+    color = undefined,
 }: AvatarWithNameProps) {
     const { allUsers, loggedInUserId } = useInsideContext();
 
@@ -27,6 +29,7 @@ export default function AvatarWithName({
             <Avatar
                 size="sm"
                 isBordered
+                color={color}
                 radius="sm"
                 src={
                     userData?.avatar_url == null

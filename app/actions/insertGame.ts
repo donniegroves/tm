@@ -49,7 +49,6 @@ export const insertGame = async (): Promise<
     } = await supabase
         .from("games")
         .insert({
-            host_user_id,
             num_static_ai,
             seconds_per_pre,
             seconds_per_rank,
@@ -62,18 +61,33 @@ export const insertGame = async (): Promise<
         throw new Error(`Failed to insert game`);
     }
 
-    const inviteeArray = invitees.split(",").map((invitee) => invitee.trim());
+    const gameUsersArray = invitees
+        .split(",")
+        .map((userId) => userId.trim())
+        .filter((userId) => userId !== "")
+        .map((userId) => ({
+            game_id: gameData.id,
+            user_id: userId,
+            is_host: 0,
+        }));
+    gameUsersArray.unshift({
+        game_id: gameData.id,
+        user_id: host_user_id,
+        is_host: 1,
+    });
+
     const { error: inviteeError, status: inviteeStatus } = await supabase
         .from("game_users")
         .insert(
-            inviteeArray.map((invitee) => ({
+            gameUsersArray.map((user) => ({
                 game_id: gameData.id,
-                user_id: invitee,
+                user_id: user.user_id,
+                is_host: user.is_host === 1,
             }))
         );
 
     if (inviteeError || inviteeStatus !== 201) {
-        throw new Error(`Failed to insert invitees`);
+        throw new Error(`Failed to insert game users`);
     }
 
     return gameData;

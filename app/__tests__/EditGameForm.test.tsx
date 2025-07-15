@@ -31,7 +31,7 @@ describe("EditGameForm", () => {
         const hostHiddenInput = container.querySelector("#host-input");
         expect(hostHiddenInput).toBeInTheDocument();
         expect(hostHiddenInput).toHaveAttribute("type", "hidden");
-        expect(hostHiddenInput).toHaveValue("user2");
+        expect(hostHiddenInput).toHaveValue("user1");
 
         const inviteesInput = container.querySelector("#invitees-input");
         expect(inviteesInput).toBeInTheDocument();

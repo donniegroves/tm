@@ -1,8 +1,10 @@
+import PlayStage from "./PlayStage";
+
 export default async function PlayPage({
     params,
 }: {
     params: Promise<{ share_code: string }>;
 }) {
     const resolvedParams = await params;
-    return <p>Play Page {resolvedParams.share_code}</p>;
+    return <PlayStage share_code={resolvedParams.share_code} />;
 }

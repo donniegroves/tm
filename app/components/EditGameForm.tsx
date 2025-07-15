@@ -8,29 +8,31 @@ import { Select, SelectedItems, SelectItem } from "@heroui/select";
 import { SharedSelection } from "@heroui/system";
 import { Database } from "database.types";
 import { ChangeEventHandler, Key, useState } from "react";
+import {
+    getAvatarUrlFromUser,
+    getFullNameStringFromUser,
+    getUserFromAllUsers,
+} from "../helpers";
 import { useInsideContext } from "../inside/InsideContext";
 import GenerateShareCodeButton from "./GenerateShareCodeButton";
-import {
-    getUserFromAllUsers,
-    getFullNameStringFromUser,
-    getAvatarUrlFromUser,
-} from "../helpers";
 
 export default function EditGameForm({ gameId }: { gameId: number }) {
     const { allUsers, games, gameUsers } = useInsideContext();
-
     const initialGame = games.find((g) => g.id === gameId);
-    const initialGameInvitees = gameUsers
-        .filter((gu) => gu.game_id === gameId)
-        .map((gu) => gu.user_id);
+
+    const initialHostGameUser = gameUsers.find(
+        (gu) => gu.game_id === gameId && gu.is_host
+    );
+    const initialNonHostGameUsers = gameUsers.filter(
+        (gu) => gu.game_id === gameId && !gu.is_host
+    );
 
     const [selectedHostUser, setSelectedHostUser] = useState<
         Database["public"]["Tables"]["users"]["Row"]["user_id"] | null
-    >(initialGame?.host_user_id ?? null);
-    const [selectedInvitees, setSelectedInvitees] =
-        useState<Database["public"]["Tables"]["users"]["Row"]["user_id"][]>(
-            initialGameInvitees
-        );
+    >(initialHostGameUser?.user_id ?? null);
+    const [selectedInvitees, setSelectedInvitees] = useState<
+        Database["public"]["Tables"]["users"]["Row"]["user_id"][]
+    >(initialNonHostGameUsers.map((gu) => gu.user_id));
     const [shareCode, setShareCode] = useState(initialGame?.share_code ?? "");
     const [numStaticAi, setNumStaticAi] = useState(
         initialGame?.num_static_ai ?? 0
@@ -152,6 +154,7 @@ export default function EditGameForm({ gameId }: { gameId: number }) {
                 }}
                 items={allUsers}
                 label="Host"
+                isRequired
                 labelPlacement="outside"
                 placeholder="Select host"
                 description="Choose a host to run the game."
@@ -245,6 +248,7 @@ export default function EditGameForm({ gameId }: { gameId: number }) {
                     value={shareCode}
                     id="edit-game-share-code-input"
                     label="Share Code"
+                    isRequired
                     placeholder="Enter share code"
                     maxLength={6}
                     onChange={(e) => {

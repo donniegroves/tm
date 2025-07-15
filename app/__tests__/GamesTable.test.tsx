@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import GamesTable from "../components/GamesTable";
+import GamesTable, { GameStatus } from "../components/GamesTable";
+import { mockUseDrawer } from "./helpers/helper-DrawerContext";
 import {
     mockUseInsideContext,
     setMockInsideContext,
 } from "./helpers/helper-InsideContext";
 import { mockAllUsers, mockPublicGameRow } from "./helpers/helpers";
-import { mockUseDrawer } from "./helpers/helper-DrawerContext";
 
 jest.mock("../inside/DrawerProvider", () => ({
     useDrawer: () => mockUseDrawer(),
@@ -44,6 +44,9 @@ describe("GamesTable", () => {
 
         expect(
             screen.getByText(mockPublicGameRow.share_code)
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText(GameStatus[mockPublicGameRow.status])
         ).toBeInTheDocument();
         expect(
             screen.getByText(mockAllUsers[0].username ?? "garbage")

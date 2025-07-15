@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/client";
-import { editGame } from "../actions/editGame";
-import { Database } from "database.types";
 import { PostgrestError } from "@supabase/supabase-js";
+import { Database } from "database.types";
+import { editGame } from "../actions/editGame";
 
 jest.mock("@/utils/supabase/client", () => ({
     createClient: jest.fn(),
@@ -101,8 +101,8 @@ describe("editGame", () => {
                     id: 42,
                     created_at: "2023-10-01T00:00:00Z",
                     updated_at: "2023-10-01T00:00:00Z",
-                    host_user_id: "host1",
                     share_code: "SHRCDE",
+                    status: 0,
                     num_static_ai: 2,
                     seconds_per_pre: 30,
                     seconds_per_rank: 60,
@@ -114,13 +114,22 @@ describe("editGame", () => {
                 data: [
                     {
                         game_id: 42,
+                        user_id: "host1",
+                        is_host: true,
+                        created_at: "2023-10-01T00:00:00Z",
+                        updated_at: "2023-10-01T00:00:00Z",
+                    },
+                    {
+                        game_id: 42,
                         user_id: "user2",
+                        is_host: false,
                         created_at: "2023-10-01T00:00:00Z",
                         updated_at: "2023-10-01T00:00:00Z",
                     },
                     {
                         game_id: 42,
                         user_id: "user3",
+                        is_host: false,
                         created_at: "2023-10-01T00:00:00Z",
                         updated_at: "2023-10-01T00:00:00Z",
                     },
@@ -132,7 +141,6 @@ describe("editGame", () => {
         const result = await editGame();
         expect(mockFrom).toHaveBeenCalledWith("games");
         expect(mockUpdate).toHaveBeenCalledWith({
-            host_user_id: "host1",
             share_code: "SHRCDE",
             num_static_ai: 2,
             seconds_per_pre: 30,
@@ -144,13 +152,26 @@ describe("editGame", () => {
         expect(mockFrom).toHaveBeenCalledWith("game_users");
         expect(mockDelete).toHaveBeenCalled();
         expect(mockInsert).toHaveBeenCalledWith([
-            { game_id: 42, user_id: "user2" },
-            { game_id: 42, user_id: "user3" },
+            {
+                game_id: 42,
+                is_host: true,
+                user_id: "host1",
+            },
+            {
+                game_id: 42,
+                is_host: false,
+                user_id: "user2",
+            },
+            {
+                game_id: 42,
+                is_host: false,
+                user_id: "user3",
+            },
         ]);
         expect(result).toEqual({
             gameData: {
                 created_at: "2023-10-01T00:00:00Z",
-                host_user_id: "host1",
+                status: 0,
                 id: 42,
                 num_static_ai: 2,
                 seconds_per_pre: 30,
@@ -161,13 +182,22 @@ describe("editGame", () => {
             gameUsersData: [
                 {
                     game_id: 42,
+                    user_id: "host1",
+                    is_host: true,
+                    created_at: "2023-10-01T00:00:00Z",
+                    updated_at: "2023-10-01T00:00:00Z",
+                },
+                {
+                    game_id: 42,
                     user_id: "user2",
+                    is_host: false,
                     created_at: "2023-10-01T00:00:00Z",
                     updated_at: "2023-10-01T00:00:00Z",
                 },
                 {
                     game_id: 42,
                     user_id: "user3",
+                    is_host: false,
                     created_at: "2023-10-01T00:00:00Z",
                     updated_at: "2023-10-01T00:00:00Z",
                 },
@@ -203,8 +233,8 @@ describe("editGame", () => {
                     id: 42,
                     created_at: "2023-10-01T00:00:00Z",
                     updated_at: "2023-10-01T00:00:00Z",
-                    host_user_id: "host1",
                     share_code: "SHRCDE",
+                    status: 0,
                     num_static_ai: 2,
                     seconds_per_pre: 30,
                     seconds_per_rank: 60,
@@ -234,8 +264,8 @@ describe("editGame", () => {
                     id: 42,
                     created_at: "2023-10-01T00:00:00Z",
                     updated_at: "2023-10-01T00:00:00Z",
-                    host_user_id: "host1",
                     share_code: "SHRCDE",
+                    status: 0,
                     num_static_ai: 2,
                     seconds_per_pre: 30,
                     seconds_per_rank: 60,

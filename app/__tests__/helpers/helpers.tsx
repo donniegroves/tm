@@ -68,8 +68,8 @@ export const mockPublicUserRow: Database["public"]["Tables"]["users"]["Row"] = {
 };
 export const mockPublicGameRow: Database["public"]["Tables"]["games"]["Row"] = {
     id: 111,
-    host_user_id: "user1",
     share_code: "yikes",
+    status: 0,
     num_static_ai: 1,
     seconds_per_pre: 30,
     seconds_per_rank: 60,
@@ -123,7 +123,7 @@ export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
         seconds_per_pre: 90,
         seconds_per_rank: 90,
         share_code: "XYZXYZ",
-        host_user_id: mockAllUsers[1].user_id,
+        status: 1,
         num_static_ai: 3,
     },
     {
@@ -132,7 +132,7 @@ export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
         seconds_per_pre: 30,
         seconds_per_rank: 30,
         share_code: "ABCABC",
-        host_user_id: null,
+        status: 2,
         num_static_ai: 2,
     },
 ];
@@ -142,8 +142,16 @@ export const mockQuestionsData: Database["public"]["Tables"]["questions"]["Row"]
 export const mockGameUsersData: Database["public"]["Tables"]["game_users"]["Row"][] =
     [
         {
+            user_id: mockAllUsers[0].user_id,
+            game_id: mockGamesData[1].id,
+            is_host: true,
+            created_at: "2024-06-01T12:00:00Z",
+            updated_at: "2024-06-01T12:00:00Z",
+        },
+        {
             user_id: mockAllUsers[2].user_id,
             game_id: mockGamesData[1].id,
+            is_host: false,
             created_at: "2024-06-01T12:00:00Z",
             updated_at: "2024-06-01T12:00:00Z",
         },

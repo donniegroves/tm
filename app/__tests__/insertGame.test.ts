@@ -127,7 +127,6 @@ describe("insertGame", () => {
         const result = await insertGame();
         expect(mockFrom).toHaveBeenCalledWith("games");
         expect(mockGameInsert).toHaveBeenCalledWith({
-            host_user_id: "host1",
             num_static_ai: 2,
             seconds_per_pre: 60,
             seconds_per_rank: 90,
@@ -197,12 +196,20 @@ describe("insertGame", () => {
             { data: null, error: new Error("error from supabase"), status: 400 }
         );
 
-        await expect(insertGame()).rejects.toThrow("Failed to insert invitees");
+        await expect(insertGame()).rejects.toThrow(
+            "Failed to insert game users"
+        );
 
         expect(mockFrom).toHaveBeenCalledWith("game_users");
         expect(mockInviteeInsert).toHaveBeenCalledWith([
             {
                 game_id: 1,
+                is_host: true,
+                user_id: "host1",
+            },
+            {
+                game_id: 1,
+                is_host: false,
                 user_id: "invitee1",
             },
         ]);

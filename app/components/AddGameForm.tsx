@@ -8,13 +8,13 @@ import { Select, SelectedItems, SelectItem } from "@heroui/select";
 import { SharedSelection } from "@heroui/system";
 import { Database } from "database.types";
 import { ChangeEventHandler, Key, useState } from "react";
-import { useInsideContext } from "../inside/InsideContext";
-import GenerateShareCodeButton from "./GenerateShareCodeButton";
 import {
     getAvatarUrlFromUser,
     getFullNameStringFromUser,
     getUserFromAllUsers,
 } from "../helpers";
+import { useInsideContext } from "../inside/InsideContext";
+import GenerateShareCodeButton from "./GenerateShareCodeButton";
 
 export default function AddGameForm() {
     const defaultAIBots = 1;
@@ -131,6 +131,7 @@ export default function AddGameForm() {
                 }}
                 items={allUsers}
                 label="Host"
+                isRequired
                 labelPlacement="outside"
                 placeholder="Select host"
                 description="Choose a host to run the game."
@@ -224,6 +225,7 @@ export default function AddGameForm() {
                     value={shareCode}
                     id="add-game-share-code-input"
                     label="Share Code"
+                    isRequired
                     placeholder="Enter share code"
                     maxLength={6}
                     onChange={(e) => {

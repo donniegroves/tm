@@ -1,9 +1,10 @@
 import { createClient } from "@/utils/supabase/client";
 import { fetchAllUsers } from "../actions/fetchAllUsers";
 import { fetchGames } from "../actions/fetchGames";
+import { fetchGameUsers } from "../actions/fetchGameUsers";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
 import { fetchQuestions } from "../actions/fetchQuestions";
-import { fetchGameUsers } from "../actions/fetchGameUsers";
+import { mockAllUsers, mockGameUsersData } from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/client", () => ({
     createClient: jest.fn(),
@@ -43,14 +44,14 @@ describe("fetchAllUsers", () => {
         createClientMock.mockReset();
     });
     it("returns users data", async () => {
-        const mockUsers = [{ user_id: "1", full_name: "Test User" }];
         createClientMock.mockReturnValue({
             from: () => ({
-                select: () => Promise.resolve({ data: mockUsers, error: null }),
+                select: () =>
+                    Promise.resolve({ data: mockAllUsers, error: null }),
             }),
         });
         const result = await fetchAllUsers();
-        expect(result).toEqual(mockUsers);
+        expect(result).toEqual(mockAllUsers);
     });
     it("throws on error or missing data", async () => {
         createClientMock.mockReturnValue({
@@ -59,6 +60,20 @@ describe("fetchAllUsers", () => {
             }),
         });
         await expect(fetchAllUsers()).rejects.toThrow("Error fetching users");
+    });
+    it("throws on bad data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () =>
+                    Promise.resolve({
+                        data: [{ ...mockAllUsers[0], email: null }],
+                        error: null,
+                    }),
+            }),
+        });
+        await expect(fetchAllUsers()).rejects.toThrow(
+            "User data is incomplete"
+        );
     });
 });
 
@@ -91,15 +106,14 @@ describe("fetchGameUsers", () => {
         createClientMock.mockReset();
     });
     it("returns game users data", async () => {
-        const mockGameUsers = [{ user_id: "user1", game_id: 1 }];
         createClientMock.mockReturnValue({
             from: () => ({
                 select: () =>
-                    Promise.resolve({ data: mockGameUsers, error: null }),
+                    Promise.resolve({ data: mockGameUsersData, error: null }),
             }),
         });
         const result = await fetchGameUsers();
-        expect(result).toEqual(mockGameUsers);
+        expect(result).toEqual(mockGameUsersData);
     });
     it("throws on error or missing data", async () => {
         createClientMock.mockReturnValue({
@@ -109,6 +123,20 @@ describe("fetchGameUsers", () => {
         });
         await expect(fetchGameUsers()).rejects.toThrow(
             "Error fetching game users"
+        );
+    });
+    it("throws on bad data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () =>
+                    Promise.resolve({
+                        data: [{ ...mockGameUsersData[0], is_host: null }],
+                        error: null,
+                    }),
+            }),
+        });
+        await expect(fetchGameUsers()).rejects.toThrow(
+            "Game user data is incomplete"
         );
     });
 });

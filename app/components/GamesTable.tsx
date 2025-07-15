@@ -1,5 +1,6 @@
 "use client";
 
+import { Avatar, AvatarGroup } from "@heroui/avatar";
 import {
     Table,
     TableBody,
@@ -8,14 +9,20 @@ import {
     TableHeader,
     TableRow,
 } from "@heroui/table";
+import Link from "next/link";
+import { useState } from "react";
 import { useInsideContext } from "../inside/InsideContext";
 import AddGameButton from "./AddGameButton";
 import AvatarWithName from "./AvatarWithName";
-import { useFormattedTimestamp } from "./useFormattedTimestamp";
 import DeleteGameButton from "./DeleteGameButton";
-import { useState } from "react";
-import { Avatar, AvatarGroup } from "@heroui/avatar";
 import EditGameButton from "./EditGameButton";
+import { useFormattedTimestamp } from "./useFormattedTimestamp";
+
+export enum GameStatus {
+    Waiting = 0,
+    InProgress = 1,
+    Finished = 2,
+}
 
 export default function GamesTable() {
     const [pendingRowId, setPendingRowId] = useState<number>(-1);
@@ -33,6 +40,7 @@ export default function GamesTable() {
             <Table className="w-full" isStriped aria-label="Games">
                 <TableHeader>
                     <TableColumn>Code</TableColumn>
+                    <TableColumn>Status</TableColumn>
                     <TableColumn>Host</TableColumn>
                     <TableColumn>Invitees</TableColumn>
                     <TableColumn className="w-32 text-center">
@@ -49,9 +57,14 @@ export default function GamesTable() {
                 </TableHeader>
                 <TableBody>
                     {games.map((game) => {
-                        const host = allUsers.find(
-                            (user) => user.user_id === game.host_user_id
+                        const hostGu = gameUsers.find(
+                            (gu) => gu.game_id === game.id && gu.is_host
                         );
+                        const host = hostGu
+                            ? allUsers.find(
+                                  (user) => user.user_id === hostGu.user_id
+                              )
+                            : undefined;
                         return (
                             <TableRow
                                 key={game.id}
@@ -60,8 +73,11 @@ export default function GamesTable() {
                                 }
                             >
                                 <TableCell className="font-mono w-16">
-                                    {game.share_code}
+                                    <Link href={`/play/${game.share_code}`}>
+                                        {game.share_code}
+                                    </Link>
                                 </TableCell>
+                                <TableCell>{GameStatus[game.status]}</TableCell>
                                 <TableCell className="w-24">
                                     {host && (
                                         <AvatarWithName
@@ -77,8 +93,7 @@ export default function GamesTable() {
                                             .filter(
                                                 (gu) =>
                                                     gu.game_id === game.id &&
-                                                    gu.user_id !==
-                                                        game.host_user_id
+                                                    gu.is_host === false
                                             )
                                             .map((gu) => {
                                                 const user = allUsers.find(

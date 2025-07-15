@@ -5,7 +5,7 @@ import { Database } from "database.types";
 
 export type EditGameDataReturn = {
     gameData: Database["public"]["Tables"]["games"]["Row"];
-    gameUsersData: Database["public"]["Tables"]["game_users"]["Row"][];
+    gameUsersData: Database["public"]["Views"]["view_game_users"]["Row"][];
 };
 
 export const editGame = async (): Promise<EditGameDataReturn> => {
@@ -33,7 +33,7 @@ export const editGame = async (): Promise<EditGameDataReturn> => {
         throw new Error("Proper form elements not found to edit game");
     }
 
-    const host = (hostInput as HTMLInputElement).value;
+    const hostUserId = (hostInput as HTMLInputElement).value;
     const gameId = (gameIdInput as HTMLInputElement).value;
     const invitees = (inviteesInput as HTMLInputElement).value;
     const shareCode = (shareCodeInput as HTMLInputElement).value;
@@ -46,7 +46,6 @@ export const editGame = async (): Promise<EditGameDataReturn> => {
     const { data: updatedGameData, error } = await supabase
         .from("games")
         .update({
-            host_user_id: host,
             share_code: shareCode,
             num_static_ai: parseInt(aiBots, 10),
             seconds_per_pre: parseInt(questionDuration, 10),
@@ -69,13 +68,24 @@ export const editGame = async (): Promise<EditGameDataReturn> => {
         throw new Error(`Failed to delete invitees for game with id ${gameId}`);
     }
 
-    const inviteesArray = invitees.split(",").map((userId) => userId.trim());
-    const { data: inviteesData, error: insertError } = await supabase
+    const gameUsersArray = invitees.split(",").map((userId) => ({
+        game_id: parseInt(gameId, 10),
+        user_id: userId,
+        is_host: 0,
+    }));
+    gameUsersArray.unshift({
+        game_id: parseInt(gameId, 10),
+        user_id: hostUserId,
+        is_host: 1,
+    });
+
+    const { data: gameUsersData, error: insertError } = await supabase
         .from("game_users")
         .insert(
-            inviteesArray.map((userId) => ({
-                game_id: parseInt(gameId, 10),
-                user_id: userId,
+            gameUsersArray.map((user) => ({
+                game_id: user.game_id,
+                user_id: user.user_id,
+                is_host: user.is_host === 1,
             }))
         )
         .select();
@@ -84,5 +94,5 @@ export const editGame = async (): Promise<EditGameDataReturn> => {
         throw new Error(`Failed to add invitees for game with id ${gameId}`);
     }
 
-    return { gameData: updatedGameData, gameUsersData: inviteesData };
+    return { gameData: updatedGameData, gameUsersData: gameUsersData };
 };

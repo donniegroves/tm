@@ -1,8 +1,11 @@
 CREATE TABLE
     public.games (
         id serial PRIMARY KEY,
-        host_user_id uuid REFERENCES auth.users (id) ON DELETE SET NULL,
         share_code varchar(6) UNIQUE NOT NULL,
+        status smallint NOT NULL DEFAULT 0 CHECK (
+            status >= 0
+            AND status <= 2
+        ),
         num_static_ai smallint NOT NULL CHECK (
             num_static_ai >= 0
             AND num_static_ai <= 9

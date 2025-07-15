@@ -71,7 +71,7 @@ describe("InsideContextProvider", () => {
             "What is your name?"
         );
         expect(screen.getByTestId("game-user-id")).toHaveTextContent(
-            mockAllUsers[2].user_id
+            mockAllUsers[0].user_id
         );
     });
 
