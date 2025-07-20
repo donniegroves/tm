@@ -5,9 +5,9 @@ import { Database } from "database.types";
 import { createContext, ReactNode, useContext } from "react";
 import { fetchAllUsers } from "../actions/fetchAllUsers";
 import { fetchGames } from "../actions/fetchGames";
+import { fetchGameUsers } from "../actions/fetchGameUsers";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
 import { fetchQuestions } from "../actions/fetchQuestions";
-import { fetchGameUsers } from "../actions/fetchGameUsers";
 
 export interface InsideContextType {
     loggedInUserId: Database["public"]["Tables"]["users"]["Row"]["user_id"];
@@ -17,7 +17,9 @@ export interface InsideContextType {
     gameUsers: Database["public"]["Tables"]["game_users"]["Row"][];
 }
 
-const InsideContext = createContext<InsideContextType | undefined>(undefined);
+export const InsideContext = createContext<InsideContextType | undefined>(
+    undefined
+);
 
 export function InsideContextProvider({ children }: { children: ReactNode }) {
     const { data: loggedInUserId } = useQuery({

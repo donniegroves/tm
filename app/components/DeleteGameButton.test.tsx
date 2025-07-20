@@ -1,6 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import DeleteGameButton from "./DeleteGameButton";
-import React from "react";
 
 const mutateMock = jest.fn();
 jest.mock("../hooks/useDeleteGame", () => ({
@@ -8,7 +7,7 @@ jest.mock("../hooks/useDeleteGame", () => ({
 }));
 
 describe("DeleteGameButton", () => {
-    it("renders a button with text 'Delete' and calls setPendingRowId and mutate on click", () => {
+    it("renders a button with text 'Delete' and calls setPendingRowId and mutate on click", async () => {
         const setPendingRowId = jest.fn();
         const gameId = 42;
         render(
@@ -20,7 +19,9 @@ describe("DeleteGameButton", () => {
         const button = screen.getByRole("button", { name: /delete/i });
         expect(button).toBeInTheDocument();
         fireEvent.click(button);
-        expect(setPendingRowId).toHaveBeenCalledWith(gameId);
-        expect(mutateMock).toHaveBeenCalledWith({ gameId });
+        await waitFor(() => {
+            expect(setPendingRowId).toHaveBeenCalledWith(gameId);
+            expect(mutateMock).toHaveBeenCalledWith({ gameId });
+        });
     });
 });

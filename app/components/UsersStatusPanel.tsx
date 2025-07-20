@@ -1,28 +1,24 @@
 "use client";
 
 import { Button } from "@heroui/button";
-import { RealtimeChannel } from "@supabase/supabase-js";
 import { Database } from "database.types";
 import { useUpdateGameStatus } from "../hooks/useUpdateGameStatus";
 import { useInsideContext } from "../inside/InsideContext";
+import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 import AvatarWithName from "./AvatarWithName";
 
-interface UsersStatusPanel {
-    channel: RealtimeChannel;
-    gameData: Database["public"]["Tables"]["games"]["Row"];
-    readyUsers: Database["public"]["Tables"]["users"]["Row"]["user_id"][];
-}
-
-export default function UsersStatusPanel({
-    channel,
-    readyUsers,
-    gameData,
-}: UsersStatusPanel) {
+export default function UsersStatusPanel() {
     const {
         gameUsers: allGameUsers,
         allUsers,
         loggedInUserId,
     } = useInsideContext();
+    const { channel, readyUsers, gameData } = useRealtimeContext();
+    const updateGameStatusMutation = useUpdateGameStatus();
+
+    if (!gameData || !channel) {
+        return <div>Game not found.</div>;
+    }
 
     const userIsHost = allGameUsers.some(
         (gu) =>
@@ -30,8 +26,6 @@ export default function UsersStatusPanel({
             gu.user_id === loggedInUserId &&
             gu.is_host
     );
-
-    const updateGameStatusMutation = useUpdateGameStatus();
 
     const users = allGameUsers
         .filter((gu) => gu.game_id === gameData.id)
@@ -51,38 +45,38 @@ export default function UsersStatusPanel({
             type: "broadcast",
             event: "game-status-changed",
         });
-
-        window.location.reload();
     };
 
     return (
-        <div>
-            <h2 className="text-xl font-semibold underline text-center mb-4">
-                Contestants
-            </h2>
-            <div className="flex flex-col items-center gap-3">
-                {users.map((gu) => {
-                    return (
-                        <AvatarWithName
-                            key={gu.user_id}
-                            limitNameWidth={false}
-                            userId={gu.user_id}
-                            color={
-                                readyUsers.includes(gu.user_id)
-                                    ? "primary"
-                                    : "default"
-                            }
-                        />
-                    );
-                })}
-                {userIsHost && (
-                    <>
-                        <hr className="my-4 w-full" />
-                        <Button onPress={() => handleReset()} size="sm">
-                            Reset game
-                        </Button>
-                    </>
-                )}
+        <div className="flex-shrink-0 w-32 flex items-center">
+            <div>
+                <h2 className="text-xl font-semibold underline text-center mb-4">
+                    Contestants
+                </h2>
+                <div className="flex flex-col items-center gap-3">
+                    {users.map((gu) => {
+                        return (
+                            <AvatarWithName
+                                key={gu.user_id}
+                                limitNameWidth={false}
+                                userId={gu.user_id}
+                                color={
+                                    readyUsers.includes(gu.user_id)
+                                        ? "primary"
+                                        : "default"
+                                }
+                            />
+                        );
+                    })}
+                    {userIsHost && (
+                        <>
+                            <hr className="my-4 w-full" />
+                            <Button onPress={() => handleReset()} size="sm">
+                                Reset game
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -1,16 +1,11 @@
 "use client";
 
 import { MustacheSvg } from "@/app/components/IconSvg";
-import { useContext, useEffect, useRef } from "react";
-import { CursorMessage } from "../play/[share_code]/PlayStage";
-import { RealtimeContext } from "../play/[share_code]/RealtimeContext";
+import { useEffect, useRef } from "react";
+import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 
-export default function PlayCanvas({
-    cursor,
-}: {
-    cursor: CursorMessage | null;
-}) {
-    const { channel } = useContext(RealtimeContext);
+export default function PlayCanvas() {
+    const { channel, cursor } = useRealtimeContext();
 
     const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
     const lastSentTimeRef = useRef<number>(0);

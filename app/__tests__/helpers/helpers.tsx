@@ -1,4 +1,6 @@
-import { User } from "@supabase/supabase-js";
+import type { InsideContextType } from "@/app/inside/InsideContext";
+import { RealtimeContextType } from "@/app/play/[share_code]/RealtimeContext";
+import { RealtimeChannel, User } from "@supabase/supabase-js";
 import { Database } from "database.types";
 
 export const mockAuthUserRow: User = {
@@ -157,10 +159,27 @@ export const mockGameUsersData: Database["public"]["Tables"]["game_users"]["Row"
         },
     ];
 
-export const defaultInsideContext = {
-    loggedInUserId: mockPublicUserRow.user_id,
+const mockChannel = {
+    send: jest.fn(),
+    id: "test-channel",
+    subscribe: jest.fn(),
+    unsubscribe: jest.fn(),
+} as unknown as RealtimeChannel;
+
+export const defaultInsideContextValues: InsideContextType = {
+    loggedInUserId: "user1",
     allUsers: mockAllUsers,
     games: mockGamesData,
     questions: mockQuestionsData,
     gameUsers: mockGameUsersData,
+};
+
+export const defaultRealtimeContextValues: RealtimeContextType = {
+    readyUsers: [],
+    setReadyUsers: jest.fn(),
+    channel: mockChannel,
+    setChannel: jest.fn(),
+    cursor: null,
+    setCursor: jest.fn(),
+    gameData: mockGamesData[1], // Game with ID 222
 };

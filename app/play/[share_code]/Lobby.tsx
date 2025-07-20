@@ -4,39 +4,26 @@ import WaitingDots from "@/app/components/WaitingDots";
 import { useUpdateGameStatus } from "@/app/hooks/useUpdateGameStatus";
 import { useInsideContext } from "@/app/inside/InsideContext";
 import { Button } from "@heroui/button";
-import { RealtimeChannel } from "@supabase/supabase-js";
-import { Database } from "database.types";
-import { useState } from "react";
+import { useRealtimeContext } from "./RealtimeContext";
 
 export interface CursorMessage {
     x: number;
     y: number;
 }
 
-export default function Lobby({
-    gameData,
-    channel,
-}: {
-    gameData: Database["public"]["Tables"]["games"]["Row"];
-    channel: RealtimeChannel;
-}) {
-    const updateGameStatusMutation = useUpdateGameStatus();
-
-    channel.on("presence", { event: "sync" }, () => {
-        const newState = channel.presenceState<{ ready: boolean }>();
-        const newStateKeys = Object.keys(newState);
-        setReadyUsers(newStateKeys);
-    });
-
-    const [readyUsers, setReadyUsers] = useState<
-        Database["public"]["Tables"]["users"]["Row"]["user_id"][]
-    >([]);
-
+export default function Lobby() {
     const {
+        games,
         gameUsers: allGameUsers,
         allUsers,
         loggedInUserId,
     } = useInsideContext();
+    const { channel, readyUsers } = useRealtimeContext();
+    const updateGameStatusMutation = useUpdateGameStatus();
+
+    const share_code = window.location.pathname.split("/")[2];
+    const gameData = games.find((g) => g.share_code === share_code);
+
     const gameUsersIds = allGameUsers
         .filter((gu) => gu.game_id === gameData?.id)
         .map((gu) => gu.user_id);
@@ -50,7 +37,7 @@ export default function Lobby({
         readyUsers.includes(gu.user_id)
     );
 
-    if (thisGamesUsers.length === 0 || !hostUserId) {
+    if (thisGamesUsers.length === 0 || !hostUserId || !gameData || !channel) {
         return <div>Game not found.</div>;
     }
 

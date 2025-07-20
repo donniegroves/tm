@@ -1,9 +1,9 @@
-import { defaultInsideContext } from "./helpers";
+import { defaultInsideContextValues } from "./helpers";
 
-let currentMock = { ...defaultInsideContext };
+let currentMock = { ...defaultInsideContextValues };
 
 export function setMockInsideContext(overrides = {}) {
-    currentMock = { ...defaultInsideContext, ...overrides };
+    currentMock = { ...defaultInsideContextValues, ...overrides };
 }
 
 export function mockUseInsideContext() {

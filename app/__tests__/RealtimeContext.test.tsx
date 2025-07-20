@@ -1,7 +1,8 @@
-import { RealtimeChannel } from "@supabase/supabase-js";
 import { render, screen } from "@testing-library/react";
 import { useContext } from "react";
 import { RealtimeContext } from "../play/[share_code]/RealtimeContext";
+import { createWrapper } from "./helpers/createWrapper";
+import { defaultRealtimeContextValues } from "./helpers/helpers";
 
 function TestConsumer() {
     const { channel, readyUsers } = useContext(RealtimeContext);
@@ -28,23 +29,12 @@ describe("RealtimeContext", () => {
     });
 
     it("provides custom values when provider is used", () => {
-        const mockChannel = {
-            id: "test-channel",
-            send: jest.fn(),
-            subscribe: jest.fn(),
-        } as unknown as RealtimeChannel;
-
-        const contextValue = {
-            channel: mockChannel,
-            readyUsers: ["user1", "user2", "user3"],
-            setReadyUsers: jest.fn(),
-        };
-
-        render(
-            <RealtimeContext.Provider value={contextValue}>
-                <TestConsumer />
-            </RealtimeContext.Provider>
-        );
+        render(<TestConsumer />, {
+            wrapper: createWrapper(undefined, {
+                ...defaultRealtimeContextValues,
+                readyUsers: ["user1", "user2", "user3"],
+            }),
+        });
 
         expect(screen.getByTestId("channel-status")).toHaveTextContent(
             "channel-exists"
@@ -55,23 +45,12 @@ describe("RealtimeContext", () => {
     });
 
     it("provides empty ready users array when no users are ready", () => {
-        const mockChannel = {
-            id: "test-channel",
-            send: jest.fn(),
-            subscribe: jest.fn(),
-        } as unknown as RealtimeChannel;
-
-        const contextValue = {
-            channel: mockChannel,
-            readyUsers: [],
-            setReadyUsers: jest.fn(),
-        };
-
-        render(
-            <RealtimeContext.Provider value={contextValue}>
-                <TestConsumer />
-            </RealtimeContext.Provider>
-        );
+        render(<TestConsumer />, {
+            wrapper: createWrapper(undefined, {
+                ...defaultRealtimeContextValues,
+                readyUsers: [],
+            }),
+        });
 
         expect(screen.getByTestId("channel-status")).toHaveTextContent(
             "channel-exists"
@@ -80,17 +59,13 @@ describe("RealtimeContext", () => {
     });
 
     it("handles null channel correctly", () => {
-        const contextValue = {
-            channel: null,
-            readyUsers: ["user1"],
-            setReadyUsers: jest.fn(),
-        };
-
-        render(
-            <RealtimeContext.Provider value={contextValue}>
-                <TestConsumer />
-            </RealtimeContext.Provider>
-        );
+        render(<TestConsumer />, {
+            wrapper: createWrapper(undefined, {
+                ...defaultRealtimeContextValues,
+                channel: null,
+                readyUsers: ["user1"],
+            }),
+        });
 
         expect(screen.getByTestId("channel-status")).toHaveTextContent(
             "no-channel"

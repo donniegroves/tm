@@ -1,8 +1,7 @@
-import { RealtimeChannel } from "@supabase/supabase-js";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import PlayCanvas from "../components/PlayCanvas";
-import { CursorMessage } from "../play/[share_code]/PlayStage";
-import { RealtimeContext } from "../play/[share_code]/RealtimeContext";
+import { createWrapper } from "./helpers/createWrapper";
+import { defaultRealtimeContextValues } from "./helpers/helpers";
 
 jest.mock("../components/IconSvg", () => ({
     MustacheSvg: ({ size }: { size: number }) => (
@@ -13,20 +12,6 @@ jest.mock("../components/IconSvg", () => ({
 }));
 
 describe("PlayCanvas", () => {
-    const mockSend = jest.fn();
-    const mockChannel = {
-        send: mockSend,
-        id: "test-channel",
-        subscribe: jest.fn(),
-        unsubscribe: jest.fn(),
-    } as Partial<RealtimeChannel>;
-
-    const defaultContextValue = {
-        channel: mockChannel as RealtimeChannel,
-        readyUsers: [],
-        setReadyUsers: jest.fn(),
-    };
-
     beforeEach(() => {
         jest.clearAllMocks();
         jest.useFakeTimers();
@@ -36,20 +21,8 @@ describe("PlayCanvas", () => {
         jest.useRealTimers();
     });
 
-    const renderWithContext = (
-        cursor: CursorMessage | null,
-        contextValue = defaultContextValue
-    ) => {
-        return render(
-            <RealtimeContext.Provider value={contextValue}>
-                <PlayCanvas cursor={cursor} />
-            </RealtimeContext.Provider>
-        );
-    };
-
     it("renders canvas with correct dimensions", () => {
-        renderWithContext(null);
-
+        render(<PlayCanvas />, { wrapper: createWrapper() });
         const canvas = screen.getByRole("img", { hidden: true });
         expect(canvas).toBeInTheDocument();
         expect(canvas).toHaveAttribute("width", "400");
@@ -57,8 +30,12 @@ describe("PlayCanvas", () => {
     });
 
     it("renders cursor when cursor prop is provided", () => {
-        const cursor: CursorMessage = { x: 100, y: 150 };
-        renderWithContext(cursor);
+        render(<PlayCanvas />, {
+            wrapper: createWrapper(undefined, {
+                ...defaultRealtimeContextValues,
+                cursor: { x: 100, y: 150 },
+            }),
+        });
 
         const mustacheSvg = screen.getByTestId("mustache-svg");
         expect(mustacheSvg).toBeInTheDocument();
@@ -73,17 +50,19 @@ describe("PlayCanvas", () => {
     });
 
     it("does not render cursor when cursor prop is null", () => {
-        renderWithContext(null);
-
+        render(<PlayCanvas />, {
+            wrapper: createWrapper(),
+        });
         expect(screen.queryByTestId("mustache-svg")).not.toBeInTheDocument();
     });
 
     it("sends cursor position immediately when mouse moves and enough time has passed", () => {
-        renderWithContext(null);
+        render(<PlayCanvas />, {
+            wrapper: createWrapper(),
+        });
 
         const canvas = screen.getByRole("img", { hidden: true });
 
-        // Mock getBoundingClientRect
         canvas.getBoundingClientRect = jest.fn(() => ({
             left: 10,
             top: 20,
@@ -101,15 +80,19 @@ describe("PlayCanvas", () => {
             clientY: 170, // 170 - 20 (top) = 150
         });
 
-        expect(mockSend).toHaveBeenCalledWith({
-            type: "broadcast",
-            event: "cursor-pos",
-            payload: { x: 100, y: 150 },
-        });
+        expect(defaultRealtimeContextValues.channel?.send).toHaveBeenCalledWith(
+            {
+                type: "broadcast",
+                event: "cursor-pos",
+                payload: { x: 100, y: 150 },
+            }
+        );
     });
 
     it("throttles mouse move events within debounce delay", () => {
-        renderWithContext(null);
+        render(<PlayCanvas />, {
+            wrapper: createWrapper(),
+        });
 
         const canvas = screen.getByRole("img", { hidden: true });
 
@@ -127,19 +110,27 @@ describe("PlayCanvas", () => {
 
         // First mouse move should send immediately
         fireEvent.mouseMove(canvas, { clientX: 50, clientY: 50 });
-        expect(mockSend).toHaveBeenCalledTimes(1);
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenCalledTimes(1);
 
         // Second mouse move within 75ms should not send immediately
         fireEvent.mouseMove(canvas, { clientX: 60, clientY: 60 });
-        expect(mockSend).toHaveBeenCalledTimes(1);
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenCalledTimes(1);
 
         // Advance time and trigger interval
         act(() => {
             jest.advanceTimersByTime(75);
         });
 
-        expect(mockSend).toHaveBeenCalledTimes(2);
-        expect(mockSend).toHaveBeenLastCalledWith({
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenCalledTimes(2);
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenLastCalledWith({
             type: "broadcast",
             event: "cursor-pos",
             payload: { x: 60, y: 60 },
@@ -147,7 +138,9 @@ describe("PlayCanvas", () => {
     });
 
     it("sends pending position via interval when mouse stops moving", () => {
-        renderWithContext(null);
+        render(<PlayCanvas />, {
+            wrapper: createWrapper(),
+        });
 
         const canvas = screen.getByRole("img", { hidden: true });
 
@@ -165,19 +158,27 @@ describe("PlayCanvas", () => {
 
         // Move mouse to set pending position
         fireEvent.mouseMove(canvas, { clientX: 75, clientY: 25 });
-        expect(mockSend).toHaveBeenCalledTimes(1);
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenCalledTimes(1);
 
         // Move again quickly (should be throttled)
         fireEvent.mouseMove(canvas, { clientX: 80, clientY: 30 });
-        expect(mockSend).toHaveBeenCalledTimes(1);
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenCalledTimes(1);
 
         // Advance time to trigger interval
         act(() => {
             jest.advanceTimersByTime(75);
         });
 
-        expect(mockSend).toHaveBeenCalledTimes(2);
-        expect(mockSend).toHaveBeenLastCalledWith({
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenCalledTimes(2);
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).toHaveBeenLastCalledWith({
             type: "broadcast",
             event: "cursor-pos",
             payload: { x: 80, y: 30 },
@@ -185,17 +186,12 @@ describe("PlayCanvas", () => {
     });
 
     it("does not send when channel is null", () => {
-        const contextWithoutChannel = {
-            channel: null,
-            readyUsers: [],
-            setReadyUsers: jest.fn(),
-        };
-
-        const { container } = render(
-            <RealtimeContext.Provider value={contextWithoutChannel}>
-                <PlayCanvas cursor={null} />
-            </RealtimeContext.Provider>
-        );
+        const { container } = render(<PlayCanvas />, {
+            wrapper: createWrapper(undefined, {
+                ...defaultRealtimeContextValues,
+                channel: null,
+            }),
+        });
 
         const canvas = container.querySelector("canvas");
 
@@ -215,13 +211,17 @@ describe("PlayCanvas", () => {
             fireEvent.mouseMove(canvas, { clientX: 100, clientY: 100 });
         }
 
-        expect(mockSend).not.toHaveBeenCalled();
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).not.toHaveBeenCalled();
     });
 
     it("cleans up interval on unmount", () => {
         const clearIntervalSpy = jest.spyOn(global, "clearInterval");
 
-        const { unmount } = renderWithContext(null);
+        const { unmount } = render(<PlayCanvas />, {
+            wrapper: createWrapper(),
+        });
 
         unmount();
 
