@@ -1,10 +1,15 @@
 import { createClient } from "@/utils/supabase/client";
 import { fetchAllUsers } from "../actions/fetchAllUsers";
+import { fetchGameQuestions } from "../actions/fetchGameQuestions";
 import { fetchGames } from "../actions/fetchGames";
 import { fetchGameUsers } from "../actions/fetchGameUsers";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
 import { fetchQuestions } from "../actions/fetchQuestions";
-import { mockAllUsers, mockGameUsersData } from "./helpers/helpers";
+import {
+    mockAllUsers,
+    mockGameQuestionsData,
+    mockGameUsersData,
+} from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/client", () => ({
     createClient: jest.fn(),
@@ -167,6 +172,59 @@ describe("fetchLoggedInUserId", () => {
         });
         await expect(fetchLoggedInUserId()).rejects.toThrow(
             "Error fetching authenticated user"
+        );
+    });
+});
+
+describe("fetchGameQuestions", () => {
+    beforeEach(() => {
+        createClientMock.mockReset();
+    });
+    it("returns game questions data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () =>
+                    Promise.resolve({
+                        data: mockGameQuestionsData,
+                        error: null,
+                    }),
+            }),
+        });
+        const result = await fetchGameQuestions();
+        expect(result).toEqual(mockGameQuestionsData);
+    });
+    it("throws on error or missing data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () => Promise.resolve({ data: null, error: "err" }),
+            }),
+        });
+        await expect(fetchGameQuestions()).rejects.toThrow(
+            "Error fetching game questions"
+        );
+    });
+    it("throws when error occurs but data is present", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () =>
+                    Promise.resolve({
+                        data: mockGameQuestionsData,
+                        error: "database error",
+                    }),
+            }),
+        });
+        await expect(fetchGameQuestions()).rejects.toThrow(
+            "Error fetching game questions"
+        );
+    });
+    it("throws when data is null but no error", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () => Promise.resolve({ data: null, error: null }),
+            }),
+        });
+        await expect(fetchGameQuestions()).rejects.toThrow(
+            "Error fetching game questions"
         );
     });
 });

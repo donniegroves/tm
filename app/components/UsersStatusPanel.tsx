@@ -2,7 +2,7 @@
 
 import { Button } from "@heroui/button";
 import { Database } from "database.types";
-import { useUpdateGameStatus } from "../hooks/useUpdateGameStatus";
+import { useResetGame } from "../hooks/useResetGame";
 import { useInsideContext } from "../inside/InsideContext";
 import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 import AvatarWithName from "./AvatarWithName";
@@ -14,7 +14,7 @@ export default function UsersStatusPanel() {
         loggedInUserId,
     } = useInsideContext();
     const { channel, readyUsers, gameData } = useRealtimeContext();
-    const updateGameStatusMutation = useUpdateGameStatus();
+    const resetGameMutation = useResetGame();
 
     if (!gameData || !channel) {
         return <div>Game not found.</div>;
@@ -36,9 +36,8 @@ export default function UsersStatusPanel() {
         );
 
     const handleReset = async () => {
-        await updateGameStatusMutation.mutateAsync({
-            ...gameData,
-            status: 0,
+        await resetGameMutation.mutateAsync({
+            gameId: gameData.id,
         });
 
         channel.send({

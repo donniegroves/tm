@@ -53,7 +53,7 @@ export default function PlayCanvas() {
 
     return (
         <div className="flex-1 flex flex-col items-center justify-center">
-            <h1 className="text-2xl font-bold mb-4">Game in progress</h1>
+            <h1 className="text-2xl font-bold mb-4">Rank time!</h1>
             <div className="relative border border-gray-300 w-[400px] h-[300px]">
                 <canvas
                     role="img"

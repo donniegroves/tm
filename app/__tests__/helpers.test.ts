@@ -2,15 +2,17 @@ import { createClient } from "@/utils/supabase/server";
 import {
     getAvatarUrlFromUser,
     getFullNameStringFromUser,
+    getStatusUsingShareCode,
     getUserFromAllUsers,
     mapAuthUserRowToPublicUserRow,
 } from "../helpers";
+import { getUserFromPublic } from "../server-helpers";
 import {
     mockAllUsers,
     mockAuthUserRow,
+    mockGamesData,
     mockPublicUserRow,
 } from "./helpers/helpers";
-import { getUserFromPublic } from "../server-helpers";
 
 jest.mock("@/utils/supabase/server", () => ({
     createClient: jest.fn(),
@@ -141,6 +143,117 @@ describe("helpers", () => {
         it("returns undefined if user is undefined", () => {
             const result = getAvatarUrlFromUser(undefined);
             expect(result).toBeUndefined();
+        });
+    });
+
+    describe("getStatusUsingShareCode", () => {
+        let originalLocation: Location;
+
+        beforeEach(() => {
+            originalLocation = window.location;
+            delete (window as any).location;
+        });
+
+        afterEach(() => {
+            (window as any).location = originalLocation;
+        });
+
+        it("returns 'not started' status when game status is 0", () => {
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            const result = getStatusUsingShareCode(mockGamesData);
+
+            expect(result).toEqual({
+                round: null,
+                status: "not started",
+            });
+        });
+
+        it("returns 'ended' status when game status is -1", () => {
+            const gamesWithEndedGame = [{ ...mockGamesData[0], status: -1 }];
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            const result = getStatusUsingShareCode(gamesWithEndedGame);
+
+            expect(result).toEqual({
+                round: null,
+                status: "ended",
+            });
+        });
+
+        it("returns 'pre-question' status for odd positive status values", () => {
+            const gamesWithOddStatus = [{ ...mockGamesData[0], status: 1 }];
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            const result = getStatusUsingShareCode(gamesWithOddStatus);
+
+            expect(result).toEqual({
+                round: 1,
+                status: "pre-question",
+            });
+        });
+
+        it("returns 'pre-question' status for status 3", () => {
+            const gamesWithStatus3 = [{ ...mockGamesData[0], status: 3 }];
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            const result = getStatusUsingShareCode(gamesWithStatus3);
+
+            expect(result).toEqual({
+                round: 2,
+                status: "pre-question",
+            });
+        });
+
+        it("returns 'ranking' status for even positive status values", () => {
+            const gamesWithEvenStatus = [{ ...mockGamesData[0], status: 2 }];
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            const result = getStatusUsingShareCode(gamesWithEvenStatus);
+
+            expect(result).toEqual({
+                round: 1,
+                status: "ranking",
+            });
+        });
+
+        it("returns 'ranking' status for status 4", () => {
+            const gamesWithStatus4 = [{ ...mockGamesData[0], status: 4 }];
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            const result = getStatusUsingShareCode(gamesWithStatus4);
+
+            expect(result).toEqual({
+                round: 2,
+                status: "ranking",
+            });
+        });
+
+        it("throws error when game is not found", () => {
+            window.location = { pathname: "/play/nonexistent/lobby" } as any;
+
+            expect(() => {
+                getStatusUsingShareCode(mockGamesData);
+            }).toThrow("Game not found");
+        });
+
+        it("handles empty games array", () => {
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            expect(() => {
+                getStatusUsingShareCode([]);
+            }).toThrow("Game not found");
+        });
+
+        it("throws error for invalid game status", () => {
+            const gamesWithInvalidStatus = [
+                { ...mockGamesData[0], status: -2 },
+            ];
+            window.location = { pathname: "/play/XAMPLE" } as any;
+
+            expect(() => {
+                getStatusUsingShareCode(gamesWithInvalidStatus);
+            }).toThrow("Invalid game status");
         });
     });
 });

@@ -5,6 +5,7 @@ import {
 } from "../inside/InsideContext";
 import {
     mockAllUsers,
+    mockGameQuestionsData,
     mockGamesData,
     mockGameUsersData,
     mockPublicUserRow,
@@ -30,6 +31,12 @@ function TestComponent() {
             <div data-testid="game-user-id">
                 {context.gameUsers[0]?.user_id}
             </div>
+            <div data-testid="game-question-id">
+                {context.gameQuestions[0]?.game_id}
+            </div>
+            <div data-testid="game-question-round">
+                {context.gameQuestions[0]?.round}
+            </div>
         </div>
     );
 }
@@ -50,6 +57,8 @@ describe("InsideContextProvider", () => {
                     return { data: mockQuestionsData };
                 case "gameUsers":
                     return { data: mockGameUsersData };
+                case "gameQuestions":
+                    return { data: mockGameQuestionsData };
                 default:
                     return { data: undefined };
             }
@@ -72,6 +81,12 @@ describe("InsideContextProvider", () => {
         );
         expect(screen.getByTestId("game-user-id")).toHaveTextContent(
             mockAllUsers[0].user_id
+        );
+        expect(screen.getByTestId("game-question-id")).toHaveTextContent(
+            mockGameQuestionsData[0].game_id.toString()
+        );
+        expect(screen.getByTestId("game-question-round")).toHaveTextContent(
+            mockGameQuestionsData[0].round.toString()
         );
     });
 

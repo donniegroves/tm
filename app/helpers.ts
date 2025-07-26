@@ -44,3 +44,26 @@ export function getAvatarUrlFromUser(
 ): string | undefined {
     return user?.avatar_url ?? undefined;
 }
+
+export function getStatusUsingShareCode(
+    allGames: Database["public"]["Tables"]["games"]["Row"][]
+) {
+    const share_code = window.location.pathname.split("/")[2];
+    const thisGame = allGames.find((g) => g.share_code === share_code);
+
+    if (!thisGame) {
+        throw new Error("Game not found");
+    }
+
+    if (thisGame.status === 0) {
+        return { round: null, status: "not started" };
+    } else if (thisGame.status === -1) {
+        return { round: null, status: "ended" };
+    } else if (thisGame.status > 0 && thisGame.status % 2 === 1) {
+        return { round: (thisGame.status + 1) / 2, status: "pre-question" };
+    } else if (thisGame.status > 0 && thisGame.status % 2 === 0) {
+        return { round: thisGame.status / 2, status: "ranking" };
+    }
+
+    throw new Error("Invalid game status");
+}

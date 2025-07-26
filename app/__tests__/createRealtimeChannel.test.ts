@@ -167,6 +167,9 @@ describe("createRealtimeChannel", () => {
         expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
             queryKey: ["games"],
         });
+        expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+            queryKey: ["gameQuestions"],
+        });
     });
 
     it("sets up all three event handlers", () => {

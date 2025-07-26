@@ -1,41 +1,17 @@
 import { createClient } from "@/utils/supabase/client";
-import { PostgrestError } from "@supabase/supabase-js";
-import { Database } from "database.types";
 import { updateGameStatus } from "../actions/updateGameStatus";
 
-jest.mock("@/utils/supabase/client", () => ({
-    createClient: jest.fn(),
-}));
+jest.mock("@/utils/supabase/client");
 
-const setupSupabaseMock = (mockUpdateResult: {
-    data: Database["public"]["Tables"]["games"]["Row"] | null;
-    error: PostgrestError | null;
-}) => {
-    const mockSingle = jest.fn().mockResolvedValue(mockUpdateResult);
-    const mockSelect = jest.fn(() => ({ single: mockSingle }));
-    const mockEq = jest.fn(() => ({ select: mockSelect }));
-    const mockUpdate = jest.fn(() => ({ eq: mockEq }));
-    const mockFrom = jest.fn(() => ({ update: mockUpdate }));
-    const mockSupabase = { from: mockFrom };
-
-    (createClient as jest.Mock).mockReturnValue(mockSupabase);
-
-    return {
-        mockFrom,
-        mockUpdate,
-        mockEq,
-        mockSelect,
-        mockSingle,
-    };
-};
+const createClientMock = createClient as jest.Mock;
 
 describe("updateGameStatus", () => {
-    afterEach(() => {
+    beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    it("should update a game status in the database", async () => {
-        const gameData: Database["public"]["Tables"]["games"]["Row"] = {
+    it("successfully updates game status and returns true", async () => {
+        const mockGameData = {
             id: 42,
             created_at: "2023-10-01T00:00:00Z",
             updated_at: "2023-10-01T00:00:00Z",
@@ -46,132 +22,165 @@ describe("updateGameStatus", () => {
             seconds_per_rank: 60,
         };
 
-        const { mockFrom, mockUpdate, mockEq, mockSelect, mockSingle } =
-            setupSupabaseMock({
-                data: gameData,
-                error: null,
-            });
-
-        const result = await updateGameStatus(gameData);
-
-        expect(mockFrom).toHaveBeenCalledWith("games");
-        expect(mockUpdate).toHaveBeenCalledWith({
-            status: 1,
+        const mockSingle = jest.fn().mockResolvedValue({
+            data: mockGameData,
+            error: null,
         });
+        const mockSelect = jest.fn().mockReturnValue({ single: mockSingle });
+        const mockEq = jest.fn().mockReturnValue({ select: mockSelect });
+        const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+        const mockFrom = jest.fn().mockReturnValue({ update: mockUpdate });
+
+        createClientMock.mockReturnValue({ from: mockFrom });
+
+        const result = await updateGameStatus(42, 1);
+
+        expect(createClient).toHaveBeenCalled();
+        expect(mockFrom).toHaveBeenCalledWith("games");
+        expect(mockUpdate).toHaveBeenCalledWith({ status: 1 });
         expect(mockEq).toHaveBeenCalledWith("id", 42);
         expect(mockSelect).toHaveBeenCalled();
         expect(mockSingle).toHaveBeenCalled();
-        expect(result).toEqual({
-            gameData: {
-                id: 42,
-                created_at: "2023-10-01T00:00:00Z",
-                updated_at: "2023-10-01T00:00:00Z",
-                share_code: "SHRCDE",
-                status: 1,
-                num_static_ai: 2,
-                seconds_per_pre: 30,
-                seconds_per_rank: 60,
-            },
-        });
+        expect(result).toBe(true);
     });
 
-    it("should update game status to 0 (lobby)", async () => {
-        const gameData: Database["public"]["Tables"]["games"]["Row"] = {
+    it("updates game status to 0 (lobby)", async () => {
+        const mockGameData = {
             id: 123,
-            created_at: "2023-10-01T00:00:00Z",
-            updated_at: "2023-10-01T00:00:00Z",
-            share_code: "ABCDEF",
             status: 0,
-            num_static_ai: 1,
-            seconds_per_pre: 45,
-            seconds_per_rank: 90,
         };
 
-        const { mockFrom, mockUpdate, mockEq } = setupSupabaseMock({
-            data: gameData,
+        const mockSingle = jest.fn().mockResolvedValue({
+            data: mockGameData,
             error: null,
         });
+        const mockSelect = jest.fn().mockReturnValue({ single: mockSingle });
+        const mockEq = jest.fn().mockReturnValue({ select: mockSelect });
+        const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+        const mockFrom = jest.fn().mockReturnValue({ update: mockUpdate });
 
-        await updateGameStatus(gameData);
+        createClientMock.mockReturnValue({ from: mockFrom });
 
-        expect(mockFrom).toHaveBeenCalledWith("games");
-        expect(mockUpdate).toHaveBeenCalledWith({
-            status: 0,
-        });
+        const result = await updateGameStatus(123, 0);
+
+        expect(mockUpdate).toHaveBeenCalledWith({ status: 0 });
         expect(mockEq).toHaveBeenCalledWith("id", 123);
+        expect(result).toBe(true);
     });
 
-    it("should update game status to 2 (completed)", async () => {
-        const gameData: Database["public"]["Tables"]["games"]["Row"] = {
+    it("updates game status to 2 (completed)", async () => {
+        const mockGameData = {
             id: 456,
-            created_at: "2023-10-01T00:00:00Z",
-            updated_at: "2023-10-01T00:00:00Z",
-            share_code: "GHIJKL",
             status: 2,
-            num_static_ai: 0,
-            seconds_per_pre: 60,
-            seconds_per_rank: 120,
         };
 
-        const { mockUpdate, mockEq } = setupSupabaseMock({
-            data: gameData,
+        const mockSingle = jest.fn().mockResolvedValue({
+            data: mockGameData,
             error: null,
         });
+        const mockSelect = jest.fn().mockReturnValue({ single: mockSingle });
+        const mockEq = jest.fn().mockReturnValue({ select: mockSelect });
+        const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+        const mockFrom = jest.fn().mockReturnValue({ update: mockUpdate });
 
-        await updateGameStatus(gameData);
+        createClientMock.mockReturnValue({ from: mockFrom });
 
-        expect(mockUpdate).toHaveBeenCalledWith({
-            status: 2,
-        });
+        const result = await updateGameStatus(456, 2);
+
+        expect(mockUpdate).toHaveBeenCalledWith({ status: 2 });
         expect(mockEq).toHaveBeenCalledWith("id", 456);
+        expect(result).toBe(true);
     });
 
-    it("should throw an error if the update fails due to database error", async () => {
-        const gameData: Database["public"]["Tables"]["games"]["Row"] = {
-            id: 42,
-            created_at: "2023-10-01T00:00:00Z",
-            updated_at: "2023-10-01T00:00:00Z",
-            share_code: "SHRCDE",
-            status: 1,
-            num_static_ai: 2,
-            seconds_per_pre: 30,
-            seconds_per_rank: 60,
-        };
+    it("throws error when database update fails", async () => {
+        const mockError = { message: "Database update failed" };
 
-        setupSupabaseMock({
+        const mockSingle = jest.fn().mockResolvedValue({
             data: null,
-            error: {
-                message: "update error",
-                details: "Failed to update game",
-                hint: "",
-                code: "400",
-            } as PostgrestError,
+            error: mockError,
         });
+        const mockSelect = jest.fn().mockReturnValue({ single: mockSingle });
+        const mockEq = jest.fn().mockReturnValue({ select: mockSelect });
+        const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+        const mockFrom = jest.fn().mockReturnValue({ update: mockUpdate });
 
-        await expect(updateGameStatus(gameData)).rejects.toThrow(
+        createClientMock.mockReturnValue({ from: mockFrom });
+
+        await expect(updateGameStatus(42, 1)).rejects.toThrow(
             "Failed to edit game with id 42"
         );
     });
 
-    it("should throw an error if no data is returned", async () => {
-        const gameData: Database["public"]["Tables"]["games"]["Row"] = {
-            id: 999,
-            created_at: "2023-10-01T00:00:00Z",
-            updated_at: "2023-10-01T00:00:00Z",
-            share_code: "NOTFND",
-            status: 1,
-            num_static_ai: 0,
-            seconds_per_pre: 30,
-            seconds_per_rank: 60,
-        };
-
-        setupSupabaseMock({
+    it("throws error when no data is returned", async () => {
+        const mockSingle = jest.fn().mockResolvedValue({
             data: null,
             error: null,
         });
+        const mockSelect = jest.fn().mockReturnValue({ single: mockSingle });
+        const mockEq = jest.fn().mockReturnValue({ select: mockSelect });
+        const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+        const mockFrom = jest.fn().mockReturnValue({ update: mockUpdate });
 
-        await expect(updateGameStatus(gameData)).rejects.toThrow(
+        createClientMock.mockReturnValue({ from: mockFrom });
+
+        await expect(updateGameStatus(999, 1)).rejects.toThrow(
             "Failed to edit game with id 999"
         );
+    });
+
+    it("handles different game IDs correctly", async () => {
+        const gameIds = [1, 100, 9999];
+
+        for (const gameId of gameIds) {
+            const mockGameData = { id: gameId, status: 1 };
+
+            const mockSingle = jest.fn().mockResolvedValue({
+                data: mockGameData,
+                error: null,
+            });
+            const mockSelect = jest
+                .fn()
+                .mockReturnValue({ single: mockSingle });
+            const mockEq = jest.fn().mockReturnValue({ select: mockSelect });
+            const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+            const mockFrom = jest.fn().mockReturnValue({ update: mockUpdate });
+
+            createClientMock.mockReturnValue({ from: mockFrom });
+
+            const result = await updateGameStatus(gameId, 1);
+
+            expect(mockEq).toHaveBeenCalledWith("id", gameId);
+            expect(result).toBe(true);
+
+            jest.clearAllMocks();
+        }
+    });
+
+    it("handles different status values correctly", async () => {
+        const statuses = [0, 1, 2];
+
+        for (const status of statuses) {
+            const mockGameData = { id: 123, status };
+
+            const mockSingle = jest.fn().mockResolvedValue({
+                data: mockGameData,
+                error: null,
+            });
+            const mockSelect = jest
+                .fn()
+                .mockReturnValue({ single: mockSingle });
+            const mockEq = jest.fn().mockReturnValue({ select: mockSelect });
+            const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+            const mockFrom = jest.fn().mockReturnValue({ update: mockUpdate });
+
+            createClientMock.mockReturnValue({ from: mockFrom });
+
+            const result = await updateGameStatus(123, status);
+
+            expect(mockUpdate).toHaveBeenCalledWith({ status });
+            expect(result).toBe(true);
+
+            jest.clearAllMocks();
+        }
     });
 });

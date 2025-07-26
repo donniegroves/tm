@@ -30,9 +30,7 @@ describe("useUpdateGameStatus", () => {
 
     it("updates game status and invalidates games query", async () => {
         const updatedGameData = { ...mockGameData, status: 1 };
-        mockUpdateGameStatus.mockResolvedValue({
-            gameData: updatedGameData,
-        });
+        mockUpdateGameStatus.mockResolvedValue(true);
 
         const { result } = renderHook(() => useUpdateGameStatus(), {
             wrapper: TanstackProvider,
@@ -43,7 +41,10 @@ describe("useUpdateGameStatus", () => {
         });
 
         await waitFor(() => {
-            expect(mockUpdateGameStatus).toHaveBeenCalledWith(updatedGameData);
+            expect(mockUpdateGameStatus).toHaveBeenCalledWith(
+                updatedGameData.id,
+                updatedGameData.status
+            );
             expect(mockInvalidateQueries).toHaveBeenCalledWith({
                 queryKey: ["games"],
             });
@@ -52,9 +53,7 @@ describe("useUpdateGameStatus", () => {
 
     it("returns the updated game data on success", async () => {
         const updatedGameData = { ...mockGameData, status: 2 };
-        mockUpdateGameStatus.mockResolvedValue({
-            gameData: updatedGameData,
-        });
+        mockUpdateGameStatus.mockResolvedValue(true);
 
         const { result } = renderHook(() => useUpdateGameStatus(), {
             wrapper: TanstackProvider,
@@ -66,9 +65,7 @@ describe("useUpdateGameStatus", () => {
 
         await waitFor(() => {
             expect(result.current.isSuccess).toBe(true);
-            expect(result.current.data).toEqual({
-                gameData: updatedGameData,
-            });
+            expect(result.current.data).toEqual(true);
         });
     });
 
@@ -115,22 +112,21 @@ describe("useUpdateGameStatus", () => {
         });
 
         const resetGameData = { ...mockGameData, status: 0 };
-        mockUpdateGameStatus.mockResolvedValue({
-            gameData: resetGameData,
-        });
+        mockUpdateGameStatus.mockResolvedValue(true);
 
         act(() => {
             result.current.mutate(resetGameData);
         });
 
         await waitFor(() => {
-            expect(mockUpdateGameStatus).toHaveBeenCalledWith(resetGameData);
+            expect(mockUpdateGameStatus).toHaveBeenCalledWith(
+                resetGameData.id,
+                resetGameData.status
+            );
         });
 
         const inProgressGameData = { ...mockGameData, status: 1 };
-        mockUpdateGameStatus.mockResolvedValue({
-            gameData: inProgressGameData,
-        });
+        mockUpdateGameStatus.mockResolvedValue(true);
 
         act(() => {
             result.current.mutate(inProgressGameData);
@@ -138,22 +134,22 @@ describe("useUpdateGameStatus", () => {
 
         await waitFor(() => {
             expect(mockUpdateGameStatus).toHaveBeenCalledWith(
-                inProgressGameData
+                inProgressGameData.id,
+                inProgressGameData.status
             );
         });
 
-        const completedGameData = { ...mockGameData, status: 2 };
-        mockUpdateGameStatus.mockResolvedValue({
-            gameData: completedGameData,
-        });
+        const rankingGameData = { ...mockGameData, status: 2 };
+        mockUpdateGameStatus.mockResolvedValue(true);
 
         act(() => {
-            result.current.mutate(completedGameData);
+            result.current.mutate(rankingGameData);
         });
 
         await waitFor(() => {
             expect(mockUpdateGameStatus).toHaveBeenCalledWith(
-                completedGameData
+                rankingGameData.id,
+                rankingGameData.status
             );
         });
     });

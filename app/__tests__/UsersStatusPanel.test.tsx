@@ -10,7 +10,7 @@ import {
     mockQuestionsData,
 } from "./helpers/helpers";
 
-jest.mock("../hooks/useUpdateGameStatus");
+jest.mock("../hooks/useResetGame");
 jest.mock("../components/AvatarWithName", () => {
     return function MockAvatarWithName({
         userId,
@@ -27,18 +27,17 @@ jest.mock("../components/AvatarWithName", () => {
     };
 });
 
-import { UpdateGameStatusReturn } from "../actions/updateGameStatus";
-import { useUpdateGameStatus } from "../hooks/useUpdateGameStatus";
+import { useResetGame } from "../hooks/useResetGame";
 import { createWrapper } from "./helpers/createWrapper";
-const mockUseUpdateGameStatus = useUpdateGameStatus as jest.MockedFunction<
-    typeof useUpdateGameStatus
+const mockUseResetGame = useResetGame as jest.MockedFunction<
+    typeof useResetGame
 >;
 
 describe("UsersStatusPanel", () => {
     const mockMutateAsync = jest.fn();
 
     beforeEach(() => {
-        mockUseUpdateGameStatus.mockReturnValue({
+        mockUseResetGame.mockReturnValue({
             mutateAsync: mockMutateAsync,
             isPending: false,
             isIdle: true,
@@ -57,9 +56,9 @@ describe("UsersStatusPanel", () => {
             pauseVariable: undefined,
             submittedAt: 0,
         } as unknown as UseMutationResult<
-            UpdateGameStatusReturn,
+            boolean,
             Error,
-            Database["public"]["Tables"]["games"]["Row"]
+            { gameId: Database["public"]["Tables"]["games"]["Row"]["id"] }
         >);
 
         Object.defineProperty(window, "location", {
@@ -140,7 +139,7 @@ describe("UsersStatusPanel", () => {
         expect(screen.queryByText("Reset game")).not.toBeInTheDocument();
     });
 
-    it("calls updateGameStatus and sends broadcast when reset is clicked", async () => {
+    it("calls resetGame and sends broadcast when reset is clicked", async () => {
         mockMutateAsync.mockResolvedValue({
             gameData: { ...mockGamesData[1], status: 0 },
         });
@@ -152,8 +151,7 @@ describe("UsersStatusPanel", () => {
 
         await waitFor(() => {
             expect(mockMutateAsync).toHaveBeenCalledWith({
-                ...mockGamesData[1],
-                status: 0,
+                gameId: mockGamesData[1].id,
             });
         });
 

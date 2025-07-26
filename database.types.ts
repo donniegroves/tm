@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      game_questions: {
+        Row: {
+          created_at: string | null
+          game_id: number
+          question_id: number
+          round: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          game_id: number
+          question_id: number
+          round: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          game_id?: number
+          question_id?: number
+          round?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_questions_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_questions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_users: {
         Row: {
           created_at: string | null

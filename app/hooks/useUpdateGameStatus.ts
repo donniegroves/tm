@@ -4,13 +4,10 @@ import {
     useQueryClient,
 } from "@tanstack/react-query";
 import { Database } from "database.types";
-import {
-    updateGameStatus,
-    UpdateGameStatusReturn,
-} from "../actions/updateGameStatus";
+import { updateGameStatus } from "../actions/updateGameStatus";
 
 export function useUpdateGameStatus(): UseMutationResult<
-    UpdateGameStatusReturn,
+    boolean,
     Error,
     Database["public"]["Tables"]["games"]["Row"]
 > {
@@ -18,7 +15,7 @@ export function useUpdateGameStatus(): UseMutationResult<
 
     return useMutation({
         mutationFn: (gameData: Database["public"]["Tables"]["games"]["Row"]) =>
-            updateGameStatus(gameData),
+            updateGameStatus(gameData.id, gameData.status),
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["games"] });
         },

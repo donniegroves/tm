@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Database } from "database.types";
 import { createContext, ReactNode, useContext } from "react";
 import { fetchAllUsers } from "../actions/fetchAllUsers";
+import { fetchGameQuestions } from "../actions/fetchGameQuestions";
 import { fetchGames } from "../actions/fetchGames";
 import { fetchGameUsers } from "../actions/fetchGameUsers";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
@@ -15,6 +16,7 @@ export interface InsideContextType {
     games: Database["public"]["Tables"]["games"]["Row"][];
     questions: Database["public"]["Tables"]["questions"]["Row"][];
     gameUsers: Database["public"]["Tables"]["game_users"]["Row"][];
+    gameQuestions: Database["public"]["Tables"]["game_questions"]["Row"][];
 }
 
 export const InsideContext = createContext<InsideContextType | undefined>(
@@ -42,20 +44,32 @@ export function InsideContextProvider({ children }: { children: ReactNode }) {
         queryKey: ["gameUsers"],
         queryFn: fetchGameUsers,
     });
+    const { data: gameQuestions } = useQuery({
+        queryKey: ["gameQuestions"],
+        queryFn: fetchGameQuestions,
+    });
 
     if (
         loggedInUserId === undefined ||
         allUsers === undefined ||
         games === undefined ||
         questions === undefined ||
-        gameUsers === undefined
+        gameUsers === undefined ||
+        gameQuestions === undefined
     ) {
         return null;
     }
 
     return (
         <InsideContext.Provider
-            value={{ loggedInUserId, allUsers, games, questions, gameUsers }}
+            value={{
+                loggedInUserId,
+                allUsers,
+                games,
+                questions,
+                gameUsers,
+                gameQuestions,
+            }}
         >
             {children}
         </InsideContext.Provider>

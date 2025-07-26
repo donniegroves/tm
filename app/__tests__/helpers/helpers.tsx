@@ -70,7 +70,7 @@ export const mockPublicUserRow: Database["public"]["Tables"]["users"]["Row"] = {
 };
 export const mockPublicGameRow: Database["public"]["Tables"]["games"]["Row"] = {
     id: 111,
-    share_code: "yikes",
+    share_code: "XAMPLE",
     status: 0,
     num_static_ai: 1,
     seconds_per_pre: 30,
@@ -141,6 +141,24 @@ export const mockGamesData: Database["public"]["Tables"]["games"]["Row"][] = [
 export const mockQuestionsData: Database["public"]["Tables"]["questions"]["Row"][] =
     [mockPublicQuestionRow, { ...mockPublicQuestionRow, id: 373 }];
 
+export const mockGameQuestionsData: Database["public"]["Tables"]["game_questions"]["Row"][] =
+    [
+        {
+            game_id: mockGamesData[0].id,
+            round: 1,
+            question_id: mockQuestionsData[0].id,
+            created_at: "2024-06-01T12:00:00Z",
+            updated_at: "2024-06-01T12:00:00Z",
+        },
+        {
+            game_id: mockGamesData[1].id,
+            round: 2,
+            question_id: mockQuestionsData[1].id,
+            created_at: "2024-06-02T12:00:00Z",
+            updated_at: "2024-06-02T12:00:00Z",
+        },
+    ];
+
 export const mockGameUsersData: Database["public"]["Tables"]["game_users"]["Row"][] =
     [
         {
@@ -172,6 +190,7 @@ export const defaultInsideContextValues: InsideContextType = {
     games: mockGamesData,
     questions: mockQuestionsData,
     gameUsers: mockGameUsersData,
+    gameQuestions: mockGameQuestionsData,
 };
 
 export const defaultRealtimeContextValues: RealtimeContextType = {

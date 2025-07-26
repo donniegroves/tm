@@ -30,6 +30,7 @@ export function createRealtimeChannel(
 
     channel.on("broadcast", { event: "game-status-changed" }, () => {
         queryClient.invalidateQueries({ queryKey: ["games"] });
+        queryClient.invalidateQueries({ queryKey: ["gameQuestions"] });
     });
 
     return channel;

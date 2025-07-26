@@ -3,27 +3,24 @@
 import { createClient } from "@/utils/supabase/client";
 import { Database } from "database.types";
 
-export type UpdateGameStatusReturn = {
-    gameData: Database["public"]["Tables"]["games"]["Row"];
-};
-
 export const updateGameStatus = async (
-    gameData: Database["public"]["Tables"]["games"]["Row"]
-): Promise<UpdateGameStatusReturn> => {
+    gameId: Database["public"]["Tables"]["games"]["Row"]["id"],
+    status: Database["public"]["Tables"]["games"]["Row"]["status"]
+): Promise<boolean> => {
     const supabase = createClient();
 
     const { data: updatedGameData, error } = await supabase
         .from("games")
         .update({
-            status: gameData.status,
+            status,
         })
-        .eq("id", gameData.id)
+        .eq("id", gameId)
         .select()
         .single();
 
     if (error || !updatedGameData) {
-        throw new Error(`Failed to edit game with id ${gameData.id}`);
+        throw new Error(`Failed to edit game with id ${gameId}`);
     }
 
-    return { gameData: updatedGameData };
+    return true;
 };
