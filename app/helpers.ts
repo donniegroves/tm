@@ -67,3 +67,31 @@ export function getStatusUsingShareCode(
 
     throw new Error("Invalid game status");
 }
+
+export function getGameUserIdsInDeterministicOrder(
+    gameUsers: Database["public"]["Tables"]["game_users"]["Row"][],
+    seed: string
+) {
+    const userIds = gameUsers.map((user) => user.user_id);
+
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        const char = seed.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash = hash & hash;
+    }
+
+    let seedValue = Math.abs(hash);
+    const seededRandom = () => {
+        seedValue = (seedValue * 9301 + 49297) % 233280;
+        return seedValue / 233280;
+    };
+
+    const shuffled = [...userIds];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+}
