@@ -1,5 +1,11 @@
 import { renderHook } from "@testing-library/react";
+import {
+    getGameUserIdsInDeterministicOrder,
+    getStatusUsingShareCode,
+} from "../helpers";
 import { useIsMaster } from "../hooks/useIsMaster";
+import { useInsideContext } from "../inside/InsideContext";
+import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 import { createWrapper } from "./helpers/createWrapper";
 import {
     mockAllUsers,
@@ -7,24 +13,19 @@ import {
     mockGameUsersData,
 } from "./helpers/helpers";
 
-// Mock the helper functions
 jest.mock("../helpers", () => ({
     getStatusUsingShareCode: jest.fn(),
     getGameUserIdsInDeterministicOrder: jest.fn(),
 }));
 
-// Mock the context hooks
 jest.mock("../inside/InsideContext");
 jest.mock("../play/[share_code]/RealtimeContext");
 
-const mockGetStatusUsingShareCode = require("../helpers")
-    .getStatusUsingShareCode as jest.Mock;
-const mockGetGameUserIdsInDeterministicOrder = require("../helpers")
-    .getGameUserIdsInDeterministicOrder as jest.Mock;
-const mockUseInsideContext = require("../inside/InsideContext")
-    .useInsideContext as jest.Mock;
-const mockUseRealtimeContext = require("../play/[share_code]/RealtimeContext")
-    .useRealtimeContext as jest.Mock;
+const mockGetStatusUsingShareCode = getStatusUsingShareCode as jest.Mock;
+const mockGetGameUserIdsInDeterministicOrder =
+    getGameUserIdsInDeterministicOrder as jest.Mock;
+const mockUseInsideContext = useInsideContext as jest.Mock;
+const mockUseRealtimeContext = useRealtimeContext as jest.Mock;
 
 describe("useIsMaster", () => {
     beforeEach(() => {
@@ -69,11 +70,11 @@ describe("useIsMaster", () => {
         mockUseRealtimeContext.mockReturnValue({
             gameData: {
                 ...mockGamesData[1],
-                share_code: undefined as any,
+                share_code: undefined,
             },
         });
 
-        const { result } = renderHook(() => useIsMaster(), {
+        renderHook(() => useIsMaster(), {
             wrapper: createWrapper(),
         });
 

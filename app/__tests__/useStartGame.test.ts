@@ -43,10 +43,14 @@ describe("useStartGame", () => {
         mockChannelSend = jest.fn();
 
         mockUseInsertGameQuestion.mockReturnValue(
-            mockInsertGameQuestionMutation as any
+            mockInsertGameQuestionMutation as unknown as ReturnType<
+                typeof useInsertGameQuestion
+            >
         );
         mockUseUpdateGameStatus.mockReturnValue(
-            mockUpdateGameStatusMutation as any
+            mockUpdateGameStatusMutation as unknown as ReturnType<
+                typeof useUpdateGameStatus
+            >
         );
 
         jest.spyOn(console, "error").mockImplementation(() => {});
@@ -82,7 +86,7 @@ describe("useStartGame", () => {
             channel: {
                 ...defaultRealtimeContextValues.channel,
                 send: mockChannelSend,
-            } as any,
+            } as unknown as typeof defaultRealtimeContextValues.channel,
         };
 
         const { result } = renderHook(() => useStartGame(), {
@@ -243,7 +247,8 @@ describe("useStartGame", () => {
 
         const realtimeContextValues = {
             ...defaultRealtimeContextValues,
-            channel: null as any,
+            channel:
+                null as unknown as typeof defaultRealtimeContextValues.channel,
         };
 
         const { result } = renderHook(() => useStartGame(), {

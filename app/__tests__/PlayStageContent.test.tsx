@@ -1,5 +1,8 @@
 import { render, screen } from "@testing-library/react";
+import { getStatusUsingShareCode } from "../helpers";
+import { useInsideContext } from "../inside/InsideContext";
 import PlayStageContent from "../play/[share_code]/PlayStageContent";
+import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 import { createWrapper } from "./helpers/createWrapper";
 import { mockGamesData } from "./helpers/helpers";
 
@@ -40,12 +43,9 @@ jest.mock("../components/UsersStatusPanel", () => {
 jest.mock("../play/[share_code]/RealtimeContext");
 jest.mock("../inside/InsideContext");
 
-const mockGetStatusUsingShareCode = require("../helpers")
-    .getStatusUsingShareCode as jest.Mock;
-const mockUseRealtimeContext = require("../play/[share_code]/RealtimeContext")
-    .useRealtimeContext as jest.Mock;
-const mockUseInsideContext = require("../inside/InsideContext")
-    .useInsideContext as jest.Mock;
+const mockGetStatusUsingShareCode = getStatusUsingShareCode as jest.Mock;
+const mockUseRealtimeContext = useRealtimeContext as jest.Mock;
+const mockUseInsideContext = useInsideContext as jest.Mock;
 
 describe("PlayStageContent", () => {
     const mockChannel = {

@@ -11,7 +11,7 @@ SELECT
           ((auth.uid() = user_id) OR is_admin(auth.uid()))
     );
 
-CREATE POLICY "Enable insert for users based on user_id" ON public.users AS PERMISSIVE FOR INSERT TO public
+CREATE POLICY "Enable insert for users based on user_id" ON public.users AS PERMISSIVE FOR INSERT TO authenticated
 WITH
     check (
         (
@@ -115,3 +115,58 @@ as PERMISSIVE
 for DELETE
 to authenticated
 using ( is_admin(auth.uid()) );
+
+-- Policy: Users can insert questions for games they host
+CREATE POLICY "Users can insert questions for games they host"
+ON public.game_questions
+TO authenticated
+WITH CHECK (
+    game_id IN (
+        SELECT game_users.game_id
+        FROM game_users
+        WHERE
+            game_users.user_id = (SELECT auth.uid())
+            AND game_users.is_host = true
+    )
+);
+
+-- Policy: Users can select rows of games they are affiliated with
+CREATE POLICY "Users can select rows of games they are affiliated with"
+ON public.game_questions
+TO authenticated
+USING (
+    game_id IN (
+        SELECT game_users.game_id
+        FROM game_users
+        WHERE game_users.user_id = (SELECT auth.uid())
+    )
+);
+
+-- Policy: Hosts can remove questions from games they host
+CREATE POLICY "Hosts can remove questions from games"
+ON public.game_questions
+TO authenticated
+USING (
+    game_id IN (
+        SELECT game_users.game_id
+        FROM game_users
+        WHERE
+            game_users.user_id = (SELECT auth.uid())
+            AND game_users.is_host = true
+    )
+);
+
+-- Policy to allow users to insert pre_answers only for themselves
+CREATE POLICY "Users can only insert their own pre_answers" 
+ON pre_answers 
+FOR INSERT 
+WITH CHECK (
+    user_id = (SELECT auth.uid())
+);
+
+create policy "Enable users to view their own data only"
+on "public"."pre_answers"
+to authenticated
+using (
+  (( SELECT auth.uid() AS uid) = user_id)
+);

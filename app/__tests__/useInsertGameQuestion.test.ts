@@ -1,4 +1,4 @@
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { Database } from "database.types";
 import React from "react";
@@ -42,10 +42,9 @@ describe("useInsertGameQuestion", () => {
             mockGameQuestionsData[0],
             mockGameQuestionsData[1],
         ];
-        let qc: QueryClient | undefined;
         const { result } = renderHook(
             () => {
-                qc = useSetupCache(initialGameQuestions);
+                useSetupCache(initialGameQuestions);
                 return useInsertGameQuestion();
             },
             { wrapper: TanstackProvider }
@@ -70,10 +69,9 @@ describe("useInsertGameQuestion", () => {
 
     it("uses provided questionId when specified", async () => {
         const initialGameQuestions: GameQuestion[] = [];
-        let qc: QueryClient | undefined;
         const { result } = renderHook(
             () => {
-                qc = useSetupCache(initialGameQuestions);
+                useSetupCache(initialGameQuestions);
                 return useInsertGameQuestion();
             },
             { wrapper: TanstackProvider }

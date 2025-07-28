@@ -123,7 +123,6 @@ export type Database = {
           answer: string
           created_at: string | null
           game_id: number
-          id: number
           question_id: number
           updated_at: string | null
           user_id: string
@@ -132,7 +131,6 @@ export type Database = {
           answer: string
           created_at?: string | null
           game_id: number
-          id?: number
           question_id: number
           updated_at?: string | null
           user_id: string
@@ -141,7 +139,6 @@ export type Database = {
           answer?: string
           created_at?: string | null
           game_id?: number
-          id?: number
           question_id?: number
           updated_at?: string | null
           user_id?: string
@@ -295,6 +292,32 @@ export type Database = {
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      view_pre_answers: {
+        Row: {
+          answer: string | null
+          created_at: string | null
+          game_id: number | null
+          question_id: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_answers_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
             referencedColumns: ["id"]
           },
         ]

@@ -151,15 +151,19 @@ describe("helpers", () => {
 
         beforeEach(() => {
             originalLocation = window.location;
-            delete (window as any).location;
+            delete (window as unknown as { location: unknown }).location;
         });
 
         afterEach(() => {
-            (window as any).location = originalLocation;
+            (window as unknown as { location: Location }).location =
+                originalLocation;
         });
 
         it("returns 'not started' status when game status is 0", () => {
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             const result = getStatusUsingShareCode(mockGamesData);
 
@@ -171,7 +175,10 @@ describe("helpers", () => {
 
         it("returns 'ended' status when game status is -1", () => {
             const gamesWithEndedGame = [{ ...mockGamesData[0], status: -1 }];
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             const result = getStatusUsingShareCode(gamesWithEndedGame);
 
@@ -183,7 +190,10 @@ describe("helpers", () => {
 
         it("returns 'pre-question' status for odd positive status values", () => {
             const gamesWithOddStatus = [{ ...mockGamesData[0], status: 1 }];
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             const result = getStatusUsingShareCode(gamesWithOddStatus);
 
@@ -195,7 +205,10 @@ describe("helpers", () => {
 
         it("returns 'pre-question' status for status 3", () => {
             const gamesWithStatus3 = [{ ...mockGamesData[0], status: 3 }];
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             const result = getStatusUsingShareCode(gamesWithStatus3);
 
@@ -207,7 +220,10 @@ describe("helpers", () => {
 
         it("returns 'ranking' status for even positive status values", () => {
             const gamesWithEvenStatus = [{ ...mockGamesData[0], status: 2 }];
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             const result = getStatusUsingShareCode(gamesWithEvenStatus);
 
@@ -219,7 +235,10 @@ describe("helpers", () => {
 
         it("returns 'ranking' status for status 4", () => {
             const gamesWithStatus4 = [{ ...mockGamesData[0], status: 4 }];
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             const result = getStatusUsingShareCode(gamesWithStatus4);
 
@@ -230,7 +249,10 @@ describe("helpers", () => {
         });
 
         it("throws error when game is not found", () => {
-            window.location = { pathname: "/play/nonexistent/lobby" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/nonexistent/lobby" },
+                writable: true,
+            });
 
             expect(() => {
                 getStatusUsingShareCode(mockGamesData);
@@ -238,7 +260,10 @@ describe("helpers", () => {
         });
 
         it("handles empty games array", () => {
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             expect(() => {
                 getStatusUsingShareCode([]);
@@ -249,7 +274,10 @@ describe("helpers", () => {
             const gamesWithInvalidStatus = [
                 { ...mockGamesData[0], status: -2 },
             ];
-            window.location = { pathname: "/play/XAMPLE" } as any;
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/play/XAMPLE" },
+                writable: true,
+            });
 
             expect(() => {
                 getStatusUsingShareCode(gamesWithInvalidStatus);

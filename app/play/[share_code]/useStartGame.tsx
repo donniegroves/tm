@@ -1,6 +1,7 @@
 import { useInsertGameQuestion } from "@/app/hooks/useInsertGameQuestion";
 import { useUpdateGameStatus } from "@/app/hooks/useUpdateGameStatus";
 import { useInsideContext } from "@/app/inside/InsideContext";
+import { Database } from "database.types";
 import { useRealtimeContext } from "./RealtimeContext";
 
 export function useStartGame() {
@@ -9,7 +10,9 @@ export function useStartGame() {
     const updateGameStatusMutation = useUpdateGameStatus();
     const insertGameQuestionMutation = useInsertGameQuestion();
 
-    const startGame = async (gameData: any) => {
+    const startGame = async (
+        gameData: Database["public"]["Tables"]["games"]["Row"]
+    ) => {
         try {
             const randomQuestionId =
                 allQuestions[Math.floor(Math.random() * allQuestions.length)]

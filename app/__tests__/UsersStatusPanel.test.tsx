@@ -133,6 +133,7 @@ describe("UsersStatusPanel", () => {
                 games: mockGamesData,
                 questions: mockQuestionsData,
                 loggedInUserId: "user3", // user3 is not a host
+                gameQuestions: [],
             }),
         });
 

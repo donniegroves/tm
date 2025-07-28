@@ -1,5 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import Lobby from "../play/[share_code]/Lobby";
+import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
+import { useLobbyHook } from "../play/[share_code]/useLobbyHook";
+import { useStartGame } from "../play/[share_code]/useStartGame";
 import { createWrapper } from "./helpers/createWrapper";
 import { mockGamesData } from "./helpers/helpers";
 
@@ -8,7 +11,13 @@ jest.mock("../play/[share_code]/useStartGame");
 jest.mock("../play/[share_code]/RealtimeContext");
 
 jest.mock("../play/[share_code]/LobbyStatus", () => ({
-    LobbyStatus: ({ allPlayersAreConnected, loggedInUserIsHost }: any) => (
+    LobbyStatus: ({
+        allPlayersAreConnected,
+        loggedInUserIsHost,
+    }: {
+        allPlayersAreConnected: boolean;
+        loggedInUserIsHost: boolean;
+    }) => (
         <div data-testid="lobby-status">
             {allPlayersAreConnected ? "All Connected" : "Waiting"}
             {loggedInUserIsHost ? " (Host)" : " (Player)"}
@@ -17,7 +26,19 @@ jest.mock("../play/[share_code]/LobbyStatus", () => ({
 }));
 
 jest.mock("@heroui/button", () => ({
-    Button: ({ children, onPress, isLoading, isDisabled, className }: any) => (
+    Button: ({
+        children,
+        onPress,
+        isLoading,
+        isDisabled,
+        className,
+    }: {
+        children: React.ReactNode;
+        onPress: () => void;
+        isLoading: boolean;
+        isDisabled: boolean;
+        className?: string;
+    }) => (
         <button
             onClick={onPress}
             disabled={isDisabled}
@@ -30,12 +51,9 @@ jest.mock("@heroui/button", () => ({
     ),
 }));
 
-const mockUseLobbyHook = require("../play/[share_code]/useLobbyHook")
-    .useLobbyHook as jest.Mock;
-const mockUseStartGame = require("../play/[share_code]/useStartGame")
-    .useStartGame as jest.Mock;
-const mockUseRealtimeContext = require("../play/[share_code]/RealtimeContext")
-    .useRealtimeContext as jest.Mock;
+const mockUseLobbyHook = useLobbyHook as jest.Mock;
+const mockUseStartGame = useStartGame as jest.Mock;
+const mockUseRealtimeContext = useRealtimeContext as jest.Mock;
 
 describe("Lobby", () => {
     const mockStartGame = jest.fn();

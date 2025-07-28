@@ -145,7 +145,7 @@ describe("useLobbyHook", () => {
             ...defaultRealtimeContextValues,
             gameData: {
                 ...mockGamesData[1],
-                id: undefined as any,
+                id: undefined as unknown as number,
             },
         };
 

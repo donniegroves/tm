@@ -1,17 +1,12 @@
 CREATE TABLE
     public.pre_answers (
-        id serial PRIMARY KEY,
         question_id integer NOT NULL REFERENCES public.questions (id) ON DELETE CASCADE,
         game_id integer NOT NULL REFERENCES public.games (id) ON DELETE CASCADE,
         user_id uuid NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
         answer varchar(255) NOT NULL,
-        created_at timestamp
-        with
-            time zone DEFAULT now (),
-            updated_at timestamp
-        with
-            time zone DEFAULT now (),
-            UNIQUE (question_id, game_id, user_id)
+        created_at timestamp with time zone DEFAULT now(),
+        updated_at timestamp with time zone DEFAULT now(),
+        PRIMARY KEY (question_id, game_id, user_id)
     );
 
 -- Create a unique index for case-insensitive answers within the same game
@@ -19,3 +14,10 @@ CREATE UNIQUE INDEX unique_game_id_lower_answer ON public.pre_answers (game_id, 
 
 -- Enable Row Level Security
 ALTER TABLE public.pre_answers ENABLE ROW LEVEL SECURITY;
+
+-- Create view_pre_answers that shows pre_answers for games the user is associated with
+CREATE OR REPLACE VIEW view_pre_answers AS
+SELECT pa.*
+FROM pre_answers pa
+JOIN game_users gu ON pa.game_id = gu.game_id
+WHERE gu.user_id = (SELECT auth.uid());

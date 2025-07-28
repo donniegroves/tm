@@ -1,11 +1,25 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRealtimeChannel } from "../play/[share_code]/createRealtimeChannel";
 
+interface MockChannel {
+    on: jest.Mock;
+    presenceState: jest.Mock;
+}
+
+interface MockSupabase {
+    channel: jest.Mock;
+}
+
+interface MockCallbacks {
+    onPresenceSync: jest.Mock;
+    onCursorMove: jest.Mock;
+}
+
 describe("createRealtimeChannel", () => {
-    let mockChannel: any;
-    let mockSupabase: any;
+    let mockChannel: MockChannel;
+    let mockSupabase: MockSupabase;
     let mockQueryClient: QueryClient;
-    let mockCallbacks: any;
+    let mockCallbacks: MockCallbacks;
 
     beforeEach(() => {
         mockChannel = {
@@ -19,7 +33,7 @@ describe("createRealtimeChannel", () => {
 
         mockQueryClient = {
             invalidateQueries: jest.fn(),
-        } as any;
+        } as unknown as QueryClient;
 
         mockCallbacks = {
             onPresenceSync: jest.fn(),
@@ -31,7 +45,9 @@ describe("createRealtimeChannel", () => {
         const loggedInUserId = "user123";
 
         const result = createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             loggedInUserId,
             mockCallbacks
@@ -49,7 +65,9 @@ describe("createRealtimeChannel", () => {
 
     it("sets up presence event handler correctly", () => {
         createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
@@ -64,14 +82,18 @@ describe("createRealtimeChannel", () => {
 
     it("calls onPresenceSync callback when presence sync event fires", () => {
         createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
         );
 
         const presenceSyncCall = mockChannel.on.mock.calls.find(
-            (call: any[]) => call[0] === "presence" && call[1].event === "sync"
+            (call: unknown[]) =>
+                call[0] === "presence" &&
+                (call[1] as { event: string }).event === "sync"
         );
         const presenceSyncCallback = presenceSyncCall[2];
 
@@ -93,7 +115,9 @@ describe("createRealtimeChannel", () => {
 
     it("sets up cursor-pos broadcast event handler correctly", () => {
         createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
@@ -108,15 +132,18 @@ describe("createRealtimeChannel", () => {
 
     it("calls onCursorMove callback when cursor-pos broadcast event fires", () => {
         createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
         );
 
         const cursorPosCall = mockChannel.on.mock.calls.find(
-            (call: any[]) =>
-                call[0] === "broadcast" && call[1].event === "cursor-pos"
+            (call: unknown[]) =>
+                call[0] === "broadcast" &&
+                (call[1] as { event: string }).event === "cursor-pos"
         );
         const cursorPosCallback = cursorPosCall[2];
 
@@ -134,7 +161,9 @@ describe("createRealtimeChannel", () => {
 
     it("sets up game-status-changed broadcast event handler correctly", () => {
         createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
@@ -149,16 +178,18 @@ describe("createRealtimeChannel", () => {
 
     it("invalidates games query when game-status-changed event fires", () => {
         createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
         );
 
         const gameStatusCall = mockChannel.on.mock.calls.find(
-            (call: any[]) =>
+            (call: unknown[]) =>
                 call[0] === "broadcast" &&
-                call[1].event === "game-status-changed"
+                (call[1] as { event: string }).event === "game-status-changed"
         );
         const gameStatusCallback = gameStatusCall[2];
 
@@ -174,7 +205,9 @@ describe("createRealtimeChannel", () => {
 
     it("sets up all three event handlers", () => {
         createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
@@ -185,28 +218,33 @@ describe("createRealtimeChannel", () => {
         const calls = mockChannel.on.mock.calls;
         expect(
             calls.some(
-                (call: any[]) =>
-                    call[0] === "presence" && call[1].event === "sync"
+                (call: unknown[]) =>
+                    call[0] === "presence" &&
+                    (call[1] as { event: string }).event === "sync"
             )
         ).toBe(true);
         expect(
             calls.some(
-                (call: any[]) =>
-                    call[0] === "broadcast" && call[1].event === "cursor-pos"
-            )
-        ).toBe(true);
-        expect(
-            calls.some(
-                (call: any[]) =>
+                (call: unknown[]) =>
                     call[0] === "broadcast" &&
-                    call[1].event === "game-status-changed"
+                    (call[1] as { event: string }).event === "cursor-pos"
+            )
+        ).toBe(true);
+        expect(
+            calls.some(
+                (call: unknown[]) =>
+                    call[0] === "broadcast" &&
+                    (call[1] as { event: string }).event ===
+                        "game-status-changed"
             )
         ).toBe(true);
     });
 
     it("returns the created channel", () => {
         const result = createRealtimeChannel(
-            mockSupabase,
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
             mockQueryClient,
             "user123",
             mockCallbacks
