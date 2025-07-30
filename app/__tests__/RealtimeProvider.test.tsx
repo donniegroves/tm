@@ -164,6 +164,7 @@ describe("RealtimeProvider", () => {
                     questions: [],
                     gameUsers: [],
                     gameQuestions: [],
+                    preAnswers: [],
                 }),
             }
         );

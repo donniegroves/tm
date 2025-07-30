@@ -10,7 +10,7 @@ import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 export default function PlayAnswerQuestionForm() {
     const { questions, gameQuestions, games, loggedInUserId } =
         useInsideContext();
-    const { gameData } = useRealtimeContext();
+    const { gameData, channel } = useRealtimeContext();
     const { round } = getStatusUsingShareCode(games);
     const addAnswerMutation = useAddAnswer();
     const [answer, setAnswer] = useState("");
@@ -23,12 +23,21 @@ export default function PlayAnswerQuestionForm() {
     const handleAddAnswer = () => {
         if (!gameData || !question || !answer.trim()) return;
 
-        addAnswerMutation.mutate({
-            gameId: gameData?.id,
-            questionId: question?.id,
-            userId: loggedInUserId,
-            answer: answer.trim(),
-        });
+        addAnswerMutation.mutate(
+            {
+                gameId: gameData?.id,
+                questionId: question?.id,
+                userId: loggedInUserId,
+                answer: answer.trim(),
+            },
+            {
+                onSuccess: () =>
+                    channel?.send({
+                        type: "broadcast",
+                        event: "pre-answer-added",
+                    }),
+            }
+        );
     };
 
     return (

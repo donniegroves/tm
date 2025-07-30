@@ -2,19 +2,26 @@
 
 import { Button } from "@heroui/button";
 import { Database } from "database.types";
+import { getStatusUsingShareCode } from "../helpers";
+import { useIsMaster } from "../hooks/useIsMaster";
 import { useResetGame } from "../hooks/useResetGame";
 import { useInsideContext } from "../inside/InsideContext";
 import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 import AvatarWithName from "./AvatarWithName";
+import { CheckmarkSvg } from "./IconSvg";
 
 export default function UsersStatusPanel() {
     const {
         gameUsers: allGameUsers,
         allUsers,
+        games,
         loggedInUserId,
+        preAnswers,
     } = useInsideContext();
     const { channel, readyUsers, gameData } = useRealtimeContext();
+    const { status } = getStatusUsingShareCode(games);
     const resetGameMutation = useResetGame();
+    const { currentMasterUserId } = useIsMaster();
 
     if (!gameData || !channel) {
         return <div>Game not found.</div>;
@@ -36,37 +43,61 @@ export default function UsersStatusPanel() {
         );
 
     const handleReset = async () => {
-        await resetGameMutation.mutateAsync({
-            gameId: gameData.id,
-        });
-
-        channel.send({
-            type: "broadcast",
-            event: "game-status-changed",
-        });
+        await resetGameMutation.mutateAsync(
+            {
+                gameId: gameData.id,
+            },
+            {
+                onSuccess: () => {
+                    channel.send({
+                        type: "broadcast",
+                        event: "game-reset",
+                    });
+                },
+            }
+        );
     };
 
+    const isDuringPreQuestion = status === "pre-question";
+    const classForWidth = isDuringPreQuestion ? "w-40" : "w-32";
+
     return (
-        <div className="flex-shrink-0 w-32 flex items-center">
+        <div className={`flex-shrink-0 ${classForWidth} flex items-center`}>
             <div>
                 <h2 className="text-xl font-semibold underline text-center mb-4">
                     Contestants
                 </h2>
                 <div className="flex flex-col items-center gap-3">
                     {users.map((gu) => {
+                        const hasAnswered = preAnswers.some(
+                            (answer) => answer.user_id === gu.user_id
+                        );
                         return (
-                            <AvatarWithName
-                                key={gu.user_id}
-                                limitNameWidth={false}
-                                userId={gu.user_id}
-                                color={
-                                    readyUsers.includes(gu.user_id)
-                                        ? "primary"
-                                        : "default"
-                                }
-                            />
+                            <div key={gu.user_id} className="flex flex-row">
+                                {isDuringPreQuestion && (
+                                    <CheckmarkSvg
+                                        size={20}
+                                        className={`${
+                                            hasAnswered ||
+                                            currentMasterUserId === gu.user_id
+                                                ? "text-customlight/100"
+                                                : "text-customlight/15"
+                                        } mr-4 mt-1`}
+                                    />
+                                )}
+                                <AvatarWithName
+                                    limitNameWidth={false}
+                                    userId={gu.user_id}
+                                    color={
+                                        readyUsers.includes(gu.user_id)
+                                            ? "primary"
+                                            : "default"
+                                    }
+                                />
+                            </div>
                         );
                     })}
+                    {/* TODO: extract this reset game button out */}
                     {userIsHost && (
                         <>
                             <hr className="my-4 w-full" />

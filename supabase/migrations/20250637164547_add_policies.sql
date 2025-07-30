@@ -170,3 +170,33 @@ to authenticated
 using (
   (( SELECT auth.uid() AS uid) = user_id)
 );
+
+-- Policy to allow game hosts to delete pre-answers for their game
+CREATE POLICY "Hosts can delete pre-answers for their game" ON pre_answers
+FOR DELETE 
+TO authenticated
+USING (
+    EXISTS (
+        SELECT 1 
+        FROM game_users 
+        WHERE 
+            game_users.user_id = auth.uid() AND 
+            game_users.is_host = true AND 
+            game_users.game_id = pre_answers.game_id
+    )
+);
+
+-- Policy to allow game hosts to view pre-answers for their game
+CREATE POLICY "Hosts can view pre-answers for their game" ON pre_answers
+FOR SELECT 
+TO authenticated
+USING (
+    EXISTS (
+        SELECT 1 
+        FROM game_users 
+        WHERE 
+            game_users.user_id = auth.uid() AND 
+            game_users.is_host = true AND 
+            game_users.game_id = pre_answers.game_id
+    )
+);

@@ -4,7 +4,7 @@ import { useIsMaster } from "../hooks/useIsMaster";
 import PlayAnswerQuestionForm from "./PlayAnswerQuestionForm";
 
 export default function PlayPreQuestion() {
-    const loggedInUserIsMaster = useIsMaster();
+    const { loggedInUserIsMaster } = useIsMaster();
 
     return (
         <div className="flex-1 flex flex-col items-center justify-center">

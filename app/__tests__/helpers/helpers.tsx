@@ -177,6 +177,26 @@ export const mockGameUsersData: Database["public"]["Tables"]["game_users"]["Row"
         },
     ];
 
+export const mockPreAnswersData: Database["public"]["Tables"]["pre_answers"]["Row"][] =
+    [
+        {
+            question_id: mockQuestionsData[0].id,
+            game_id: mockGamesData[1].id,
+            user_id: mockAllUsers[0].user_id,
+            answer: "My test answer",
+            created_at: "2024-06-01T12:00:00Z",
+            updated_at: "2024-06-01T12:00:00Z",
+        },
+        {
+            question_id: mockQuestionsData[0].id,
+            game_id: mockGamesData[1].id,
+            user_id: mockAllUsers[2].user_id,
+            answer: "Another test answer",
+            created_at: "2024-06-01T12:00:00Z",
+            updated_at: "2024-06-01T12:00:00Z",
+        },
+    ];
+
 const mockChannel = {
     send: jest.fn(),
     id: "test-channel",
@@ -191,6 +211,7 @@ export const defaultInsideContextValues: InsideContextType = {
     questions: mockQuestionsData,
     gameUsers: mockGameUsersData,
     gameQuestions: mockGameQuestionsData,
+    preAnswers: mockPreAnswersData,
 };
 
 export const defaultRealtimeContextValues: RealtimeContextType = {

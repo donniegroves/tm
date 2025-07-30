@@ -31,7 +31,6 @@ describe("useIsMaster", () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
-        //
         mockUseInsideContext.mockReturnValue({
             games: mockGamesData,
             gameUsers: mockGameUsersData,
@@ -63,7 +62,15 @@ describe("useIsMaster", () => {
             wrapper: createWrapper(),
         });
 
-        expect(result.current).toBe(false);
+        expect(result.current).toEqual({
+            loggedInUserIsMaster: false,
+            currentMasterUserId: undefined,
+        });
+
+        expect(mockGetGameUserIdsInDeterministicOrder).toHaveBeenCalledWith(
+            mockGameUsersData,
+            mockGamesData[1].share_code
+        );
     });
 
     it("handles undefined gameData.share_code", () => {
@@ -84,6 +91,38 @@ describe("useIsMaster", () => {
         );
     });
 
+    it("returns correct master when round is 1", () => {
+        mockGetStatusUsingShareCode.mockReturnValue({
+            round: 1,
+            status: "pre-question",
+        });
+
+        const { result } = renderHook(() => useIsMaster(), {
+            wrapper: createWrapper(),
+        });
+
+        expect(result.current).toEqual({
+            loggedInUserIsMaster: true,
+            currentMasterUserId: mockAllUsers[0].user_id,
+        });
+    });
+
+    it("returns correct master when round is 2", () => {
+        mockGetStatusUsingShareCode.mockReturnValue({
+            round: 2,
+            status: "pre-question",
+        });
+
+        const { result } = renderHook(() => useIsMaster(), {
+            wrapper: createWrapper(),
+        });
+
+        expect(result.current).toEqual({
+            loggedInUserIsMaster: false,
+            currentMasterUserId: mockAllUsers[2].user_id,
+        });
+    });
+
     it("returns false when no users are in the master order", () => {
         mockGetGameUserIdsInDeterministicOrder.mockReturnValue([]);
 
@@ -91,7 +130,10 @@ describe("useIsMaster", () => {
             wrapper: createWrapper(),
         });
 
-        expect(result.current).toBe(false);
+        expect(result.current).toEqual({
+            loggedInUserIsMaster: false,
+            currentMasterUserId: undefined,
+        });
     });
 
     it("returns false when round exceeds available masters", () => {
@@ -104,7 +146,32 @@ describe("useIsMaster", () => {
             wrapper: createWrapper(),
         });
 
-        expect(result.current).toBe(false);
+        expect(result.current).toEqual({
+            loggedInUserIsMaster: false,
+            currentMasterUserId: undefined,
+        });
+    });
+
+    it("returns correct result when logged in user is not the master", () => {
+        mockUseInsideContext.mockReturnValue({
+            games: mockGamesData,
+            gameUsers: mockGameUsersData,
+            loggedInUserId: mockAllUsers[2].user_id,
+        });
+
+        mockGetStatusUsingShareCode.mockReturnValue({
+            round: 1,
+            status: "pre-question",
+        });
+
+        const { result } = renderHook(() => useIsMaster(), {
+            wrapper: createWrapper(),
+        });
+
+        expect(result.current).toEqual({
+            loggedInUserIsMaster: false,
+            currentMasterUserId: mockAllUsers[0].user_id,
+        });
     });
 
     it("uses correct context values", () => {

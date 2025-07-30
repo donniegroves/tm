@@ -23,7 +23,7 @@ export default async function PlayLayout({
                 <DrawerProvider>
                     <div className="flex flex-col min-h-screen">
                         <Header />
-                        <main className="flex-grow flex flex-col px-2 py-2 overflow-y-auto">
+                        <main className="flex-grow flex flex-col px-3 py-2 overflow-y-auto">
                             {children}
                         </main>
                         <Footer />

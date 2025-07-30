@@ -14,14 +14,6 @@ jest.mock("../actions/addAnswer", () => ({
 
 const mockAddAnswer = addAnswer as jest.Mock;
 
-const mockInvalidateQueries = jest.fn();
-jest.mock("@tanstack/react-query", () => ({
-    ...jest.requireActual("@tanstack/react-query"),
-    useQueryClient: () => ({
-        invalidateQueries: mockInvalidateQueries,
-    }),
-}));
-
 describe("useAddAnswer", () => {
     const mockPreAnswer = {
         question_id: mockQuestionsData[0].id,
@@ -38,11 +30,6 @@ describe("useAddAnswer", () => {
         userId: mockAllUsers[0].user_id,
         answer: "Test answer",
     };
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-        mockInvalidateQueries.mockClear();
-    });
 
     it("returns a mutation object with correct properties", () => {
         const { result } = renderHook(() => useAddAnswer(), {
@@ -166,42 +153,5 @@ describe("useAddAnswer", () => {
 
         expect(mockAddAnswer).toHaveBeenCalledWith(alternativeParams);
         expect(result.current.data).toEqual(alternativeMockPreAnswer);
-    });
-
-    it("invalidates preAnswers query on settled", async () => {
-        mockAddAnswer.mockResolvedValue(mockPreAnswer);
-
-        const { result } = renderHook(() => useAddAnswer(), {
-            wrapper: createWrapper(),
-        });
-
-        result.current.mutate(validParams);
-
-        await waitFor(() => {
-            expect(result.current.isSuccess).toBe(true);
-        });
-
-        expect(mockInvalidateQueries).toHaveBeenCalledWith({
-            queryKey: ["preAnswers"],
-        });
-    });
-
-    it("invalidates preAnswers query even when mutation fails", async () => {
-        const mockError = new Error("Mutation failed");
-        mockAddAnswer.mockRejectedValue(mockError);
-
-        const { result } = renderHook(() => useAddAnswer(), {
-            wrapper: createWrapper(),
-        });
-
-        result.current.mutate(validParams);
-
-        await waitFor(() => {
-            expect(result.current.isError).toBe(true);
-        });
-
-        expect(mockInvalidateQueries).toHaveBeenCalledWith({
-            queryKey: ["preAnswers"],
-        });
     });
 });

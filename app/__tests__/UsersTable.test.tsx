@@ -15,6 +15,7 @@ jest.mock("../inside/InsideContext", () => ({
         questions: mockQuestionsData,
         gameUsers: [],
         gameQuestions: [],
+        preAnswers: [],
     }),
 }));
 

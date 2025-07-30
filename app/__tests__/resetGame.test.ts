@@ -37,10 +37,8 @@ describe("resetGame", () => {
         const mockEq = jest.fn().mockImplementation(() => {
             callCount++;
             if (callCount === 1) {
-                // First call (rankings delete) fails
                 return Promise.resolve({ error: mockError });
             }
-            // Other calls succeed
             return Promise.resolve({ error: null });
         });
 
@@ -66,10 +64,35 @@ describe("resetGame", () => {
         const mockEq = jest.fn().mockImplementation(() => {
             callCount++;
             if (callCount === 2) {
-                // Second call (game_questions delete) fails
                 return Promise.resolve({ error: mockError });
             }
-            // Other calls succeed
+            return Promise.resolve({ error: null });
+        });
+
+        const mockDelete = jest.fn().mockReturnValue({ eq: mockEq });
+        const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq });
+        const mockFrom = jest.fn().mockReturnValue({
+            delete: mockDelete,
+            update: mockUpdate,
+        });
+
+        createClientMock.mockReturnValue({ from: mockFrom });
+
+        await expect(resetGame(gameId)).rejects.toThrow(
+            `Failed to reset game with id ${gameId}`
+        );
+    });
+
+    it("throws error when pre_answers deletion fails", async () => {
+        const gameId = 456;
+        const mockError = { message: "Foreign key constraint error" };
+
+        let callCount = 0;
+        const mockEq = jest.fn().mockImplementation(() => {
+            callCount++;
+            if (callCount === 3) {
+                return Promise.resolve({ error: mockError });
+            }
             return Promise.resolve({ error: null });
         });
 
@@ -95,10 +118,8 @@ describe("resetGame", () => {
         const mockEq = jest.fn().mockImplementation(() => {
             callCount++;
             if (callCount === 3) {
-                // Third call (games update) fails
                 return Promise.resolve({ error: mockError });
             }
-            // Other calls succeed
             return Promise.resolve({ error: null });
         });
 

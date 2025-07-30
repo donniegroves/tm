@@ -123,12 +123,15 @@ describe("PlayAnswerQuestionForm", () => {
         fireEvent.change(input, { target: { value: "My answer" } });
         fireEvent.click(submitButton);
 
-        expect(mockMutate).toHaveBeenCalledWith({
-            gameId: mockGamesData[1].id,
-            questionId: mockQuestionsData[1].id,
-            userId: mockAllUsers[0].user_id,
-            answer: "My answer",
-        });
+        expect(mockMutate).toHaveBeenCalledWith(
+            {
+                gameId: mockGamesData[1].id,
+                questionId: mockQuestionsData[1].id,
+                userId: mockAllUsers[0].user_id,
+                answer: "My answer",
+            },
+            { onSuccess: expect.any(Function) }
+        );
     });
 
     it("trims whitespace from answer before submitting", async () => {
@@ -142,12 +145,17 @@ describe("PlayAnswerQuestionForm", () => {
         });
         fireEvent.click(submitButton);
 
-        expect(mockMutate).toHaveBeenCalledWith({
-            gameId: mockGamesData[1].id,
-            questionId: mockQuestionsData[1].id,
-            userId: mockAllUsers[0].user_id,
-            answer: "My answer with spaces",
-        });
+        expect(mockMutate).toHaveBeenCalledWith(
+            {
+                gameId: mockGamesData[1].id,
+                questionId: mockQuestionsData[1].id,
+                userId: mockAllUsers[0].user_id,
+                answer: "My answer with spaces",
+            },
+            {
+                onSuccess: expect.any(Function),
+            }
+        );
     });
 
     it("does not submit when answer is empty", () => {
@@ -235,12 +243,15 @@ describe("PlayAnswerQuestionForm", () => {
         fireEvent.change(input, { target: { value: "Round 1 answer" } });
         fireEvent.click(submitButton);
 
-        expect(mockMutate).toHaveBeenCalledWith({
-            gameId: mockGamesData[0].id,
-            questionId: mockQuestionsData[0].id,
-            userId: mockAllUsers[0].user_id,
-            answer: "Round 1 answer",
-        });
+        expect(mockMutate).toHaveBeenCalledWith(
+            {
+                gameId: mockGamesData[0].id,
+                questionId: mockQuestionsData[0].id,
+                userId: mockAllUsers[0].user_id,
+                answer: "Round 1 answer",
+            },
+            { onSuccess: expect.any(Function) }
+        );
     });
 
     it("uses correct context values", () => {
@@ -315,6 +326,59 @@ describe("PlayAnswerQuestionForm", () => {
         expect(mockMutate).toHaveBeenCalled();
     });
 
+    it("sends pre-answer-added broadcast on successful submission", async () => {
+        render(<PlayAnswerQuestionForm />, { wrapper: createWrapper() });
+
+        const input = screen.getByRole("textbox");
+        const submitButton = screen.getByTestId("submit-button");
+
+        fireEvent.change(input, { target: { value: "My answer" } });
+        fireEvent.click(submitButton);
+
+        const mutateCall = mockMutate.mock.calls[0];
+        const mutateOptions = mutateCall[1];
+        const onSuccessCallback = mutateOptions.onSuccess;
+
+        onSuccessCallback();
+
+        expect(defaultRealtimeContextValues.channel?.send).toHaveBeenCalledWith(
+            {
+                type: "broadcast",
+                event: "pre-answer-added",
+            }
+        );
+    });
+
+    it("does not send broadcast when channel is null", async () => {
+        const customRealtimeContextValues = {
+            ...defaultRealtimeContextValues,
+            channel: null,
+        };
+
+        render(<PlayAnswerQuestionForm />, {
+            wrapper: createWrapper(
+                defaultInsideContextValues,
+                customRealtimeContextValues
+            ),
+        });
+
+        const input = screen.getByRole("textbox");
+        const submitButton = screen.getByTestId("submit-button");
+
+        fireEvent.change(input, { target: { value: "My answer" } });
+        fireEvent.click(submitButton);
+
+        const mutateCall = mockMutate.mock.calls[0];
+        const mutateOptions = mutateCall[1];
+        const onSuccessCallback = mutateOptions.onSuccess;
+
+        onSuccessCallback();
+
+        expect(
+            defaultRealtimeContextValues.channel?.send
+        ).not.toHaveBeenCalled();
+    });
+
     it("works with different logged in users", () => {
         const customInsideContextValues = {
             ...defaultInsideContextValues,
@@ -331,11 +395,14 @@ describe("PlayAnswerQuestionForm", () => {
         fireEvent.change(input, { target: { value: "Different user answer" } });
         fireEvent.click(submitButton);
 
-        expect(mockMutate).toHaveBeenCalledWith({
-            gameId: mockGamesData[1].id,
-            questionId: mockQuestionsData[1].id,
-            userId: mockAllUsers[2].user_id,
-            answer: "Different user answer",
-        });
+        expect(mockMutate).toHaveBeenCalledWith(
+            {
+                gameId: mockGamesData[1].id,
+                questionId: mockQuestionsData[1].id,
+                userId: mockAllUsers[2].user_id,
+                answer: "Different user answer",
+            },
+            { onSuccess: expect.any(Function) }
+        );
     });
 });

@@ -5,7 +5,10 @@ import {
 import { useInsideContext } from "../inside/InsideContext";
 import { useRealtimeContext } from "../play/[share_code]/RealtimeContext";
 
-export function useIsMaster(): boolean {
+export function useIsMaster(): {
+    loggedInUserIsMaster: boolean;
+    currentMasterUserId: string | undefined;
+} {
     const { games, gameUsers, loggedInUserId } = useInsideContext();
     const { gameData } = useRealtimeContext();
     const { round } = getStatusUsingShareCode(games);
@@ -14,7 +17,11 @@ export function useIsMaster(): boolean {
         gameData?.share_code ?? ""
     );
 
-    const currentMasterUserId = orderOfMasters[round ?? 0 - 1];
+    const currentMasterUserId = orderOfMasters[(round ?? 0) - 1];
     const loggedInUserIsMaster = currentMasterUserId === loggedInUserId;
-    return loggedInUserIsMaster;
+
+    return {
+        loggedInUserIsMaster,
+        currentMasterUserId,
+    };
 }

@@ -203,7 +203,7 @@ describe("createRealtimeChannel", () => {
         });
     });
 
-    it("sets up all three event handlers", () => {
+    it("sets up pre-answer-added broadcast event handler correctly", () => {
         createRealtimeChannel(
             mockSupabase as unknown as Parameters<
                 typeof createRealtimeChannel
@@ -213,7 +213,98 @@ describe("createRealtimeChannel", () => {
             mockCallbacks
         );
 
-        expect(mockChannel.on).toHaveBeenCalledTimes(3);
+        expect(mockChannel.on).toHaveBeenCalledWith(
+            "broadcast",
+            { event: "pre-answer-added" },
+            expect.any(Function)
+        );
+    });
+
+    it("invalidates preAnswers query when pre-answer-added event fires", () => {
+        createRealtimeChannel(
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
+            mockQueryClient,
+            "user123",
+            mockCallbacks
+        );
+
+        const preAnswerAddedCall = mockChannel.on.mock.calls.find(
+            (call: unknown[]) =>
+                call[0] === "broadcast" &&
+                (call[1] as { event: string }).event === "pre-answer-added"
+        );
+        const preAnswerAddedCallback = preAnswerAddedCall[2];
+
+        preAnswerAddedCallback();
+
+        expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+            queryKey: ["preAnswers"],
+        });
+    });
+
+    it("sets up game-reset broadcast event handler correctly", () => {
+        createRealtimeChannel(
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
+            mockQueryClient,
+            "user123",
+            mockCallbacks
+        );
+
+        expect(mockChannel.on).toHaveBeenCalledWith(
+            "broadcast",
+            { event: "game-reset" },
+            expect.any(Function)
+        );
+    });
+
+    it("invalidates multiple queries when game-reset event fires", () => {
+        createRealtimeChannel(
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
+            mockQueryClient,
+            "user123",
+            mockCallbacks
+        );
+
+        const gameResetCall = mockChannel.on.mock.calls.find(
+            (call: unknown[]) =>
+                call[0] === "broadcast" &&
+                (call[1] as { event: string }).event === "game-reset"
+        );
+        const gameResetCallback = gameResetCall[2];
+
+        gameResetCallback();
+
+        expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+            queryKey: ["games"],
+        });
+        expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+            queryKey: ["gameQuestions"],
+        });
+        expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+            queryKey: ["preAnswers"],
+        });
+        expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+            queryKey: ["rankings"],
+        });
+    });
+
+    it("sets up all five event handlers", () => {
+        createRealtimeChannel(
+            mockSupabase as unknown as Parameters<
+                typeof createRealtimeChannel
+            >[0],
+            mockQueryClient,
+            "user123",
+            mockCallbacks
+        );
+
+        expect(mockChannel.on).toHaveBeenCalledTimes(5);
 
         const calls = mockChannel.on.mock.calls;
         expect(
@@ -236,6 +327,20 @@ describe("createRealtimeChannel", () => {
                     call[0] === "broadcast" &&
                     (call[1] as { event: string }).event ===
                         "game-status-changed"
+            )
+        ).toBe(true);
+        expect(
+            calls.some(
+                (call: unknown[]) =>
+                    call[0] === "broadcast" &&
+                    (call[1] as { event: string }).event === "pre-answer-added"
+            )
+        ).toBe(true);
+        expect(
+            calls.some(
+                (call: unknown[]) =>
+                    call[0] === "broadcast" &&
+                    (call[1] as { event: string }).event === "game-reset"
             )
         ).toBe(true);
     });

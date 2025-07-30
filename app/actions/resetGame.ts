@@ -19,13 +19,18 @@ export const resetGame = async (
         .eq("game_id", gameId);
 
     const { error: error3 } = await supabase
+        .from("pre_answers")
+        .delete()
+        .eq("game_id", gameId);
+
+    const { error: error4 } = await supabase
         .from("games")
         .update({
             status: 0,
         })
         .eq("id", gameId);
 
-    if (error1 || error2 || error3) {
+    if (error1 || error2 || error3 || error4) {
         throw new Error(`Failed to reset game with id ${gameId}`);
     }
 

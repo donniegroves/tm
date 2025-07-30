@@ -4,11 +4,13 @@ import { fetchGameQuestions } from "../actions/fetchGameQuestions";
 import { fetchGames } from "../actions/fetchGames";
 import { fetchGameUsers } from "../actions/fetchGameUsers";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
+import { fetchPreAnswers } from "../actions/fetchPreAnswers";
 import { fetchQuestions } from "../actions/fetchQuestions";
 import {
     mockAllUsers,
     mockGameQuestionsData,
     mockGameUsersData,
+    mockPreAnswersData,
 } from "./helpers/helpers";
 
 jest.mock("@/utils/supabase/client", () => ({
@@ -225,6 +227,46 @@ describe("fetchGameQuestions", () => {
         });
         await expect(fetchGameQuestions()).rejects.toThrow(
             "Error fetching game questions"
+        );
+    });
+});
+
+describe("fetchPreAnswers", () => {
+    beforeEach(() => {
+        createClientMock.mockReset();
+    });
+    it("returns pre answers data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () =>
+                    Promise.resolve({ data: mockPreAnswersData, error: null }),
+            }),
+        });
+        const result = await fetchPreAnswers();
+        expect(result).toEqual(mockPreAnswersData);
+    });
+    it("throws on error or missing data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () => Promise.resolve({ data: null, error: "err" }),
+            }),
+        });
+        await expect(fetchPreAnswers()).rejects.toThrow(
+            "Error fetching pre answers"
+        );
+    });
+    it("throws on bad data", async () => {
+        createClientMock.mockReturnValue({
+            from: () => ({
+                select: () =>
+                    Promise.resolve({
+                        data: [{ ...mockPreAnswersData[0], answer: null }],
+                        error: null,
+                    }),
+            }),
+        });
+        await expect(fetchPreAnswers()).rejects.toThrow(
+            "Pre answer data is incomplete"
         );
     });
 });

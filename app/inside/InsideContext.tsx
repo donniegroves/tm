@@ -8,6 +8,7 @@ import { fetchGameQuestions } from "../actions/fetchGameQuestions";
 import { fetchGames } from "../actions/fetchGames";
 import { fetchGameUsers } from "../actions/fetchGameUsers";
 import { fetchLoggedInUserId } from "../actions/fetchLoggedInUserId";
+import { fetchPreAnswers } from "../actions/fetchPreAnswers";
 import { fetchQuestions } from "../actions/fetchQuestions";
 
 export interface InsideContextType {
@@ -17,6 +18,7 @@ export interface InsideContextType {
     questions: Database["public"]["Tables"]["questions"]["Row"][];
     gameUsers: Database["public"]["Tables"]["game_users"]["Row"][];
     gameQuestions: Database["public"]["Tables"]["game_questions"]["Row"][];
+    preAnswers: Database["public"]["Tables"]["pre_answers"]["Row"][];
 }
 
 export const InsideContext = createContext<InsideContextType | undefined>(
@@ -48,6 +50,10 @@ export function InsideContextProvider({ children }: { children: ReactNode }) {
         queryKey: ["gameQuestions"],
         queryFn: fetchGameQuestions,
     });
+    const { data: preAnswers } = useQuery({
+        queryKey: ["preAnswers"],
+        queryFn: fetchPreAnswers,
+    });
 
     if (
         loggedInUserId === undefined ||
@@ -55,7 +61,8 @@ export function InsideContextProvider({ children }: { children: ReactNode }) {
         games === undefined ||
         questions === undefined ||
         gameUsers === undefined ||
-        gameQuestions === undefined
+        gameQuestions === undefined ||
+        preAnswers === undefined
     ) {
         return null;
     }
@@ -69,6 +76,7 @@ export function InsideContextProvider({ children }: { children: ReactNode }) {
                 questions,
                 gameUsers,
                 gameQuestions,
+                preAnswers,
             }}
         >
             {children}

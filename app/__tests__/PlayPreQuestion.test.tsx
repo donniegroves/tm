@@ -21,7 +21,10 @@ describe("PlayPreQuestion", () => {
     });
 
     it("renders the main heading", () => {
-        mockUseIsMaster.mockReturnValue(false);
+        mockUseIsMaster.mockReturnValue({
+            loggedInUserIsMaster: false,
+            currentMasterUserId: "test-master-id",
+        });
 
         render(<PlayPreQuestion />, { wrapper: createWrapper() });
 
@@ -29,7 +32,10 @@ describe("PlayPreQuestion", () => {
     });
 
     it("shows master message when user is master", () => {
-        mockUseIsMaster.mockReturnValue(true);
+        mockUseIsMaster.mockReturnValue({
+            loggedInUserIsMaster: true,
+            currentMasterUserId: "test-master-id",
+        });
 
         render(<PlayPreQuestion />, { wrapper: createWrapper() });
 
@@ -40,7 +46,10 @@ describe("PlayPreQuestion", () => {
     });
 
     it("shows PlayAnswerQuestionForm when user is not master", () => {
-        mockUseIsMaster.mockReturnValue(false);
+        mockUseIsMaster.mockReturnValue({
+            loggedInUserIsMaster: false,
+            currentMasterUserId: "test-master-id",
+        });
 
         render(<PlayPreQuestion />, { wrapper: createWrapper() });
 

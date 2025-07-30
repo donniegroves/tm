@@ -8,6 +8,7 @@ import {
     mockGameQuestionsData,
     mockGamesData,
     mockGameUsersData,
+    mockPreAnswersData,
     mockPublicUserRow,
     mockQuestionsData,
 } from "./helpers/helpers";
@@ -59,6 +60,8 @@ describe("InsideContextProvider", () => {
                     return { data: mockGameUsersData };
                 case "gameQuestions":
                     return { data: mockGameQuestionsData };
+                case "preAnswers":
+                    return { data: mockPreAnswersData };
                 default:
                     return { data: undefined };
             }
@@ -113,5 +116,45 @@ describe("InsideContextProvider", () => {
         expect(() => render(<ThrowingComponent />)).toThrow(
             /useInsideContext must be used within a InsideContextProvider/
         );
+    });
+
+    it("calls useQuery for all required data including preAnswers", () => {
+        const useQuery = jest.requireMock("@tanstack/react-query")
+            .useQuery as jest.Mock;
+
+        render(
+            <InsideContextProvider>
+                <TestComponent />
+            </InsideContextProvider>
+        );
+
+        expect(useQuery).toHaveBeenCalledWith({
+            queryKey: ["loggedInUserId"],
+            queryFn: expect.any(Function),
+        });
+        expect(useQuery).toHaveBeenCalledWith({
+            queryKey: ["allUsers"],
+            queryFn: expect.any(Function),
+        });
+        expect(useQuery).toHaveBeenCalledWith({
+            queryKey: ["games"],
+            queryFn: expect.any(Function),
+        });
+        expect(useQuery).toHaveBeenCalledWith({
+            queryKey: ["questions"],
+            queryFn: expect.any(Function),
+        });
+        expect(useQuery).toHaveBeenCalledWith({
+            queryKey: ["gameUsers"],
+            queryFn: expect.any(Function),
+        });
+        expect(useQuery).toHaveBeenCalledWith({
+            queryKey: ["gameQuestions"],
+            queryFn: expect.any(Function),
+        });
+        expect(useQuery).toHaveBeenCalledWith({
+            queryKey: ["preAnswers"],
+            queryFn: expect.any(Function),
+        });
     });
 });

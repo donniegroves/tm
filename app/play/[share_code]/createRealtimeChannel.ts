@@ -33,5 +33,16 @@ export function createRealtimeChannel(
         queryClient.invalidateQueries({ queryKey: ["gameQuestions"] });
     });
 
+    channel.on("broadcast", { event: "pre-answer-added" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["preAnswers"] });
+    });
+
+    channel.on("broadcast", { event: "game-reset" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["games"] });
+        queryClient.invalidateQueries({ queryKey: ["gameQuestions"] });
+        queryClient.invalidateQueries({ queryKey: ["preAnswers"] });
+        queryClient.invalidateQueries({ queryKey: ["rankings"] });
+    });
+
     return channel;
 }

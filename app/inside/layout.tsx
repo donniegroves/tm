@@ -26,7 +26,7 @@ export default async function InsideLayout({
                         <Header />
                         <div className="flex flex-row flex-grow">
                             <InsideNav />
-                            <main className="flex-grow px-2 py-2 overflow-y-auto ml-16">
+                            <main className="flex-grow px-3 py-2 overflow-y-auto ml-16">
                                 {children}
                             </main>
                         </div>
