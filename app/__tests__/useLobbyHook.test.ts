@@ -9,6 +9,13 @@ import {
     mockGameUsersData,
 } from "./helpers/helpers";
 
+jest.mock("@/app/hooks/useIsMaster", () => ({
+    useIsMaster: jest.fn(() => ({
+        loggedInUserIsMaster: false,
+        currentMasterUserId: "test-master-id",
+    })),
+}));
+
 describe("useLobbyHook", () => {
     it("returns correct values for a valid game", () => {
         const { result } = renderHook(() => useLobbyHook(), {

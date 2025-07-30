@@ -1,4 +1,6 @@
+import { useIsMaster } from "@/app/hooks/useIsMaster";
 import { useInsideContext } from "@/app/inside/InsideContext";
+import { Database } from "database.types";
 import { useRealtimeContext } from "./RealtimeContext";
 
 export function useLobbyHook() {
@@ -6,12 +8,30 @@ export function useLobbyHook() {
         gameUsers: allGameUsers,
         allUsers,
         loggedInUserId,
+        preAnswers,
     } = useInsideContext();
     const { readyUsers, gameData } = useRealtimeContext();
+    const { currentMasterUserId } = useIsMaster();
 
     const gameUsersIds = allGameUsers
         .filter((gu) => gu.game_id === gameData?.id)
         .map((gu) => gu.user_id);
+
+    const nonMasterUsers = allGameUsers
+        .filter(
+            (gu) =>
+                gu.game_id === gameData?.id &&
+                gu.user_id !== currentMasterUserId
+        )
+        .map((gu) => allUsers.find((u) => u.user_id === gu.user_id))
+        .filter(
+            (user): user is Database["public"]["Tables"]["users"]["Row"] =>
+                !!user
+        );
+
+    const allAnswersSubmitted: boolean = nonMasterUsers.every((user) =>
+        preAnswers.some((answer) => answer.user_id === user.user_id)
+    );
 
     const thisGamesUsers = allUsers.filter((gu) =>
         gameUsersIds.includes(gu.user_id)
@@ -35,5 +55,6 @@ export function useLobbyHook() {
         allPlayersAreConnected,
         isGameReady,
         gameData,
+        allAnswersSubmitted,
     };
 }

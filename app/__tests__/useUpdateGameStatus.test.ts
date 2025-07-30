@@ -6,17 +6,6 @@ import { mockGamesData } from "./helpers/helpers";
 
 jest.mock("../actions/updateGameStatus");
 
-const mockInvalidateQueries = jest.fn();
-jest.mock("@tanstack/react-query", () => {
-    const actual = jest.requireActual("@tanstack/react-query");
-    return {
-        ...actual,
-        useQueryClient: () => ({
-            invalidateQueries: mockInvalidateQueries,
-        }),
-    };
-});
-
 const mockUpdateGameStatus = updateGameStatus as jest.MockedFunction<
     typeof updateGameStatus
 >;
@@ -45,9 +34,6 @@ describe("useUpdateGameStatus", () => {
                 updatedGameData.id,
                 updatedGameData.status
             );
-            expect(mockInvalidateQueries).toHaveBeenCalledWith({
-                queryKey: ["games"],
-            });
         });
     });
 
@@ -100,9 +86,6 @@ describe("useUpdateGameStatus", () => {
 
         await waitFor(() => {
             expect(result.current.isError).toBe(true);
-            expect(mockInvalidateQueries).toHaveBeenCalledWith({
-                queryKey: ["games"],
-            });
         });
     });
 

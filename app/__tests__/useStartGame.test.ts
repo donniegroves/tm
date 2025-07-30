@@ -114,10 +114,19 @@ describe("useStartGame", () => {
             callArgs.questionId
         );
 
-        expect(mockUpdateGameStatusMutation.mutateAsync).toHaveBeenCalledWith({
-            ...mockGamesData[0],
-            status: mockGamesData[0].status + 1,
-        });
+        expect(mockUpdateGameStatusMutation.mutateAsync).toHaveBeenCalledWith(
+            {
+                ...mockGamesData[0],
+                status: mockGamesData[0].status + 1,
+            },
+            expect.objectContaining({
+                onSuccess: expect.any(Function),
+            })
+        );
+
+        const onSuccess =
+            mockUpdateGameStatusMutation.mutateAsync.mock.calls[0][1].onSuccess;
+        onSuccess();
 
         expect(mockChannelSend).toHaveBeenCalledWith({
             type: "broadcast",

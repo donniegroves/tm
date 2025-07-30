@@ -24,16 +24,24 @@ export function useStartGame() {
                 questionId: randomQuestionId,
             });
 
-            const updateResult = await updateGameStatusMutation.mutateAsync({
-                ...gameData,
-                status: gameData.status + 1,
-            });
+            const updateResult = await updateGameStatusMutation.mutateAsync(
+                {
+                    ...gameData,
+                    status: gameData.status + 1,
+                },
+                {
+                    onSuccess: () => {
+                        channel?.send({
+                            type: "broadcast",
+                            event: "game-status-changed",
+                        });
+                    },
+                }
+            );
 
             if (!insertResult || !updateResult) {
                 throw new Error(`Failed to edit game with id ${gameData.id}`);
             }
-
-            channel?.send({ type: "broadcast", event: "game-status-changed" });
         } catch (error) {
             console.error("Failed to start game:", error);
             throw error;
