@@ -8,6 +8,83 @@ export type SvgIconProps = {
     className?: string;
 };
 
+export const UpDownArrowSvg = ({
+    fill = "currentColor",
+    size,
+    height,
+    width,
+    className,
+}: SvgIconProps) => (
+    <svg
+        className={className}
+        width={size || width || 200}
+        height={size || height || 200}
+        viewBox="0 0 24 80"
+        fill={fill}
+    >
+        <line x1="12" y1="10" x2="12" y2="70" stroke={fill} strokeWidth="2" />
+        <polygon points="12,0 6,12 18,12" fill={fill} />
+        <polygon points="12,80 6,68 18,68" fill={fill} />
+    </svg>
+);
+
+export const Cursor = ({
+    fill = "currentColor",
+    size,
+    height,
+    width,
+    className,
+}: SvgIconProps) => (
+    <svg
+        className={className}
+        width={size || width || 200}
+        height={size || height || 200}
+        viewBox="0 0 28 28"
+    >
+        <path
+            fill={fill}
+            d="M6 3.604c0-1.346 1.56-2.09 2.607-1.243l16.88 13.669c1.018.824.435 2.47-.875 2.47h-9.377a2.25 2.25 0 0 0-1.749.835l-4.962 6.134C7.682 26.51 6 25.915 6 24.576z"
+        />
+    </svg>
+);
+
+export const UpArrow2Svg = ({
+    fill = "currentColor",
+    size,
+    height,
+    width,
+    className,
+}: SvgIconProps) => (
+    <svg
+        className={className}
+        width={size || width || 200}
+        height={size || height || 200}
+        viewBox="0 0 512 512"
+    >
+        <path fill={fill} d="M245 0L74.3 213.3h128V512h85.4V213.3h128z" />
+    </svg>
+);
+
+export const DownArrow2Svg = ({
+    fill = "currentColor",
+    size,
+    height,
+    width,
+    className,
+}: SvgIconProps) => (
+    <svg
+        className={className}
+        width={size || width || 200}
+        height={size || height || 200}
+        viewBox="0 0 512 512"
+    >
+        <path
+            fill={fill}
+            d="M283.7 298.7V0h-85.4v298.7h-128L241 512l170.7-213.3z"
+        />
+    </svg>
+);
+
 export const CheckmarkSvg = ({
     fill = "currentColor",
     size,
